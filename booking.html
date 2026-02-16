@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+  <meta charset='UTF-8'>
+  <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+  <title>Book a Ride - Patriot Transportation</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: Arial, sans-serif; background: #f4f6f7; color: #1C2833; padding: 20px; }
+    .container { max-width: 680px; margin: 0 auto; }
+    header { background: #1B2A4A; color: white; padding: 24px 20px; border-radius: 6px 6px 0 0; }
+    header h1 { font-size: 24px; margin-bottom: 4px; }
+    header p { font-size: 14px; opacity: 0.8; }
+    .card { background: white; padding: 24px; margin-bottom: 16px; border-radius: 6px; border: 1px solid #CCD1D1; }
+    .card h2 { font-size: 18px; color: #1B2A4A; margin-bottom: 16px; padding-bottom: 8px; border-bottom: 2px solid #2D5D30; }
+    .field { margin-bottom: 16px; }
+    label { display: block; font-size: 13px; font-weight: bold; color: #1B2A4A; margin-bottom: 4px; }
+    input, select, textarea { width: 100%; padding: 10px 12px; border: 1px solid #CCD1D1; border-radius: 4px; font-size: 14px; }
+    input:focus, select:focus, textarea:focus { outline: none; border-color: #2D5D30; }
+    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .ride-card { background: #f4f6f7; border: 1px solid #CCD1D1; border-radius: 6px; padding: 20px; margin-bottom: 16px; }
+    .ride-card h3 { font-size: 16px; color: #2D5D30; margin-bottom: 16px; }
+    .remove-btn { float: right; background: none; border: 1px solid #8B0000; color: #8B0000; padding: 4px 12px; border-radius: 4px; cursor: pointer; font-size: 13px; }
+    .add-btn { background: none; border: 2px solid #2D5D30; color: #2D5D30; padding: 10px 20px; border-radius: 4px; cursor: pointer; font-size: 14px; font-weight: bold; width: 100%; margin-bottom: 16px; }
+    .submit-btn { background: #2D5D30; color: white; border: none; padding: 14px 20px; border-radius: 4px; cursor: pointer; font-size: 16px; font-weight: bold; width: 100%; }
+    .submit-btn:hover { background: #1E4020; }
+    .submit-btn:disabled { background: #95A5A6; cursor: not-allowed; }
+    .confirmed { display: none; background: #D5F5E3; padding: 24px; border-radius: 6px; text-align: center; margin-top: 16px; }
+    .confirmed h2 { color: #2D5D30; margin-bottom: 8px; }
+    .required { color: #8B0000; }
+  </style>
+</head>
+<body>
+  <div class='container'>
+    <header>
+      <h1>Patriot Transportation</h1>
+      <p>Book your ride - San Antonio and surrounding areas</p>
+    </header>
+    <div id='form-area'>
+      <div class='card'>
+        <h2>Your Details</h2>
+        <div class='field'><label>Full Name <span class='required'>*</span></label>
+          <input type='text' id='client_name' placeholder='First and last name'></div>
+        <div class='row'>
+          <div class='field'><label>Email <span class='required'>*</span></label>
+            <input type='email' id='client_email' placeholder='your@email.com'></div>
+          <div class='field'><label>Phone <span class='required'>*</span></label>
+            <input type='tel' id='client_phone' placeholder='(555) 555-5555'></div>
+        </div>
+      </div>
+      <div id='rides-container'></div>
+      <button class='add-btn' onclick='addRide()'>+ Add Another Ride</button>
+      <button class='submit-btn' onclick='submitAll()'>Submit Ride Request</button>
+    </div>
+    <div class='confirmed' id='confirmed'>
+      <h2>Request Submitted!</h2>
+      <p>Thank you for choosing Patriot Transportation.</p>
+      <p>We will review your request and send you a quote within the hour.</p>
+    </div>
+  </div>
+  <script>
+    const WEBHOOK_URL = 'https://hook.us2.make.com/563pyb7lhbwj25sq7bgtt6uuagux8s34';
+    let rideCount = 0;
+    const luggageOptions = [
+      'No luggage - personal items only',
+      'Small load - 1 to 2 standard bags',
+      'Medium load - 3 to 4 bags or one large item',
+      'Heavy load - 5 or more bags or multiple large items'
+    ];
+    function addRide() {
+      rideCount++;
+      const id = rideCount;
+      const div = document.createElement('div');
+      div.className = 'ride-card';
+      div.id = 'ride-' + id;
+      const removeBtn = id > 1 ? '<button class=remove-btn onclick=removeRide(' + id + ')>Remove</button>' : '';
+      const opts = luggageOptions.map(o => '<option value=' + o + '>' + o + '</option>').join('');
+      div.innerHTML = '<h3>Ride ' + id + ' ' + removeBtn + '</h3>'
+        + '<div class=row>'
+        + '<div class=field><label>Pickup Date *</label><input type=date id=pickup_date_' + id + '></div>'
+        + '<div class=field><label>Pickup Time *</label><input type=text id=pickup_time_' + id + ' placeholder="e.g. 2:30 PM"></div>'
+        + '</div>'
+        + '<div class=field><label>Pickup Address *</label><input type=text id=pickup_address_' + id + ' placeholder="Full address including city"></div>'
+        + '<div class=field><label>Drop-off Address *</label><input type=text id=dropoff_address_' + id + ' placeholder="Full address including city"></div>'
+        + '<div class=row>'
+        + '<div class=field><label>Passengers *</label><input type=number id=passengers_' + id + ' min=1 max=8 placeholder="1 to 8"></div>'
+        + '<div class=field><label>Luggage *</label><select id=luggage_type_' + id + '><option value="">Select...</option>' + opts + '</select></div>'
+        + '</div>'
+        + '<div class=field><label>Item Description</label><input type=text id=item_description_' + id + ' placeholder="e.g. 2 suitcases, golf clubs"></div>'
+        + '<div class=field><label>Special Instructions</label><textarea id=notes_' + id + ' rows=2 placeholder=Optional></textarea></div>';
+      document.getElementById('rides-container').appendChild(div);
+    }
+    function removeRide(id) { document.getElementById('ride-' + id).remove(); }
+    async function submitAll() {
+      const name = document.getElementById('client_name').value.trim();
+      const email = document.getElementById('client_email').value.trim();
+      const phone = document.getElementById('client_phone').value.trim();
+      if (!name || !email || !phone) { alert('Please fill in name, email, and phone.'); return; }
+      const btn = document.querySelector('.submit-btn');
+      btn.disabled = true; btn.textContent = 'Submitting...';
+      const rides = document.querySelectorAll('.ride-card');
+      const promises = [];
+      rides.forEach(function(ride) {
+        const id = ride.id.replace('ride-', '');
+        const params = new URLSearchParams({
+          client_name: name, client_email: email, client_phone: phone,
+          pickup_date: document.getElementById('pickup_date_' + id).value,
+          pickup_time: document.getElementById('pickup_time_' + id).value,
+          pickup_address: document.getElementById('pickup_address_' + id).value,
+          dropoff_address: document.getElementById('dropoff_address_' + id).value,
+          passengers: document.getElementById('passengers_' + id).value,
+          luggage_type: document.getElementById('luggage_type_' + id).value,
+          item_description: document.getElementById('item_description_' + id).value,
+          notes: document.getElementById('notes_' + id).value
+        });
+        promises.push(fetch(WEBHOOK_URL + '?' + params.toString()));
+      });
+      await Promise.all(promises);
+      document.getElementById('form-area').style.display = 'none';
+      document.getElementById('confirmed').style.display = 'block';
+    }
+    addRide();
+  </script>
+</body>
+</html>
