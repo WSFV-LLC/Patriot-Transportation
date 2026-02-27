@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -8,9 +9,9 @@
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background: linear-gradient(135deg, #3d4c2a 0%, #5a6d3e 100%);
   min-height: 100vh;
   padding: 20px;
+  background: linear-gradient(135deg, #3d4c2a 0%, #5a6d3e 100%);
 }
 .container { max-width: 700px; margin: 0 auto; }
 .card {
@@ -82,6 +83,7 @@ input, select, textarea {
   border-radius: 6px;
   font-size: 15px;
   transition: border-color 0.3s;
+  background: white;
 }
 input:focus, select:focus, textarea:focus {
   outline: none;
@@ -316,7 +318,7 @@ input:focus, select:focus, textarea:focus {
   margin-left: 12px;
 }
 .logout-btn:hover {
-  background: #f0f0f0;
+  background: rgba(61, 76, 42, 0.1);
 }
 </style>
 </head>
@@ -325,7 +327,7 @@ input:focus, select:focus, textarea:focus {
 <div class="container">
   <!-- Login Screen -->
   <div id="login-screen" class="card">
-    <h1>Patriot Transportation</h1>
+    <h1>🇺🇸 Patriot Transportation</h1>
     <p class="subtitle">San Antonio & Surrounding Areas</p>
     <div class="login-section">
       <div class="field">
@@ -339,7 +341,7 @@ input:focus, select:focus, textarea:focus {
   <!-- Main App -->
   <div id="main-app" class="card hidden">
     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
-      <h1 style="margin:0;">Patriot Transportation</h1>
+      <h1 style="margin:0;">🇺🇸 Patriot Transportation</h1>
       <button class="logout-btn" onclick="logout()">Change Number</button>
     </div>
     <p class="subtitle" style="margin-bottom:16px;">Welcome back!</p>
@@ -412,7 +414,7 @@ input:focus, select:focus, textarea:focus {
 
       <div id="estimate-section" class="hidden">
         <div class="estimate-box">
-          <div class="estimate-label">Comparable to Uber XL</div>
+          <div class="estimate-label">Uber Comfort Estimate</div>
           <div class="estimate-price" id="uber-estimate">$--</div>
           <div class="estimate-note">This is for reference only</div>
         </div>
@@ -544,8 +546,8 @@ async function calculateEstimate() {
           const distance = response.rows[0].elements[0].distance.value / 1609.34; // Convert meters to miles
           const duration = response.rows[0].elements[0].duration.value / 60; // Convert seconds to minutes
           
-          // Uber XL formula: $3.50 base + $1.85/mile + $0.28/minute
-          estimatedPrice = 3.50 + (distance * 1.85) + (duration * 0.28);
+          // Uber Comfort formula: $3.00 base + $1.50/mile + $0.25/minute
+          estimatedPrice = 3.00 + (distance * 1.50) + (duration * 0.25);
           
           document.getElementById('uber-estimate').textContent = '$' + estimatedPrice.toFixed(2);
           document.getElementById('bid_amount').value = Math.floor(estimatedPrice * 0.75);
@@ -692,8 +694,8 @@ function createRideCard(id, data) {
       <div class="payment-section">
         <div class="payment-title">Payment Instructions</div>
         <p style="font-size:13px; color:#666; margin-bottom:12px;">Please send payment to:</p>
-        <a href="https://cash.app/$JasonNedoroscik" class="payment-link" target="_blank">Pay with CashApp</a>
-        <a href="https://venmo.com/JasonNedoroscik" class="payment-link" target="_blank">Pay with Venmo</a>
+        <a href="https://cash.app/$JasonNed" class="payment-link" target="_blank">Pay with CashApp</a>
+        <a href="https://venmo.com/u/Jason-Nedoroscik" class="payment-link" target="_blank">Pay with Venmo</a>
         <div class="payment-link" style="background:#6c757d; cursor:default;">Pay with Cash (at pickup)</div>
         <p style="font-size:12px; color:#999; margin-top:8px;">Include "Patriot Transportation" in the note</p>
       </div>
