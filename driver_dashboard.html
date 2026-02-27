@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Driver Dashboard — Patriot Transportation</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: #f5f5f5;
+  padding: 20px;
+}
+.header {
+  background: #3d4c2a;
+  color: white;
+  padding: 20px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.header h1 { font-size: 24px; }
+.tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+.tab {
+  padding: 12px 24px;
+  background: white;
+  border: 2px solid #e0e0e0;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.3s;
+}
+.tab.active {
+  background: #3d4c2a;
+  color: white;
+  border-color: #3d4c2a;
+}
+.request-card {
+  background: white;
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 16px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+.request-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 2px solid #f0f0f0;
+}
+.client-name {
+  font-size: 20px;
+  font-weight: 600;
+  color: #3d4c2a;
+}
+.status-badge {
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+.status-pending { background: #fff3cd; color: #856404; }
+.status-quoted { background: #d1ecf1; color: #0c5460; }
+.status-confirmed { background: #d4edda; color: #155724; }
+.status-declined { background: #f8d7da; color: #721c24; }
+.status-paid { background: #c3e6cb; color: #1e7e34; }
+.detail-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin-bottom: 16px;
+}
+.detail-item {
+  padding: 8px;
+  background: #f8f9fa;
+  border-radius: 4px;
+}
+.detail-label {
+  font-size: 11px;
+  color: #666;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 4px;
+}
+.detail-value {
+  font-size: 14px;
+  font-weight: 600;
+  color: #333;
+}
+.bid-section {
+  background: #fff9e6;
+  border: 2px solid #3d4c2a;
+  border-radius: 6px;
+  padding: 16px;
+  margin-bottom: 16px;
+}
+.bid-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+.bid-label { font-weight: 600; color: #666; }
+.bid-amount {
+  font-size: 24px;
+  font-weight: bold;
+  color: #3d4c2a;
+}
+.counter-input {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-top: 12px;
+}
+.counter-input input {
+  flex: 1;
+  padding: 10px;
+  border: 2px solid #3d4c2a;
+  border-radius: 4px;
+  font-size: 16px;
+  font-weight: 600;
+}
+.actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.btn {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+  font-size: 14px;
+}
+.btn-accept { background: #28a745; color: white; }
+.btn-accept:hover { background: #218838; }
+.btn-counter { background: #ffc107; color: #333; }
+.btn-counter:hover { background: #e0a800; }
+.btn-deny { background: #dc3545; color: white; }
+.btn-deny:hover { background: #c82333; }
+.btn-paid { background: #17a2b8; color: white; }
+.btn-paid:hover { background: #138496; }
+.btn-receipt { background: #6c757d; color: white; }
+.btn-receipt:hover { background: #5a6268; }
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+  color: #999;
+}
+.calendar-view {
+  background: white;
+  border-radius: 8px;
+  padding: 20px;
+}
+.loading {
+  text-align: center;
+  padding: 40px;
+  color: #666;
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>🚗 Driver Dashboard</h1>
+  <div style="font-size:14px;">Patriot Transportation</div>
+</div>
+
+<div class="tabs">
+  <div class="tab active" onclick="showTab('pending')">Pending Requests</div>
+  <div class="tab" onclick="showTab('quoted')">Quoted</div>
+  <div class="tab" onclick="showTab('confirmed')">Confirmed</div>
+  <div class="tab" onclick="showTab('completed')">Completed</div>
+  <div class="tab" onclick="showTab('calendar')">Calendar</div>
+</div>
+
+<div id="pending-tab">
+  <div id="pending-requests" class="loading">Loading...</div>
+</div>
+
+<div id="quoted-tab" style="display:none;">
+  <div id="quoted-requests" class="loading">Loading...</div>
+</div>
+
+<div id="confirmed-tab" style="display:none;">
+  <div id="confirmed-requests" class="loading">Loading...</div>
+</div>
+
+<div id="completed-tab" style="display:none;">
+  <div id="completed-requests" class="loading">Loading...</div>
+</div>
+
+<div id="calendar-tab" style="display:none;">
+  <div class="calendar-view">
+    <h2 style="margin-bottom:16px;">Upcoming Rides</h2>
+    <div id="calendar-view" class="loading">Loading...</div>
+  </div>
+</div>
+
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+import { getFirestore, collection, query, where, orderBy, onSnapshot, doc, updateDoc } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+
+const firebaseConfig = {
+  apiKey: "AIzaSyCU5gio9iuDF1wkY8lRJVN0ULHQxgujluM",
+  authDomain: "patriot-transportation.firebaseapp.com",
+  projectId: "patriot-transportation",
+  storageBucket: "patriot-transportation.firebasestorage.app",
+  messagingSenderId: "296569517357",
+  appId: "1:296569517357:web:61b82f2d2310c3bf5bcfa4"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+window.db = db;
+window.updateDoc = updateDoc;
+window.doc = doc;
+
+// Load pending requests
+const pendingQuery = query(collection(db, 'ride_requests'), where('status', '==', 'pending'), orderBy('created_at', 'desc'));
+onSnapshot(pendingQuery, (snapshot) => {
+  displayRequests(snapshot, 'pending-requests');
+});
+
+// Load quoted requests
+const quotedQuery = query(collection(db, 'ride_requests'), where('status', '==', 'quoted'), orderBy('created_at', 'desc'));
+onSnapshot(quotedQuery, (snapshot) => {
+  displayRequests(snapshot, 'quoted-requests');
+});
+
+// Load confirmed requests
+const confirmedQuery = query(collection(db, 'ride_requests'), where('status', '==', 'confirmed'), orderBy('pickup_date', 'asc'));
+onSnapshot(confirmedQuery, (snapshot) => {
+  displayRequests(snapshot, 'confirmed-requests');
+  displayCalendar(snapshot);
+});
+
+// Load completed (paid) requests
+const completedQuery = query(collection(db, 'ride_requests'), where('status', '==', 'paid'), orderBy('pickup_date', 'desc'));
+onSnapshot(completedQuery, (snapshot) => {
+  displayRequests(snapshot, 'completed-requests');
+});
+
+function displayRequests(snapshot, containerId) {
+  const container = document.getElementById(containerId);
+  
+  if (snapshot.empty) {
+    container.innerHTML = '<div class="empty-state">No requests yet</div>';
+    return;
+  }
+
+  container.innerHTML = '';
+  snapshot.forEach((doc) => {
+    const data = doc.data();
+    container.innerHTML += createRequestCard(doc.id, data);
+  });
+}
+
+function displayCalendar(snapshot) {
+  const container = document.getElementById('calendar-view');
+  
+  if (snapshot.empty) {
+    container.innerHTML = '<div class="empty-state">No upcoming rides</div>';
+    return;
+  }
+
+  let html = '';
+  snapshot.forEach((doc) => {
+    const data = doc.data();
+    html += `
+      <div style="padding:12px; border-left:4px solid #3d4c2a; margin-bottom:12px; background:#f8f9fa;">
+        <div style="font-weight:600;">${data.pickup_date} at ${data.pickup_time}</div>
+        <div style="font-size:14px; color:#666; margin-top:4px;">${data.client_name} • ${data.pickup_address} → ${data.dropoff_address}</div>
+        <div style="font-size:14px; color:#3d4c2a; font-weight:600; margin-top:4px;">$${data.final_price || data.client_bid}</div>
+      </div>
+    `;
+  });
+  container.innerHTML = html;
+}
+
+function createRequestCard(id, data) {
+  const statusClass = `status-${data.status}`;
+  
+  let actionButtons = '';
+  
+  if (data.status === 'pending') {
+    actionButtons = `
+      <div class="counter-input">
+        <span style="font-weight:600;">Counter offer: $</span>
+        <input type="number" id="counter-${id}" placeholder="Enter amount" min="1" step="0.01">
+      </div>
+      <div class="actions" style="margin-top:12px;">
+        <button class="btn btn-accept" onclick="acceptBid('${id}', ${data.client_bid})">Accept Their Bid ($${data.client_bid})</button>
+        <button class="btn btn-counter" onclick="counterOffer('${id}')">Send Counter Offer</button>
+        <button class="btn btn-deny" onclick="denyRequest('${id}')">Deny Request</button>
+      </div>
+    `;
+  } else if (data.status === 'confirmed') {
+    actionButtons = `
+      <div class="actions">
+        <button class="btn btn-paid" onclick="markAsPaid('${id}')">Mark as Paid</button>
+        <button class="btn btn-receipt" onclick="generateReceipt('${id}')">Generate Receipt</button>
+      </div>
+    `;
+  } else if (data.status === 'paid') {
+    actionButtons = `
+      <div class="actions">
+        <button class="btn btn-receipt" onclick="generateReceipt('${id}')">View Receipt</button>
+      </div>
+    `;
+  }
+
+  return `
+    <div class="request-card">
+      <div class="request-header">
+        <div class="client-name">${data.client_name}</div>
+        <div class="status-badge ${statusClass}">${data.status}</div>
+      </div>
+      
+      <div class="detail-grid">
+        <div class="detail-item">
+          <div class="detail-label">Phone</div>
+          <div class="detail-value">${data.client_phone}</div>
+        </div>
+        <div class="detail-item">
+          <div class="detail-label">Email</div>
+          <div class="detail-value">${data.client_email}</div>
+        </div>
+        <div class="detail-item">
+          <div class="detail-label">Date & Time</div>
+          <div class="detail-value">${data.pickup_date} at ${data.pickup_time}</div>
+        </div>
+        <div class="detail-item">
+          <div class="detail-label">Passengers</div>
+          <div class="detail-value">${data.passengers} passengers</div>
+        </div>
+      </div>
+
+      <div class="detail-item" style="margin-bottom:12px;">
+        <div class="detail-label">Route</div>
+        <div class="detail-value">${data.pickup_address} → ${data.dropoff_address}</div>
+      </div>
+
+      <div class="detail-item" style="margin-bottom:12px;">
+        <div class="detail-label">Luggage</div>
+        <div class="detail-value">${data.luggage_type}</div>
+      </div>
+
+      ${data.notes ? `<div class="detail-item" style="margin-bottom:12px;">
+        <div class="detail-label">Notes</div>
+        <div class="detail-value">${data.notes}</div>
+      </div>` : ''}
+
+      <div class="bid-section">
+        <div class="bid-row">
+          <span class="bid-label">Uber XL Estimate:</span>
+          <span style="font-size:18px; font-weight:600;">$${data.uber_estimate?.toFixed(2) || '0.00'}</span>
+        </div>
+        <div class="bid-row">
+          <span class="bid-label">Client's Offer:</span>
+          <span class="bid-amount">$${data.client_bid?.toFixed(2) || '0.00'}</span>
+        </div>
+        ${data.counter_offer ? `<div class="bid-row">
+          <span class="bid-label">Your Counter:</span>
+          <span style="font-size:18px; font-weight:600; color:#ffc107;">$${data.counter_offer.toFixed(2)}</span>
+        </div>` : ''}
+        ${data.final_price ? `<div class="bid-row">
+          <span class="bid-label">Final Price:</span>
+          <span class="bid-amount">$${data.final_price.toFixed(2)}</span>
+        </div>` : ''}
+      </div>
+
+      ${actionButtons}
+    </div>
+  `;
+}
+
+window.createRequestCard = createRequestCard;
+</script>
+
+<script>
+let currentTab = 'pending';
+
+function showTab(tab) {
+  currentTab = tab;
+  
+  // Hide all tabs
+  document.getElementById('pending-tab').style.display = 'none';
+  document.getElementById('quoted-tab').style.display = 'none';
+  document.getElementById('confirmed-tab').style.display = 'none';
+  document.getElementById('completed-tab').style.display = 'none';
+  document.getElementById('calendar-tab').style.display = 'none';
+  
+  // Show selected tab
+  document.getElementById(tab + '-tab').style.display = 'block';
+  
+  // Update tab styling
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  event.target.classList.add('active');
+}
+
+async function acceptBid(id, amount) {
+  if (!confirm(`Accept client's bid of $${amount.toFixed(2)}?`)) return;
+  
+  try {
+    await window.updateDoc(window.doc(window.db, 'ride_requests', id), {
+      status: 'quoted',
+      final_price: amount,
+      quoted_at: new Date()
+    });
+    alert('Bid accepted! Client will be notified.');
+  } catch (error) {
+    alert('Error accepting bid: ' + error.message);
+  }
+}
+
+async function counterOffer(id) {
+  const input = document.getElementById('counter-' + id);
+  const amount = parseFloat(input.value);
+  
+  if (!amount || amount < 1) {
+    alert('Please enter a valid counter offer amount');
+    return;
+  }
+  
+  if (!confirm(`Send counter offer of $${amount.toFixed(2)}?`)) return;
+  
+  try {
+    await window.updateDoc(window.doc(window.db, 'ride_requests', id), {
+      status: 'quoted',
+      counter_offer: amount,
+      final_price: amount,
+      quoted_at: new Date()
+    });
+    alert('Counter offer sent! Client will be notified.');
+  } catch (error) {
+    alert('Error sending counter offer: ' + error.message);
+  }
+}
+
+async function denyRequest(id) {
+  if (!confirm('Are you sure you want to deny this request?')) return;
+  
+  try {
+    await window.updateDoc(window.doc(window.db, 'ride_requests', id), {
+      status: 'declined',
+      declined_at: new Date()
+    });
+    alert('Request denied. Client will be notified.');
+  } catch (error) {
+    alert('Error denying request: ' + error.message);
+  }
+}
+
+async function markAsPaid(id) {
+  if (!confirm('Mark this ride as paid?')) return;
+  
+  try {
+    await window.updateDoc(window.doc(window.db, 'ride_requests', id), {
+      status: 'paid',
+      paid_at: new Date()
+    });
+    alert('Marked as paid!');
+  } catch (error) {
+    alert('Error: ' + error.message);
+  }
+}
+
+function generateReceipt(id) {
+  window.open(`receipt.html?id=${id}`, '_blank');
+}
+</script>
+
+</body>
+</html>

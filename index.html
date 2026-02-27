@@ -1,0 +1,781 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Patriot Transportation</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: linear-gradient(135deg, #3d4c2a 0%, #5a6d3e 100%);
+  min-height: 100vh;
+  padding: 20px;
+}
+.container { max-width: 700px; margin: 0 auto; }
+.card {
+  background: white;
+  border-radius: 12px;
+  padding: 32px;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+  margin-bottom: 20px;
+}
+h1 {
+  color: #3d4c2a;
+  font-size: 28px;
+  margin-bottom: 8px;
+  text-align: center;
+}
+.subtitle {
+  text-align: center;
+  color: #666;
+  font-size: 14px;
+  margin-bottom: 24px;
+}
+
+/* Tabs */
+.tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 24px;
+  border-bottom: 2px solid #e0e0e0;
+}
+.tab {
+  flex: 1;
+  padding: 12px;
+  background: none;
+  border: none;
+  border-bottom: 3px solid transparent;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 15px;
+  color: #666;
+  transition: all 0.3s;
+}
+.tab.active {
+  color: #3d4c2a;
+  border-bottom-color: #3d4c2a;
+}
+.tab:hover {
+  color: #3d4c2a;
+}
+
+/* Login */
+.login-section {
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+/* Form fields */
+.field { margin-bottom: 20px; }
+label {
+  display: block;
+  font-weight: 600;
+  color: #3d4c2a;
+  margin-bottom: 6px;
+  font-size: 14px;
+}
+input, select, textarea {
+  width: 100%;
+  padding: 12px;
+  border: 2px solid #e0e0e0;
+  border-radius: 6px;
+  font-size: 15px;
+  transition: border-color 0.3s;
+}
+input:focus, select:focus, textarea:focus {
+  outline: none;
+  border-color: #3d4c2a;
+}
+.row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+/* Buttons */
+.btn {
+  width: 100%;
+  padding: 14px;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+.btn-primary {
+  background: #3d4c2a;
+  color: white;
+}
+.btn-primary:hover {
+  background: #2d3c1a;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(61,76,42,0.3);
+}
+.btn-primary:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+  transform: none;
+}
+.btn-confirm {
+  background: #28a745;
+  color: white;
+  margin-top: 12px;
+}
+.btn-confirm:hover {
+  background: #218838;
+}
+
+/* Estimate & Bid */
+.estimate-box {
+  background: #f8f9fa;
+  border: 2px solid #3d4c2a;
+  border-radius: 8px;
+  padding: 20px;
+  margin: 24px 0;
+  text-align: center;
+}
+.estimate-label {
+  font-size: 13px;
+  color: #666;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 8px;
+}
+.estimate-price {
+  font-size: 36px;
+  font-weight: bold;
+  color: #3d4c2a;
+}
+.estimate-note {
+  font-size: 12px;
+  color: #999;
+  margin-top: 8px;
+}
+.bid-section {
+  background: #fff9e6;
+  border: 2px dashed #3d4c2a;
+  border-radius: 8px;
+  padding: 20px;
+  margin: 24px 0;
+}
+.bid-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #3d4c2a;
+  margin-bottom: 12px;
+  text-align: center;
+}
+.bid-input-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+.dollar-sign {
+  font-size: 24px;
+  font-weight: bold;
+  color: #3d4c2a;
+}
+#bid_amount {
+  width: 120px;
+  font-size: 20px;
+  text-align: center;
+  font-weight: 600;
+}
+
+/* Ride cards */
+.ride-card {
+  background: #f8f9fa;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 16px;
+}
+.ride-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 2px solid #e0e0e0;
+}
+.ride-date {
+  font-size: 18px;
+  font-weight: 600;
+  color: #3d4c2a;
+}
+.status-badge {
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+.status-pending { background: #fff3cd; color: #856404; }
+.status-quoted { background: #d1ecf1; color: #0c5460; }
+.status-confirmed { background: #d4edda; color: #155724; }
+.status-declined { background: #f8d7da; color: #721c24; }
+.status-paid { background: #c3e6cb; color: #1e7e34; }
+.ride-detail {
+  display: flex;
+  align-items: center;
+  margin-bottom: 8px;
+  font-size: 14px;
+  color: #555;
+}
+.ride-icon {
+  margin-right: 8px;
+  font-weight: bold;
+}
+.price-box {
+  background: white;
+  border: 2px solid #3d4c2a;
+  border-radius: 6px;
+  padding: 16px;
+  margin: 16px 0;
+  text-align: center;
+}
+.price-label {
+  font-size: 12px;
+  color: #666;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 4px;
+}
+.price-amount {
+  font-size: 32px;
+  font-weight: bold;
+  color: #3d4c2a;
+}
+.payment-section {
+  background: #fff9e6;
+  border: 2px solid #3d4c2a;
+  border-radius: 6px;
+  padding: 16px;
+  margin-top: 16px;
+}
+.payment-title {
+  font-weight: 600;
+  color: #3d4c2a;
+  margin-bottom: 12px;
+  text-align: center;
+}
+.payment-link {
+  display: block;
+  background: #3d4c2a;
+  color: white;
+  padding: 10px;
+  border-radius: 6px;
+  text-align: center;
+  text-decoration: none;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+.payment-link:hover {
+  background: #2d3c1a;
+}
+
+/* States */
+.success {
+  background: #d4edda;
+  border: 2px solid #28a745;
+  border-radius: 8px;
+  padding: 24px;
+  text-align: center;
+}
+.success h2 {
+  color: #28a745;
+  margin-bottom: 12px;
+}
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+  color: #999;
+}
+.loading {
+  text-align: center;
+  padding: 40px;
+  color: #666;
+}
+.hidden { display: none; }
+.error {
+  background: #f8d7da;
+  border: 2px solid #dc3545;
+  border-radius: 6px;
+  padding: 12px;
+  color: #721c24;
+  margin-bottom: 16px;
+  font-size: 14px;
+}
+.logout-btn {
+  background: none;
+  border: 1px solid #3d4c2a;
+  color: #3d4c2a;
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 12px;
+  margin-left: 12px;
+}
+.logout-btn:hover {
+  background: #f0f0f0;
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+  <!-- Login Screen -->
+  <div id="login-screen" class="card">
+    <h1>Patriot Transportation</h1>
+    <p class="subtitle">San Antonio & Surrounding Areas</p>
+    <div class="login-section">
+      <div class="field">
+        <label>Enter Your Phone Number</label>
+        <input type="tel" id="phone_login" placeholder="(555) 555-5555" maxlength="10">
+      </div>
+      <button class="btn btn-primary" onclick="login()">Continue</button>
+    </div>
+  </div>
+
+  <!-- Main App -->
+  <div id="main-app" class="card hidden">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+      <h1 style="margin:0;">Patriot Transportation</h1>
+      <button class="logout-btn" onclick="logout()">Change Number</button>
+    </div>
+    <p class="subtitle" style="margin-bottom:16px;">Welcome back!</p>
+
+    <div class="tabs">
+      <button class="tab active" onclick="showTab('book')">Book a Ride</button>
+      <button class="tab" onclick="showTab('rides')">My Rides</button>
+    </div>
+
+    <!-- Book Tab -->
+    <div id="book-tab">
+      <div id="error-message" class="error hidden"></div>
+
+      <form id="booking-form">
+        <div class="field">
+          <label>Full Name *</label>
+          <input type="text" id="client_name" required placeholder="First and last name">
+        </div>
+
+        <div class="field">
+          <label>Email *</label>
+          <input type="email" id="client_email" required placeholder="your@email.com">
+        </div>
+
+        <div class="row">
+          <div class="field">
+            <label>Pickup Date *</label>
+            <input type="date" id="pickup_date" required>
+          </div>
+          <div class="field">
+            <label>Pickup Time *</label>
+            <input type="time" id="pickup_time" required>
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Pickup Address *</label>
+          <input type="text" id="pickup_address" required placeholder="Full address including city">
+        </div>
+
+        <div class="field">
+          <label>Drop-off Address *</label>
+          <input type="text" id="dropoff_address" required placeholder="Full address including city">
+        </div>
+
+        <div class="row">
+          <div class="field">
+            <label>Passengers *</label>
+            <input type="number" id="passengers" min="1" max="7" required placeholder="1 to 7">
+          </div>
+          <div class="field">
+            <label>Luggage *</label>
+            <select id="luggage_type" required>
+              <option value="">Select...</option>
+              <option value="No luggage — personal items only">No luggage — personal items only</option>
+              <option value="Small load — 1 to 2 standard bags">Small load — 1 to 2 standard bags</option>
+              <option value="Medium load — 3 to 4 bags or one large item">Medium load — 3 to 4 bags</option>
+              <option value="Heavy load — 5 or more bags">Heavy load — 5+ bags</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Special Instructions</label>
+          <textarea id="notes" rows="2" placeholder="Optional"></textarea>
+        </div>
+
+        <button type="button" class="btn btn-primary" onclick="calculateEstimate()">Get Estimate & Make Offer</button>
+      </form>
+
+      <div id="estimate-section" class="hidden">
+        <div class="estimate-box">
+          <div class="estimate-label">Comparable to Uber XL</div>
+          <div class="estimate-price" id="uber-estimate">$--</div>
+          <div class="estimate-note">This is for reference only</div>
+        </div>
+
+        <div class="bid-section">
+          <div class="bid-title">What's Your Offer?</div>
+          <div class="bid-input-wrapper">
+            <span class="dollar-sign">$</span>
+            <input type="number" id="bid_amount" min="1" step="0.01" placeholder="0.00">
+          </div>
+        </div>
+
+        <button type="button" class="btn btn-primary" onclick="submitRequest()">Submit Request</button>
+      </div>
+
+      <div id="success-section" class="success hidden">
+        <h2>✓ Request Submitted!</h2>
+        <p>We've received your offer and will respond shortly.</p>
+        <button class="btn btn-primary" onclick="resetBookingForm()" style="margin-top:16px;">Book Another Ride</button>
+      </div>
+    </div>
+
+    <!-- Rides Tab -->
+    <div id="rides-tab" class="hidden">
+      <div id="rides-list" class="loading">Loading your rides...</div>
+    </div>
+  </div>
+</div>
+
+<!-- Google Maps JavaScript API -->
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCiU4H9v1LWki-x5rjO0CMPUtAO35GW1Tc&libraries=places"></script>
+
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+import { getFirestore, collection, query, where, orderBy, onSnapshot, doc, updateDoc, addDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+
+const firebaseConfig = {
+  apiKey: "AIzaSyCU5gio9iuDF1wkY8lRJVN0ULHQxgujluM",
+  authDomain: "patriot-transportation.firebaseapp.com",
+  projectId: "patriot-transportation",
+  storageBucket: "patriot-transportation.firebasestorage.app",
+  messagingSenderId: "296569517357",
+  appId: "1:296569517357:web:61b82f2d2310c3bf5bcfa4"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+window.db = db;
+window.addDoc = addDoc;
+window.collection = collection;
+window.serverTimestamp = serverTimestamp;
+window.query = query;
+window.where = where;
+window.orderBy = orderBy;
+window.onSnapshot = onSnapshot;
+window.updateDoc = updateDoc;
+window.doc = doc;
+</script>
+
+<script>
+let currentPhone = '';
+let estimatedPrice = 0;
+let distanceService = null;
+
+// Initialize Distance Matrix Service when Maps API loads
+window.addEventListener('load', function() {
+  distanceService = new google.maps.DistanceMatrixService();
+});
+
+function login() {
+  const phone = document.getElementById('phone_login').value.trim();
+  
+  if (!phone) {
+    alert('Please enter your phone number');
+    return;
+  }
+
+  currentPhone = phone;
+  document.getElementById('login-screen').classList.add('hidden');
+  document.getElementById('main-app').classList.remove('hidden');
+  
+  loadRides();
+}
+
+function logout() {
+  currentPhone = '';
+  document.getElementById('phone_login').value = '';
+  document.getElementById('main-app').classList.add('hidden');
+  document.getElementById('login-screen').classList.remove('hidden');
+  resetBookingForm();
+}
+
+function showTab(tab) {
+  document.getElementById('book-tab').classList.toggle('hidden', tab !== 'book');
+  document.getElementById('rides-tab').classList.toggle('hidden', tab !== 'rides');
+  
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  event.target.classList.add('active');
+  
+  if (tab === 'rides') {
+    loadRides();
+  }
+}
+
+async function calculateEstimate() {
+  const pickup = document.getElementById('pickup_address').value;
+  const dropoff = document.getElementById('dropoff_address').value;
+
+  if (!pickup || !dropoff) {
+    showError('Please enter pickup and drop-off addresses');
+    return;
+  }
+
+  const btn = document.querySelector('.btn-primary');
+  btn.textContent = 'Calculating...';
+  btn.disabled = true;
+
+  try {
+    distanceService.getDistanceMatrix(
+      {
+        origins: [pickup],
+        destinations: [dropoff],
+        travelMode: 'DRIVING',
+        unitSystem: google.maps.UnitSystem.IMPERIAL
+      },
+      function(response, status) {
+        if (status === 'OK' && response.rows[0].elements[0].status === 'OK') {
+          const distance = response.rows[0].elements[0].distance.value / 1609.34; // Convert meters to miles
+          const duration = response.rows[0].elements[0].duration.value / 60; // Convert seconds to minutes
+          
+          // Uber XL formula: $3.50 base + $1.85/mile + $0.28/minute
+          estimatedPrice = 3.50 + (distance * 1.85) + (duration * 0.28);
+          
+          document.getElementById('uber-estimate').textContent = '$' + estimatedPrice.toFixed(2);
+          document.getElementById('bid_amount').value = Math.floor(estimatedPrice * 0.75);
+          
+          document.getElementById('estimate-section').classList.remove('hidden');
+          btn.textContent = 'Get Estimate & Make Offer';
+          btn.disabled = false;
+        } else {
+          throw new Error('Could not calculate distance: ' + status);
+        }
+      }
+    );
+  } catch (error) {
+    showError('Could not calculate distance. Please check your addresses and try again.');
+    btn.textContent = 'Get Estimate & Make Offer';
+    btn.disabled = false;
+  }
+}
+
+async function submitRequest() {
+  const bidAmount = parseFloat(document.getElementById('bid_amount').value);
+  
+  if (!bidAmount || bidAmount < 1) {
+    showError('Please enter your offer amount');
+    return;
+  }
+
+  const btn = document.querySelector('#estimate-section .btn-primary');
+  btn.textContent = 'Submitting...';
+  btn.disabled = true;
+
+  try {
+    await window.addDoc(window.collection(window.db, 'ride_requests'), {
+      client_name: document.getElementById('client_name').value,
+      client_email: document.getElementById('client_email').value,
+      client_phone: currentPhone,
+      pickup_date: document.getElementById('pickup_date').value,
+      pickup_time: document.getElementById('pickup_time').value,
+      pickup_address: document.getElementById('pickup_address').value,
+      dropoff_address: document.getElementById('dropoff_address').value,
+      passengers: document.getElementById('passengers').value,
+      luggage_type: document.getElementById('luggage_type').value,
+      notes: document.getElementById('notes').value,
+      uber_estimate: estimatedPrice,
+      client_bid: bidAmount,
+      status: 'pending',
+      created_at: window.serverTimestamp()
+    });
+
+    document.getElementById('booking-form').classList.add('hidden');
+    document.getElementById('estimate-section').classList.add('hidden');
+    document.getElementById('success-section').classList.remove('hidden');
+    
+  } catch (error) {
+    console.error('Error:', error);
+    showError('Error submitting request. Please try again.');
+    btn.textContent = 'Submit Request';
+    btn.disabled = false;
+  }
+}
+
+function resetBookingForm() {
+  document.getElementById('booking-form').reset();
+  document.getElementById('booking-form').classList.remove('hidden');
+  document.getElementById('estimate-section').classList.add('hidden');
+  document.getElementById('success-section').classList.add('hidden');
+  estimatedPrice = 0;
+}
+
+function loadRides() {
+  if (!currentPhone) return;
+  
+  const q = window.query(
+    window.collection(window.db, 'ride_requests'),
+    window.where('client_phone', '==', currentPhone),
+    window.orderBy('created_at', 'desc')
+  );
+
+  window.onSnapshot(q, (snapshot) => {
+    displayRides(snapshot);
+  });
+}
+
+function displayRides(snapshot) {
+  const container = document.getElementById('rides-list');
+  
+  if (snapshot.empty) {
+    container.innerHTML = '<div class="empty-state">No rides yet. Book your first ride!</div>';
+    return;
+  }
+
+  const rides = [];
+  snapshot.forEach((doc) => {
+    rides.push({ id: doc.id, data: doc.data() });
+  });
+
+  rides.sort((a, b) => {
+    const statusPriority = {
+      'pending': 1,
+      'quoted': 2,
+      'confirmed': 3,
+      'declined': 4,
+      'paid': 5
+    };
+    
+    const priorityA = statusPriority[a.data.status] || 99;
+    const priorityB = statusPriority[b.data.status] || 99;
+    
+    if (priorityA !== priorityB) {
+      return priorityA - priorityB;
+    }
+    
+    const dateA = a.data.created_at?.seconds || 0;
+    const dateB = b.data.created_at?.seconds || 0;
+    return dateB - dateA;
+  });
+
+  container.innerHTML = '';
+  rides.forEach((ride) => {
+    container.innerHTML += createRideCard(ride.id, ride.data);
+  });
+}
+
+function createRideCard(id, data) {
+  const statusClass = `status-${data.status}`;
+  const amount = data.final_price || data.client_bid || 0;
+  
+  let actionSection = '';
+  
+  if (data.status === 'quoted') {
+    actionSection = `
+      <div class="price-box">
+        <div class="price-label">Driver's Quote</div>
+        <div class="price-amount">$${amount.toFixed(2)}</div>
+      </div>
+      <button class="btn btn-confirm" onclick="confirmBooking('${id}')">Confirm Booking</button>
+    `;
+  } else if (data.status === 'confirmed') {
+    actionSection = `
+      <div class="price-box">
+        <div class="price-label">Total Amount</div>
+        <div class="price-amount">$${amount.toFixed(2)}</div>
+      </div>
+      <div class="payment-section">
+        <div class="payment-title">Payment Instructions</div>
+        <p style="font-size:13px; color:#666; margin-bottom:12px;">Please send payment to:</p>
+        <a href="https://cash.app/$JasonNedoroscik" class="payment-link" target="_blank">Pay with CashApp</a>
+        <a href="https://venmo.com/JasonNedoroscik" class="payment-link" target="_blank">Pay with Venmo</a>
+        <div class="payment-link" style="background:#6c757d; cursor:default;">Pay with Cash (at pickup)</div>
+        <p style="font-size:12px; color:#999; margin-top:8px;">Include "Patriot Transportation" in the note</p>
+      </div>
+    `;
+  } else if (data.status === 'paid') {
+    actionSection = `
+      <div class="price-box">
+        <div class="price-label">Amount Paid</div>
+        <div class="price-amount">$${amount.toFixed(2)}</div>
+      </div>
+      <a href="receipt.html?id=${id}" target="_blank" class="btn btn-primary" style="display:block; text-align:center; text-decoration:none; margin-top:12px;">View Receipt</a>
+    `;
+  } else if (data.status === 'pending') {
+    actionSection = `
+      <div class="price-box">
+        <div class="price-label">Your Offer</div>
+        <div class="price-amount">$${data.client_bid?.toFixed(2) || '0.00'}</div>
+        <p style="font-size:12px; color:#999; margin-top:8px;">Waiting for driver response</p>
+      </div>
+    `;
+  } else if (data.status === 'declined') {
+    actionSection = `
+      <div style="text-align:center; padding:16px; background:#f8d7da; border-radius:6px; color:#721c24;">
+        This request was declined. Please submit a new request.
+      </div>
+    `;
+  }
+
+  return `
+    <div class="ride-card">
+      <div class="ride-header">
+        <div class="ride-date">${data.pickup_date} at ${data.pickup_time}</div>
+        <div class="status-badge ${statusClass}">${data.status}</div>
+      </div>
+      
+      <div class="ride-detail">
+        <span class="ride-icon">📍</span>
+        <span>${data.pickup_address}</span>
+      </div>
+      <div class="ride-detail">
+        <span class="ride-icon">🎯</span>
+        <span>${data.dropoff_address}</span>
+      </div>
+      <div class="ride-detail">
+        <span class="ride-icon">👥</span>
+        <span>${data.passengers} passenger${data.passengers > 1 ? 's' : ''}</span>
+      </div>
+
+      ${actionSection}
+    </div>
+  `;
+}
+
+async function confirmBooking(id) {
+  if (!confirm('Confirm this booking at the quoted price?')) return;
+  
+  try {
+    await window.updateDoc(window.doc(window.db, 'ride_requests', id), {
+      status: 'confirmed',
+      confirmed_at: new Date()
+    });
+    alert('Booking confirmed! Please see payment instructions below.');
+  } catch (error) {
+    alert('Error confirming booking: ' + error.message);
+  }
+}
+
+function showError(message) {
+  const errorDiv = document.getElementById('error-message');
+  errorDiv.textContent = message;
+  errorDiv.classList.remove('hidden');
+  setTimeout(() => errorDiv.classList.add('hidden'), 5000);
+}
+
+window.login = login;
+window.logout = logout;
+window.showTab = showTab;
+window.calculateEstimate = calculateEstimate;
+window.submitRequest = submitRequest;
+window.resetBookingForm = resetBookingForm;
+window.confirmBooking = confirmBooking;
+</script>
+
+</body>
+</html>
