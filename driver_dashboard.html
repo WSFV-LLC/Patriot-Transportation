@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -21,7 +22,12 @@ body {
   justify-content: space-between;
   align-items: center;
 }
-.header h1 { font-size: 24px; }
+.header h1 { 
+  font-size: 24px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
 .tabs {
   display: flex;
   gap: 8px;
@@ -73,6 +79,7 @@ body {
 .status-quoted { background: #d1ecf1; color: #0c5460; }
 .status-confirmed { background: #d4edda; color: #155724; }
 .status-declined { background: #f8d7da; color: #721c24; }
+.status-cancelled { background: #f8d7da; color: #721c24; }
 .status-paid { background: #c3e6cb; color: #1e7e34; }
 .detail-grid {
   display: grid;
@@ -98,7 +105,7 @@ body {
   color: #333;
 }
 .bid-section {
-  background: #fff9e6;
+  background: #f8f9fa;
   border: 2px solid #3d4c2a;
   border-radius: 6px;
   padding: 16px;
@@ -148,10 +155,10 @@ body {
 .btn-accept:hover { background: #218838; }
 .btn-counter { background: #ffc107; color: #333; }
 .btn-counter:hover { background: #e0a800; }
-.btn-deny { background: #dc3545; color: white; }
-.btn-deny:hover { background: #c82333; }
-.btn-paid { background: #17a2b8; color: white; }
-.btn-paid:hover { background: #138496; }
+.btn-deny { background: #b71c1c; color: white; }
+.btn-deny:hover { background: #8b0000; }
+.btn-paid { background: #28a745; color: white; }
+.btn-paid:hover { background: #218838; }
 .btn-receipt { background: #6c757d; color: white; }
 .btn-receipt:hover { background: #5a6268; }
 .empty-state {
@@ -174,7 +181,7 @@ body {
 <body>
 
 <div class="header">
-  <h1>🚗 Driver Dashboard</h1>
+  <h1>Driver Dashboard</h1>
   <div style="font-size:14px;">Patriot Transportation</div>
 </div>
 
@@ -183,6 +190,7 @@ body {
   <div class="tab" onclick="showTab('quoted')">Quoted</div>
   <div class="tab" onclick="showTab('confirmed')">Confirmed</div>
   <div class="tab" onclick="showTab('completed')">Completed</div>
+  <div class="tab" onclick="showTab('clients')">Clients</div>
   <div class="tab" onclick="showTab('calendar')">Calendar</div>
 </div>
 
@@ -202,9 +210,17 @@ body {
   <div id="completed-requests" class="loading">Loading...</div>
 </div>
 
+<div id="clients-tab" style="display:none;">
+  <div class="calendar-view">
+    <h2 style="margin-bottom:16px; color:#3d4c2a;">All Clients</h2>
+    <input type="text" id="client-search" placeholder="Search by name or phone..." style="width:100%; padding:12px; border:2px solid #e0e0e0; border-radius:6px; margin-bottom:16px; font-size:15px;">
+    <div id="clients-list" class="loading">Loading...</div>
+  </div>
+</div>
+
 <div id="calendar-tab" style="display:none;">
   <div class="calendar-view">
-    <h2 style="margin-bottom:16px;">Upcoming Rides</h2>
+    <h2 style="margin-bottom:16px; color:#3d4c2a;">Upcoming Rides</h2>
     <div id="calendar-view" class="loading">Loading...</div>
   </div>
 </div>
@@ -228,6 +244,11 @@ const db = getFirestore(app);
 window.db = db;
 window.updateDoc = updateDoc;
 window.doc = doc;
+window.query = query;
+window.collection = collection;
+window.where = where;
+window.orderBy = orderBy;
+window.onSnapshot = onSnapshot;
 
 // Load pending requests
 const pendingQuery = query(collection(db, 'ride_requests'), where('status', '==', 'pending'), orderBy('created_at', 'desc'));
@@ -282,7 +303,7 @@ function displayCalendar(snapshot) {
     const data = doc.data();
     html += `
       <div style="padding:12px; border-left:4px solid #3d4c2a; margin-bottom:12px; background:#f8f9fa;">
-        <div style="font-weight:600;">${data.pickup_date} at ${data.pickup_time}</div>
+        <div style="font-weight:600; color:#3d4c2a;">${data.pickup_date} at ${data.pickup_time}</div>
         <div style="font-size:14px; color:#666; margin-top:4px;">${data.client_name} • ${data.pickup_address} → ${data.dropoff_address}</div>
         <div style="font-size:14px; color:#3d4c2a; font-weight:600; margin-top:4px;">$${data.final_price || data.client_bid}</div>
       </div>
@@ -308,11 +329,18 @@ function createRequestCard(id, data) {
         <button class="btn btn-deny" onclick="denyRequest('${id}')">Deny Request</button>
       </div>
     `;
+  } else if (data.status === 'quoted') {
+    actionButtons = `
+      <div class="actions">
+        <button class="btn btn-deny" onclick="cancelRide('${id}')">Cancel Quote</button>
+      </div>
+    `;
   } else if (data.status === 'confirmed') {
     actionButtons = `
       <div class="actions">
         <button class="btn btn-paid" onclick="markAsPaid('${id}')">Mark as Paid</button>
         <button class="btn btn-receipt" onclick="generateReceipt('${id}')">Generate Receipt</button>
+        <button class="btn btn-deny" onclick="cancelRide('${id}')">Cancel Ride</button>
       </div>
     `;
   } else if (data.status === 'paid') {
@@ -402,6 +430,7 @@ function showTab(tab) {
   document.getElementById('quoted-tab').style.display = 'none';
   document.getElementById('confirmed-tab').style.display = 'none';
   document.getElementById('completed-tab').style.display = 'none';
+  document.getElementById('clients-tab').style.display = 'none';
   document.getElementById('calendar-tab').style.display = 'none';
   
   // Show selected tab
@@ -410,6 +439,11 @@ function showTab(tab) {
   // Update tab styling
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
   event.target.classList.add('active');
+  
+  // Load clients if switching to clients tab
+  if (tab === 'clients') {
+    loadClients();
+  }
 }
 
 async function acceptBid(id, amount) {
@@ -478,6 +512,102 @@ async function markAsPaid(id) {
     alert('Error: ' + error.message);
   }
 }
+
+async function cancelRide(id) {
+  if (!confirm('Are you sure you want to cancel this ride?')) return;
+  
+  try {
+    await window.updateDoc(window.doc(window.db, 'ride_requests', id), {
+      status: 'cancelled',
+      cancelled_at: new Date(),
+      cancelled_by: 'driver'
+    });
+    alert('Ride cancelled.');
+  } catch (error) {
+    alert('Error: ' + error.message);
+  }
+}
+
+function loadClients() {
+  const allRidesQuery = window.query(window.collection(window.db, 'ride_requests'), window.orderBy('created_at', 'desc'));
+  
+  window.onSnapshot(allRidesQuery, (snapshot) => {
+    const clientsMap = new Map();
+    
+    snapshot.forEach((doc) => {
+      const data = doc.data();
+      const phone = data.client_phone;
+      
+      if (!clientsMap.has(phone)) {
+        clientsMap.set(phone, {
+          name: data.client_name,
+          phone: phone,
+          email: data.client_email,
+          totalRides: 0,
+          lastRide: null,
+          rides: []
+        });
+      }
+      
+      const client = clientsMap.get(phone);
+      client.totalRides++;
+      client.rides.push({id: doc.id, ...data});
+      
+      if (!client.lastRide || (data.pickup_date && data.pickup_date > client.lastRide)) {
+        client.lastRide = data.pickup_date;
+      }
+    });
+    
+    displayClients(Array.from(clientsMap.values()));
+  });
+}
+
+function displayClients(clients) {
+  const container = document.getElementById('clients-list');
+  const searchTerm = document.getElementById('client-search').value.toLowerCase();
+  
+  const filteredClients = clients.filter(client => 
+    client.name.toLowerCase().includes(searchTerm) ||
+    client.phone.includes(searchTerm)
+  );
+  
+  if (filteredClients.length === 0) {
+    container.innerHTML = '<div class="empty-state">No clients found</div>';
+    return;
+  }
+  
+  let html = '';
+  filteredClients.forEach(client => {
+    html += `
+      <div style="background:#f8f9fa; padding:16px; border-radius:6px; margin-bottom:12px; border-left:4px solid #3d4c2a;">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <div>
+            <div style="font-weight:600; font-size:16px; color:#3d4c2a;">${client.name}</div>
+            <div style="font-size:14px; color:#666; margin-top:4px;">${client.phone} • ${client.email}</div>
+          </div>
+          <div style="text-align:right;">
+            <div style="font-size:14px; color:#666;">Total Rides: <strong>${client.totalRides}</strong></div>
+            <div style="font-size:12px; color:#999; margin-top:4px;">Last: ${client.lastRide || 'N/A'}</div>
+          </div>
+        </div>
+      </div>
+    `;
+  });
+  
+  container.innerHTML = html;
+}
+
+// Add search listener
+document.addEventListener('DOMContentLoaded', function() {
+  const searchInput = document.getElementById('client-search');
+  if (searchInput) {
+    searchInput.addEventListener('input', function() {
+      if (currentTab === 'clients') {
+        loadClients();
+      }
+    });
+  }
+});
 
 function generateReceipt(id) {
   window.open(`receipt.html?id=${id}`, '_blank');
