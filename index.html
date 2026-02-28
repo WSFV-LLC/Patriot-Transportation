@@ -215,6 +215,7 @@ input:focus, select:focus, textarea:focus {
 .status-quoted { background: #d1ecf1; color: #0c5460; }
 .status-confirmed { background: #d4edda; color: #155724; }
 .status-declined { background: #f8d7da; color: #721c24; }
+.status-cancelled { background: #f8d7da; color: #721c24; }
 .status-paid { background: #c3e6cb; color: #1e7e34; }
 .ride-detail {
   display: flex;
@@ -327,7 +328,7 @@ input:focus, select:focus, textarea:focus {
 <div class="container">
   <!-- Login Screen -->
   <div id="login-screen" class="card">
-    <h1>🇺🇸 Patriot Transportation</h1>
+    <h1>Patriot Transportation</h1>
     <p class="subtitle">San Antonio & Surrounding Areas</p>
     <div class="login-section">
       <div class="field">
@@ -341,7 +342,7 @@ input:focus, select:focus, textarea:focus {
   <!-- Main App -->
   <div id="main-app" class="card hidden">
     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
-      <h1 style="margin:0;">🇺🇸 Patriot Transportation</h1>
+      <h1 style="margin:0;">Patriot Transportation</h1>
       <button class="logout-btn" onclick="logout()">Change Number</button>
     </div>
     <p class="subtitle" style="margin-bottom:16px;">Welcome back!</p>
@@ -699,6 +700,7 @@ function createRideCard(id, data) {
         <div class="payment-link" style="background:#6c757d; cursor:default;">Pay with Cash (at pickup)</div>
         <p style="font-size:12px; color:#999; margin-top:8px;">Include "Patriot Transportation" in the note</p>
       </div>
+      <button class="btn" style="background:#dc3545; color:white; margin-top:12px;" onclick="cancelRide('${id}')">Cancel Booking</button>
     `;
   } else if (data.status === 'paid') {
     actionSection = `
@@ -720,6 +722,12 @@ function createRideCard(id, data) {
     actionSection = `
       <div style="text-align:center; padding:16px; background:#f8d7da; border-radius:6px; color:#721c24;">
         This request was declined. Please submit a new request.
+      </div>
+    `;
+  } else if (data.status === 'cancelled') {
+    actionSection = `
+      <div style="text-align:center; padding:16px; background:#f8d7da; border-radius:6px; color:#721c24;">
+        This booking has been cancelled.
       </div>
     `;
   }
@@ -763,6 +771,21 @@ async function confirmBooking(id) {
   }
 }
 
+async function cancelRide(id) {
+  if (!confirm('Are you sure you want to cancel this booking?')) return;
+  
+  try {
+    await window.updateDoc(window.doc(window.db, 'ride_requests', id), {
+      status: 'cancelled',
+      cancelled_at: new Date(),
+      cancelled_by: 'client'
+    });
+    alert('Booking cancelled successfully.');
+  } catch (error) {
+    alert('Error cancelling booking: ' + error.message);
+  }
+}
+
 function showError(message) {
   const errorDiv = document.getElementById('error-message');
   errorDiv.textContent = message;
@@ -777,6 +800,7 @@ window.calculateEstimate = calculateEstimate;
 window.submitRequest = submitRequest;
 window.resetBookingForm = resetBookingForm;
 window.confirmBooking = confirmBooking;
+window.cancelRide = cancelRide;
 </script>
 
 </body>
