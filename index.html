@@ -581,7 +581,7 @@ async function submitRequest() {
   btn.disabled = true;
 
   try {
-    await window.addDoc(window.collection(window.db, 'ride_requests'), {
+    const rideData = {
       client_name: document.getElementById('client_name').value,
       client_email: document.getElementById('client_email').value,
       client_phone: currentPhone,
@@ -594,7 +594,23 @@ async function submitRequest() {
       notes: document.getElementById('notes').value,
       uber_estimate: estimatedPrice,
       client_bid: bidAmount,
-      status: 'pending',
+      status: 'pending'
+    };
+
+    // Send notification to Make.com first
+    try {
+      await fetch('https://hook.us2.make.com/6gqggiu83blyfi21i8vb21g2hxb4prpd', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(rideData)
+      });
+    } catch (error) {
+      console.log('Notification error:', error);
+    }
+
+    // Save to Firebase with timestamp
+    await window.addDoc(window.collection(window.db, 'ride_requests'), {
+      ...rideData,
       created_at: window.serverTimestamp()
     });
 
