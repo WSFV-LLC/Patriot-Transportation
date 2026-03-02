@@ -577,6 +577,7 @@ async function submitRequest() {
   }
 
   const btn = document.querySelector('#estimate-section .btn-primary');
+  const originalText = btn.textContent;
   btn.textContent = 'Submitting...';
   btn.disabled = true;
 
@@ -597,16 +598,12 @@ async function submitRequest() {
       status: 'pending'
     };
 
-    // Send notification to Make.com first
-    try {
-      await fetch('https://hook.us2.make.com/6gqggiu83blyfi21i8vb21g2hxb4prpd', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(rideData)
-      });
-    } catch (error) {
-      console.log('Notification error:', error);
-    }
+    // Send notification to Make.com first (don't let this block the submission)
+    fetch('https://hook.us2.make.com/6gqggiu83blyfi21i8vb21g2hxb4prpd', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(rideData)
+    }).catch(err => console.log('Notification error:', err));
 
     // Save to Firebase with timestamp
     await window.addDoc(window.collection(window.db, 'ride_requests'), {
@@ -619,9 +616,9 @@ async function submitRequest() {
     document.getElementById('success-section').classList.remove('hidden');
     
   } catch (error) {
-    console.error('Error:', error);
-    showError('Error submitting request. Please try again.');
-    btn.textContent = 'Submit Request';
+    console.error('Submission error:', error);
+    showError('Error submitting request: ' + error.message + '. Please try again or contact us directly.');
+    btn.textContent = originalText;
     btn.disabled = false;
   }
 }
