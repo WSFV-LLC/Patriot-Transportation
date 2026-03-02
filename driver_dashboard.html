@@ -563,10 +563,11 @@ async function cancelRide(id) {
     
     // If there's a calendar event, send webhook to delete it
     if (rideData.calendar_event_id) {
-      fetch('https://hook.us2.make.com/q6881e1dcf717mdp2lhq3r19i41owly2', {
+      fetch('https://hook.us2.make.com/n7a7iqvocng4qp2zns40yc17crq2hqro', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
+          action: 'delete',
           event_id: rideData.calendar_event_id
         })
       }).catch(err => console.log('Delete calendar error:', err));
