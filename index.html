@@ -479,6 +479,7 @@ window.doc = doc;
 <script>
 let currentPhone = '';
 let estimatedPrice = 0;
+let tripDurationMinutes = 0;
 let distanceService = null;
 
 // Initialize Distance Matrix Service when Maps API loads
@@ -564,6 +565,9 @@ async function calculateEstimate() {
           const distance = response.rows[0].elements[0].distance.value / 1609.34; // Convert meters to miles
           const duration = response.rows[0].elements[0].duration.value / 60; // Convert seconds to minutes
           
+          // Store duration for later use
+          tripDurationMinutes = Math.round(duration);
+          
           // Uber Comfort formula: $3.00 base + $1.50/mile + $0.25/minute
           estimatedPrice = 3.00 + (distance * 1.50) + (duration * 0.25);
           
@@ -611,6 +615,7 @@ async function submitRequest() {
       luggage_type: document.getElementById('luggage_type').value,
       notes: document.getElementById('notes').value,
       uber_estimate: estimatedPrice,
+      trip_duration_minutes: tripDurationMinutes,
       client_bid: bidAmount,
       status: 'pending'
     };
