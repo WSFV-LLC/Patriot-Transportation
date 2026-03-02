@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -650,6 +651,13 @@ function resetBookingForm() {
   document.getElementById('estimate-section').classList.add('hidden');
   document.getElementById('success-section').classList.add('hidden');
   estimatedPrice = 0;
+  
+  // Reset the submit button state
+  const submitBtn = document.getElementById('submit-btn');
+  if (submitBtn) {
+    submitBtn.textContent = 'Submit Request';
+    submitBtn.disabled = false;
+  }
   
   // Re-fill name and email if we have them from previous rides
   const nameField = document.getElementById('client_name');
