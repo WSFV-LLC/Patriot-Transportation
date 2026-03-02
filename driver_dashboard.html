@@ -485,7 +485,7 @@ async function acceptBid(id, amount) {
       const rideDoc = await window.getDoc(window.doc(window.db, 'ride_requests', id));
       const rideData = rideDoc.data();
       
-      fetch('https://hook.us2.make.com/n7a7iqvocng4qp2zns40yc17crq2hqro', {
+      fetch('https://hook.us2.make.com/zlo5peda4fwlrz2nk7m1hakc4dxjblw1', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -582,7 +582,7 @@ async function cancelRide(id) {
     
     // If there's a calendar event, send webhook to delete it
     if (rideData.calendar_event_id) {
-      fetch('https://hook.us2.make.com/n7a7iqvocng4qp2zns40yc17crq2hqro', {
+      fetch('https://hook.us2.make.com/zlo5peda4fwlrz2nk7m1hakc4dxjblw1', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -638,7 +638,7 @@ async function acceptOnBehalf(id) {
       const rideDoc = await window.getDoc(window.doc(window.db, 'ride_requests', id));
       const rideData = rideDoc.data();
       
-      fetch('https://hook.us2.make.com/n7a7iqvocng4qp2zns40yc17crq2hqro', {
+      fetch('https://hook.us2.make.com/zlo5peda4fwlrz2nk7m1hakc4dxjblw1', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
