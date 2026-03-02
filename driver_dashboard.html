@@ -190,6 +190,7 @@ body {
   <div class="tab" onclick="showTab('quoted')">Quoted</div>
   <div class="tab" onclick="showTab('confirmed')">Confirmed</div>
   <div class="tab" onclick="showTab('completed')">Completed</div>
+  <div class="tab" onclick="showTab('cancelled')">Cancelled</div>
   <div class="tab" onclick="showTab('clients')">Clients</div>
   <div class="tab" onclick="showTab('calendar')">Calendar</div>
 </div>
@@ -208,6 +209,10 @@ body {
 
 <div id="completed-tab" style="display:none;">
   <div id="completed-requests" class="loading">Loading...</div>
+</div>
+
+<div id="cancelled-tab" style="display:none;">
+  <div id="cancelled-requests" class="loading">Loading...</div>
 </div>
 
 <div id="clients-tab" style="display:none;">
@@ -275,6 +280,12 @@ onSnapshot(confirmedQuery, (snapshot) => {
 const completedQuery = query(collection(db, 'ride_requests'), where('status', '==', 'paid'), orderBy('pickup_date', 'desc'));
 onSnapshot(completedQuery, (snapshot) => {
   displayRequests(snapshot, 'completed-requests');
+});
+
+// Load cancelled requests
+const cancelledQuery = query(collection(db, 'ride_requests'), where('status', '==', 'cancelled'), orderBy('created_at', 'desc'));
+onSnapshot(cancelledQuery, (snapshot) => {
+  displayRequests(snapshot, 'cancelled-requests');
 });
 
 function displayRequests(snapshot, containerId) {
@@ -350,6 +361,13 @@ function createRequestCard(id, data) {
     actionButtons = `
       <div class="actions">
         <button class="btn btn-receipt" onclick="generateReceipt('${id}')">View Receipt</button>
+        <button class="btn btn-deny" onclick="deleteRide('${id}')">Delete</button>
+      </div>
+    `;
+  } else if (data.status === 'cancelled') {
+    actionButtons = `
+      <div class="actions">
+        <button class="btn btn-accept" onclick="restoreRide('${id}')">Restore to Confirmed</button>
         <button class="btn btn-deny" onclick="deleteRide('${id}')">Delete</button>
       </div>
     `;
@@ -434,6 +452,7 @@ function showTab(tab) {
   document.getElementById('quoted-tab').style.display = 'none';
   document.getElementById('confirmed-tab').style.display = 'none';
   document.getElementById('completed-tab').style.display = 'none';
+  document.getElementById('cancelled-tab').style.display = 'none';
   document.getElementById('clients-tab').style.display = 'none';
   document.getElementById('calendar-tab').style.display = 'none';
   
@@ -587,6 +606,20 @@ async function deleteRide(id) {
     alert('Ride deleted.');
   } catch (error) {
     alert('Error deleting: ' + error.message);
+  }
+}
+
+async function restoreRide(id) {
+  if (!confirm('Restore this ride to confirmed status?')) return;
+  
+  try {
+    await window.updateDoc(window.doc(window.db, 'ride_requests', id), {
+      status: 'confirmed',
+      restored_at: new Date()
+    });
+    alert('Ride restored to confirmed!');
+  } catch (error) {
+    alert('Error restoring: ' + error.message);
   }
 }
 
