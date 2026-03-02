@@ -227,7 +227,7 @@ body {
 
 <script type="module">
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
-import { getFirestore, collection, query, where, orderBy, onSnapshot, doc, updateDoc, deleteDoc } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+import { getFirestore, collection, query, where, orderBy, onSnapshot, doc, updateDoc, deleteDoc, getDoc } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
 
 const firebaseConfig = {
   apiKey: "AIzaSyCU5gio9iuDF1wkY8lRJVN0ULHQxgujluM",
@@ -245,6 +245,7 @@ window.db = db;
 window.updateDoc = updateDoc;
 window.doc = doc;
 window.deleteDoc = deleteDoc;
+window.getDoc = getDoc;
 window.query = query;
 window.collection = collection;
 window.where = where;
@@ -459,6 +460,25 @@ async function acceptBid(id, amount) {
       quoted_at: new Date(),
       confirmed_at: new Date()
     });
+    
+    // Try to send to Make.com for calendar, but don't let it break the confirmation
+    try {
+      const rideDoc = await window.getDoc(window.doc(window.db, 'ride_requests', id));
+      const rideData = rideDoc.data();
+      
+      fetch('https://hook.us2.make.com/n7a7iqvocng4qp2zns40yc17crq2hqro', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          ...rideData,
+          final_price: amount,
+          ride_id: id
+        })
+      }).catch(err => console.log('Calendar webhook error:', err));
+    } catch (err) {
+      console.log('Error fetching ride data:', err);
+    }
+    
     alert('Bid accepted and booking confirmed!');
   } catch (error) {
     alert('Error accepting bid: ' + error.message);
@@ -552,22 +572,25 @@ async function acceptOnBehalf(id) {
       confirmed_at: new Date(),
       confirmed_by: 'driver'
     });
+    
+    // Try to send to Make.com for calendar, but don't let it break the confirmation
+    try {
+      const rideDoc = await window.getDoc(window.doc(window.db, 'ride_requests', id));
+      const rideData = rideDoc.data();
+      
+      fetch('https://hook.us2.make.com/n7a7iqvocng4qp2zns40yc17crq2hqro', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          ...rideData,
+          ride_id: id
+        })
+      }).catch(err => console.log('Calendar webhook error:', err));
+    } catch (err) {
+      console.log('Error fetching ride data:', err);
+    }
+    
     alert('Ride confirmed!');
-  } catch (error) {
-    alert('Error: ' + error.message);
-  }
-}
-
-async function acceptOnBehalf(id) {
-  if (!confirm('Confirm this booking on the client\'s behalf? (Use this when client verbally confirms)')) return;
-  
-  try {
-    await window.updateDoc(window.doc(window.db, 'ride_requests', id), {
-      status: 'confirmed',
-      confirmed_at: new Date(),
-      confirmed_by: 'driver_on_behalf'
-    });
-    alert('Booking confirmed on client\'s behalf!');
   } catch (error) {
     alert('Error: ' + error.message);
   }
