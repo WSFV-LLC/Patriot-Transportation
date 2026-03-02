@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Receipt - Patriot Transportation</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: #f5f5f5;
+  padding: 20px;
+}
+.receipt {
+  max-width: 600px;
+  margin: 0 auto;
+  background: white;
+  padding: 40px;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+.header {
+  text-align: center;
+  border-bottom: 2px solid #3d4c2a;
+  padding-bottom: 20px;
+  margin-bottom: 30px;
+}
+.header h1 {
+  color: #3d4c2a;
+  font-size: 28px;
+  margin-bottom: 5px;
+}
+.header p {
+  color: #666;
+  font-size: 14px;
+}
+.section {
+  margin-bottom: 30px;
+}
+.section-title {
+  font-size: 12px;
+  color: #666;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 10px;
+  font-weight: 600;
+}
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+.info-label {
+  color: #666;
+  font-size: 14px;
+}
+.info-value {
+  color: #333;
+  font-weight: 600;
+  font-size: 14px;
+}
+.route {
+  background: #f8f9fa;
+  padding: 20px;
+  border-radius: 6px;
+  margin: 20px 0;
+}
+.route-point {
+  display: flex;
+  align-items: center;
+  margin-bottom: 15px;
+}
+.route-point:last-child {
+  margin-bottom: 0;
+}
+.route-icon {
+  font-size: 20px;
+  margin-right: 12px;
+  min-width: 30px;
+}
+.route-address {
+  font-size: 15px;
+  color: #333;
+}
+.total {
+  background: #3d4c2a;
+  color: white;
+  padding: 20px;
+  border-radius: 6px;
+  text-align: center;
+  margin-top: 30px;
+}
+.total-label {
+  font-size: 14px;
+  opacity: 0.9;
+  margin-bottom: 5px;
+}
+.total-amount {
+  font-size: 36px;
+  font-weight: bold;
+}
+.footer {
+  text-align: center;
+  margin-top: 40px;
+  padding-top: 20px;
+  border-top: 2px solid #f0f0f0;
+  color: #999;
+  font-size: 12px;
+}
+.print-btn {
+  background: #3d4c2a;
+  color: white;
+  border: none;
+  padding: 12px 30px;
+  border-radius: 6px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  margin: 20px auto;
+  display: block;
+}
+.print-btn:hover {
+  background: #2d3c1a;
+}
+@media print {
+  body { background: white; padding: 0; }
+  .print-btn { display: none; }
+  .receipt { box-shadow: none; }
+}
+.loading {
+  text-align: center;
+  padding: 60px 20px;
+  color: #666;
+}
+</style>
+</head>
+<body>
+
+<div class="receipt" id="receipt">
+  <div class="loading">Loading receipt...</div>
+</div>
+
+<button class="print-btn" onclick="window.print()">Print Receipt</button>
+
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+import { getFirestore, doc, getDoc } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+
+const firebaseConfig = {
+  apiKey: "AIzaSyCU5gio9iuDF1wkY8lRJVN0ULHQxgujluM",
+  authDomain: "patriot-transportation.firebaseapp.com",
+  projectId: "patriot-transportation",
+  storageBucket: "patriot-transportation.firebasestorage.app",
+  messagingSenderId: "296569517357",
+  appId: "1:296569517357:web:61b82f2d2310c3bf5bcfa4"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+// Get ride ID from URL
+const urlParams = new URLSearchParams(window.location.search);
+const rideId = urlParams.get('id');
+
+if (!rideId) {
+  document.getElementById('receipt').innerHTML = '<div class="loading">No ride ID provided</div>';
+} else {
+  loadReceipt(rideId);
+}
+
+async function loadReceipt(id) {
+  try {
+    const rideDoc = await getDoc(doc(db, 'ride_requests', id));
+    
+    if (!rideDoc.exists()) {
+      document.getElementById('receipt').innerHTML = '<div class="loading">Receipt not found</div>';
+      return;
+    }
+    
+    const data = rideDoc.data();
+    displayReceipt(data);
+    
+  } catch (error) {
+    console.error('Error loading receipt:', error);
+    document.getElementById('receipt').innerHTML = '<div class="loading">Error loading receipt</div>';
+  }
+}
+
+function displayReceipt(data) {
+  const paidDate = data.paid_at ? new Date(data.paid_at.seconds * 1000).toLocaleDateString() : 'N/A';
+  const receiptNumber = 'PT-' + Math.random().toString(36).substr(2, 9).toUpperCase();
+  
+  document.getElementById('receipt').innerHTML = `
+    <div class="header">
+      <h1>Patriot Transportation</h1>
+      <p>San Antonio & Surrounding Areas</p>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Receipt Information</div>
+      <div class="info-row">
+        <span class="info-label">Receipt #</span>
+        <span class="info-value">${receiptNumber}</span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">Date of Service</span>
+        <span class="info-value">${data.pickup_date}</span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">Payment Date</span>
+        <span class="info-value">${paidDate}</span>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Customer Information</div>
+      <div class="info-row">
+        <span class="info-label">Name</span>
+        <span class="info-value">${data.client_name}</span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">Phone</span>
+        <span class="info-value">${data.client_phone}</span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">Email</span>
+        <span class="info-value">${data.client_email}</span>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Trip Details</div>
+      <div class="route">
+        <div class="route-point">
+          <span class="route-icon">📍</span>
+          <span class="route-address">${data.pickup_address}</span>
+        </div>
+        <div class="route-point">
+          <span class="route-icon">🎯</span>
+          <span class="route-address">${data.dropoff_address}</span>
+        </div>
+      </div>
+      <div class="info-row">
+        <span class="info-label">Pickup Time</span>
+        <span class="info-value">${data.pickup_time}</span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">Passengers</span>
+        <span class="info-value">${data.passengers}</span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">Luggage</span>
+        <span class="info-value">${data.luggage_type}</span>
+      </div>
+    </div>
+
+    <div class="total">
+      <div class="total-label">Total Amount Paid</div>
+      <div class="total-amount">$${(data.final_price || data.client_bid || 0).toFixed(2)}</div>
+    </div>
+
+    <div class="footer">
+      <p>Thank you for choosing Patriot Transportation!</p>
+      <p style="margin-top:10px;">For questions about this receipt, please contact us.</p>
+    </div>
+  `;
+}
+</script>
+
+</body>
+</html>
