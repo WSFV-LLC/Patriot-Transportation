@@ -227,7 +227,7 @@ body {
 
 <script type="module">
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
-import { getFirestore, collection, query, where, orderBy, onSnapshot, doc, updateDoc } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+import { getFirestore, collection, query, where, orderBy, onSnapshot, doc, updateDoc, deleteDoc } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
 
 const firebaseConfig = {
   apiKey: "AIzaSyCU5gio9iuDF1wkY8lRJVN0ULHQxgujluM",
@@ -244,6 +244,7 @@ const db = getFirestore(app);
 window.db = db;
 window.updateDoc = updateDoc;
 window.doc = doc;
+window.deleteDoc = deleteDoc;
 window.query = query;
 window.collection = collection;
 window.where = where;
@@ -332,6 +333,7 @@ function createRequestCard(id, data) {
   } else if (data.status === 'quoted') {
     actionButtons = `
       <div class="actions">
+        <button class="btn btn-accept" onclick="acceptOnBehalf('${id}')">Accept on Client's Behalf</button>
         <button class="btn btn-deny" onclick="cancelRide('${id}')">Cancel Quote</button>
       </div>
     `;
@@ -347,6 +349,7 @@ function createRequestCard(id, data) {
     actionButtons = `
       <div class="actions">
         <button class="btn btn-receipt" onclick="generateReceipt('${id}')">View Receipt</button>
+        <button class="btn btn-deny" onclick="deleteRide('${id}')">Delete</button>
       </div>
     `;
   }
@@ -447,15 +450,16 @@ function showTab(tab) {
 }
 
 async function acceptBid(id, amount) {
-  if (!confirm(`Accept client's bid of $${amount.toFixed(2)}?`)) return;
+  if (!confirm(`Accept client's bid of $${amount.toFixed(2)}? This will confirm the booking.`)) return;
   
   try {
     await window.updateDoc(window.doc(window.db, 'ride_requests', id), {
-      status: 'quoted',
+      status: 'confirmed',
       final_price: amount,
-      quoted_at: new Date()
+      quoted_at: new Date(),
+      confirmed_at: new Date()
     });
-    alert('Bid accepted! Client will be notified.');
+    alert('Bid accepted and booking confirmed!');
   } catch (error) {
     alert('Error accepting bid: ' + error.message);
   }
@@ -523,6 +527,47 @@ async function cancelRide(id) {
       cancelled_by: 'driver'
     });
     alert('Ride cancelled.');
+  } catch (error) {
+    alert('Error: ' + error.message);
+  }
+}
+
+async function deleteRide(id) {
+  if (!confirm('Permanently delete this ride? This cannot be undone.')) return;
+  
+  try {
+    await window.deleteDoc(window.doc(window.db, 'ride_requests', id));
+    alert('Ride deleted.');
+  } catch (error) {
+    alert('Error deleting: ' + error.message);
+  }
+}
+
+async function acceptOnBehalf(id) {
+  if (!confirm('Confirm this ride on behalf of the client?')) return;
+  
+  try {
+    await window.updateDoc(window.doc(window.db, 'ride_requests', id), {
+      status: 'confirmed',
+      confirmed_at: new Date(),
+      confirmed_by: 'driver'
+    });
+    alert('Ride confirmed!');
+  } catch (error) {
+    alert('Error: ' + error.message);
+  }
+}
+
+async function acceptOnBehalf(id) {
+  if (!confirm('Confirm this booking on the client\'s behalf? (Use this when client verbally confirms)')) return;
+  
+  try {
+    await window.updateDoc(window.doc(window.db, 'ride_requests', id), {
+      status: 'confirmed',
+      confirmed_at: new Date(),
+      confirmed_by: 'driver_on_behalf'
+    });
+    alert('Booking confirmed on client\'s behalf!');
   } catch (error) {
     alert('Error: ' + error.message);
   }
