@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -409,7 +410,7 @@ input:focus, select:focus, textarea:focus {
           <textarea id="notes" rows="2" placeholder="If airport pickup, please include flight number"></textarea>
         </div>
 
-        <button type="button" class="btn btn-primary" onclick="calculateEstimate()">Get Estimate & Make Offer</button>
+        <button type="button" class="btn btn-primary" id="estimate-btn" onclick="calculateEstimate()">Get Estimate & Make Offer</button>
       </form>
 
       <div id="estimate-section" class="hidden">
@@ -427,7 +428,7 @@ input:focus, select:focus, textarea:focus {
           </div>
         </div>
 
-        <button type="button" class="btn btn-primary" onclick="submitRequest()">Submit Request</button>
+        <button type="button" class="btn btn-primary" id="submit-btn" onclick="submitRequest()">Submit Request</button>
       </div>
 
       <div id="success-section" class="success hidden">
@@ -547,7 +548,7 @@ async function calculateEstimate() {
     return;
   }
 
-  const btn = event.target; // Get the actual button that was clicked
+  const btn = document.getElementById('estimate-btn');
   btn.textContent = 'Calculating...';
   btn.disabled = true;
 
@@ -596,7 +597,7 @@ async function submitRequest() {
     return;
   }
 
-  const btn = document.querySelector('#estimate-section .btn-primary');
+  const btn = document.getElementById('submit-btn');
   const originalText = btn.textContent;
   btn.textContent = 'Submitting...';
   btn.disabled = true;
@@ -650,6 +651,26 @@ function resetBookingForm() {
   document.getElementById('estimate-section').classList.add('hidden');
   document.getElementById('success-section').classList.add('hidden');
   estimatedPrice = 0;
+  
+  // Re-fill name and email if we have them from previous rides
+  const nameField = document.getElementById('client_name');
+  const emailField = document.getElementById('client_email');
+  if (nameField.value === '' || emailField.value === '') {
+    // Check for previous ride data
+    const clientQuery = window.query(
+      window.collection(window.db, 'ride_requests'),
+      window.where('client_phone', '==', currentPhone),
+      window.orderBy('created_at', 'desc')
+    );
+    
+    window.onSnapshot(clientQuery, (snapshot) => {
+      if (!snapshot.empty) {
+        const lastRide = snapshot.docs[0].data();
+        document.getElementById('client_name').value = lastRide.client_name;
+        document.getElementById('client_email').value = lastRide.client_email;
+      }
+    }, { once: true });
+  }
 }
 
 function loadRides() {
