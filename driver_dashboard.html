@@ -78,6 +78,7 @@ body {
 .status-pending { background: #fff3cd; color: #856404; }
 .status-quoted { background: #d1ecf1; color: #0c5460; }
 .status-confirmed { background: #d4edda; color: #155724; }
+.status-completed { background: #cce5ff; color: #004085; }
 .status-declined { background: #f8d7da; color: #721c24; }
 .status-cancelled { background: #f8d7da; color: #721c24; }
 .status-paid { background: #c3e6cb; color: #1e7e34; }
@@ -276,9 +277,11 @@ onSnapshot(confirmedQuery, (snapshot) => {
   displayCalendar(snapshot);
 });
 
-// Load completed (paid) requests
+// Load completed requests (both completed and paid)
 const completedQuery = query(collection(db, 'ride_requests'), where('status', 'in', ['completed', 'paid']), orderBy('pickup_date', 'desc'));
-
+onSnapshot(completedQuery, (snapshot) => {
+  displayRequests(snapshot, 'completed-requests');
+});
 
 // Load cancelled requests
 const cancelledQuery = query(collection(db, 'ride_requests'), where('status', '==', 'cancelled'), orderBy('created_at', 'desc'));
@@ -347,32 +350,20 @@ function createRequestCard(id, data) {
         <button class="btn btn-deny" onclick="cancelRide('${id}')">Cancel Quote</button>
       </div>
     `;
-} else if (data.status === 'confirmed') {
-  actionButtons = `
-    <div class="actions">
-      <button class="btn btn-paid" onclick="markAsComplete('${id}')">Ride Complete</button>
-      <button class="btn btn-deny" onclick="cancelRide('${id}')">Cancel Ride</button>
-    </div>
-  `;
-    } else if (data.status === 'completed') {
-  actionButtons = `
-    <div class="actions">
-      <button class="btn btn-paid" onclick="markAsPaid('${id}')">Mark as Paid</button>
-      <button class="btn btn-deny" onclick="cancelRide('${id}')">Cancel Ride</button>
-    </div>
-  `;
-    async function markAsComplete(id) {
-  if (!confirm('Mark this ride as complete (not yet paid)?')) return;
-  try {
-    await window.updateDoc(window.doc(window.db, 'ride_requests', id), {
-      status: 'completed',
-      completed_at: new Date()
-    });
-    alert('Marked as complete!');
-  } catch (error) {
-    alert('Error: ' + error.message);
-  }
-}
+  } else if (data.status === 'confirmed') {
+    actionButtons = `
+      <div class="actions">
+        <button class="btn btn-paid" onclick="markAsComplete('${id}')">Ride Complete</button>
+        <button class="btn btn-deny" onclick="cancelRide('${id}')">Cancel Ride</button>
+      </div>
+    `;
+  } else if (data.status === 'completed') {
+    actionButtons = `
+      <div class="actions">
+        <button class="btn btn-paid" onclick="markAsPaid('${id}')">Mark as Paid</button>
+        <button class="btn btn-deny" onclick="cancelRide('${id}')">Cancel Ride</button>
+      </div>
+    `;
   } else if (data.status === 'paid') {
     actionButtons = `
       <div class="actions">
@@ -432,7 +423,7 @@ function createRequestCard(id, data) {
 
       <div class="bid-section">
         <div class="bid-row">
-          <span class="bid-label">Uber XL Estimate:</span>
+          <span class="bid-label">Uber Comfort Estimate:</span>
           <span style="font-size:18px; font-weight:600;">$${data.uber_estimate?.toFixed(2) || '0.00'}</span>
         </div>
         <div class="bid-row">
@@ -564,6 +555,20 @@ async function denyRequest(id) {
     alert('Request denied. Client will be notified.');
   } catch (error) {
     alert('Error denying request: ' + error.message);
+  }
+}
+
+async function markAsComplete(id) {
+  if (!confirm('Mark this ride as complete (not yet paid)?')) return;
+  
+  try {
+    await window.updateDoc(window.doc(window.db, 'ride_requests', id), {
+      status: 'completed',
+      completed_at: new Date()
+    });
+    alert('Marked as complete!');
+  } catch (error) {
+    alert('Error: ' + error.message);
   }
 }
 
