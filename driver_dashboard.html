@@ -177,6 +177,43 @@ body {
   padding: 40px;
   color: #666;
 }
+.client-card {
+  background: #f8f9fa;
+  padding: 16px;
+  border-radius: 6px;
+  margin-bottom: 12px;
+  border-left: 4px solid #3d4c2a;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+.client-card:hover {
+  background: #e9ecef;
+  transform: translateX(4px);
+}
+.balance-badge {
+  background: #dc3545;
+  color: white;
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: 600;
+}
+.balance-badge.paid {
+  background: #28a745;
+}
+.back-btn {
+  background: #6c757d;
+  color: white;
+  padding: 8px 16px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  margin-bottom: 16px;
+}
+.back-btn:hover {
+  background: #5a6268;
+}
 </style>
 </head>
 <body>
@@ -218,9 +255,14 @@ body {
 
 <div id="clients-tab" style="display:none;">
   <div class="calendar-view">
-    <h2 style="margin-bottom:16px; color:#3d4c2a;">All Clients</h2>
-    <input type="text" id="client-search" placeholder="Search by name or phone..." style="width:100%; padding:12px; border:2px solid #e0e0e0; border-radius:6px; margin-bottom:16px; font-size:15px;">
-    <div id="clients-list" class="loading">Loading...</div>
+    <div id="clients-list-view">
+      <h2 style="margin-bottom:16px; color:#3d4c2a;">All Clients</h2>
+      <input type="text" id="client-search" placeholder="Search by name or phone..." style="width:100%; padding:12px; border:2px solid #e0e0e0; border-radius:6px; margin-bottom:16px; font-size:15px;">
+      <div id="clients-list" class="loading">Loading...</div>
+    </div>
+    <div id="client-detail-view" style="display:none;">
+      <!-- Client detail view will be populated here -->
+    </div>
   </div>
 </div>
 
@@ -450,6 +492,7 @@ window.createRequestCard = createRequestCard;
 
 <script>
 let currentTab = 'pending';
+let allClientsData = null;
 
 function showTab(tab) {
   currentTab = tab;
@@ -702,7 +745,7 @@ function loadClients() {
           phone: phone,
           email: data.client_email,
           totalRides: 0,
-          lastRide: null,
+          balanceDue: 0,
           rides: []
         });
       }
@@ -711,12 +754,14 @@ function loadClients() {
       client.totalRides++;
       client.rides.push({id: doc.id, ...data});
       
-      if (!client.lastRide || (data.pickup_date && data.pickup_date > client.lastRide)) {
-        client.lastRide = data.pickup_date;
+      // Calculate balance due (completed but not paid)
+      if (data.status === 'completed' && data.final_price) {
+        client.balanceDue += data.final_price;
       }
     });
     
-    displayClients(Array.from(clientsMap.values()));
+    allClientsData = Array.from(clientsMap.values());
+    displayClients(allClientsData);
   });
 }
 
@@ -736,16 +781,19 @@ function displayClients(clients) {
   
   let html = '';
   filteredClients.forEach(client => {
+    const balanceClass = client.balanceDue > 0 ? '' : 'paid';
+    const balanceText = client.balanceDue > 0 ? `Due: $${client.balanceDue.toFixed(2)}` : 'Paid Up';
+    
     html += `
-      <div style="background:#f8f9fa; padding:16px; border-radius:6px; margin-bottom:12px; border-left:4px solid #3d4c2a;">
+      <div class="client-card" onclick="viewClientDetail('${client.phone}')">
         <div style="display:flex; justify-content:space-between; align-items:center;">
           <div>
             <div style="font-weight:600; font-size:16px; color:#3d4c2a;">${client.name}</div>
             <div style="font-size:14px; color:#666; margin-top:4px;">${client.phone} • ${client.email}</div>
           </div>
           <div style="text-align:right;">
-            <div style="font-size:14px; color:#666;">Total Rides: <strong>${client.totalRides}</strong></div>
-            <div style="font-size:12px; color:#999; margin-top:4px;">Last: ${client.lastRide || 'N/A'}</div>
+            <div class="balance-badge ${balanceClass}">${balanceText}</div>
+            <div style="font-size:12px; color:#999; margin-top:4px;">Total Rides: ${client.totalRides}</div>
           </div>
         </div>
       </div>
@@ -755,13 +803,77 @@ function displayClients(clients) {
   container.innerHTML = html;
 }
 
+function viewClientDetail(phone) {
+  const client = allClientsData.find(c => c.phone === phone);
+  if (!client) return;
+  
+  // Hide list, show detail
+  document.getElementById('clients-list-view').style.display = 'none';
+  document.getElementById('client-detail-view').style.display = 'block';
+  
+  // Sort rides by date, most recent first
+  const sortedRides = client.rides.sort((a, b) => {
+    const dateA = new Date(a.pickup_date || 0);
+    const dateB = new Date(b.pickup_date || 0);
+    return dateB - dateA;
+  });
+  
+  let ridesHtml = '';
+  sortedRides.forEach(ride => {
+    const statusClass = `status-${ride.status}`;
+    const price = ride.final_price || ride.client_bid || 0;
+    const isPending = ride.status === 'completed';
+    
+    ridesHtml += `
+      <div class="request-card" style="margin-bottom:12px;">
+        <div class="request-header">
+          <div style="font-weight:600; color:#3d4c2a;">${ride.pickup_date} at ${ride.pickup_time}</div>
+          <div class="status-badge ${statusClass}">${ride.status}</div>
+        </div>
+        <div style="font-size:14px; color:#666; margin-top:8px;">${ride.pickup_address} → ${ride.dropoff_address}</div>
+        <div style="font-size:18px; font-weight:600; color:${isPending ? '#dc3545' : '#28a745'}; margin-top:8px;">
+          $${price.toFixed(2)} ${isPending ? '(Unpaid)' : ''}
+        </div>
+      </div>
+    `;
+  });
+  
+  const balanceColor = client.balanceDue > 0 ? '#dc3545' : '#28a745';
+  const balanceText = client.balanceDue > 0 ? `Balance Due: $${client.balanceDue.toFixed(2)}` : 'All Paid Up!';
+  
+  document.getElementById('client-detail-view').innerHTML = `
+    <button class="back-btn" onclick="backToClientsList()">← Back to Clients</button>
+    <div style="background:#f8f9fa; padding:20px; border-radius:8px; margin-bottom:20px;">
+      <h2 style="color:#3d4c2a; margin-bottom:8px;">${client.name}</h2>
+      <div style="color:#666; margin-bottom:16px;">${client.phone} • ${client.email}</div>
+      <div style="display:flex; gap:20px; flex-wrap:wrap;">
+        <div>
+          <div style="font-size:12px; color:#666;">Total Rides</div>
+          <div style="font-size:24px; font-weight:600; color:#3d4c2a;">${client.totalRides}</div>
+        </div>
+        <div>
+          <div style="font-size:12px; color:#666;">Balance</div>
+          <div style="font-size:24px; font-weight:600; color:${balanceColor};">${balanceText}</div>
+        </div>
+      </div>
+    </div>
+    <h3 style="margin-bottom:12px; color:#3d4c2a;">Ride History</h3>
+    ${ridesHtml}
+  `;
+}
+
+function backToClientsList() {
+  document.getElementById('clients-list-view').style.display = 'block';
+  document.getElementById('client-detail-view').style.display = 'none';
+}
+
 // Add search listener
 document.addEventListener('DOMContentLoaded', function() {
   const searchInput = document.getElementById('client-search');
   if (searchInput) {
     searchInput.addEventListener('input', function() {
-      if (currentTab === 'clients') {
-        loadClients();
+      if (currentTab === 'clients' && allClientsData) {
+        displayClients(allClientsData);
       }
     });
   }
