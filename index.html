@@ -214,6 +214,7 @@ input:focus, select:focus, textarea:focus {
 .status-pending { background: #fff3cd; color: #856404; }
 .status-quoted { background: #d1ecf1; color: #0c5460; }
 .status-confirmed { background: #d4edda; color: #155724; }
+.status-completed { background: #cce5ff; color: #004085; }
 .status-declined { background: #f8d7da; color: #721c24; }
 .status-cancelled { background: #f8d7da; color: #721c24; }
 .status-paid { background: #c3e6cb; color: #1e7e34; }
@@ -440,6 +441,20 @@ input:focus, select:focus, textarea:focus {
 
     <!-- Rides Tab -->
     <div id="rides-tab" class="hidden">
+      <div id="balance-section" class="hidden" style="background:#fff3cd; border:2px solid #ffc107; border-radius:8px; padding:20px; margin-bottom:20px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+          <div>
+            <div style="font-size:14px; color:#856404; font-weight:600;">Outstanding Balance</div>
+            <div id="total-balance" style="font-size:32px; font-weight:bold; color:#856404;">$0.00</div>
+            <div style="font-size:12px; color:#856404; margin-top:4px;"><span id="unpaid-count">0</span> unpaid rides</div>
+          </div>
+        </div>
+        <div style="display:flex; gap:8px; flex-wrap:wrap;">
+          <a id="balance-cashapp-link" href="https://cash.app/$JasonNed" class="payment-link" target="_blank" style="flex:1; min-width:150px;">Pay Total with CashApp</a>
+          <a id="balance-venmo-link" href="https://venmo.com/u/Jason-Nedoroscik" class="payment-link" target="_blank" style="flex:1; min-width:150px;">Pay Total with Venmo</a>
+        </div>
+        <p style="font-size:11px; color:#856404; margin-top:12px; text-align:center;">Include "Patriot Transportation" in the payment note</p>
+      </div>
       <div id="rides-list" class="loading">Loading your rides...</div>
     </div>
   </div>
@@ -720,22 +735,50 @@ function displayRides(snapshot) {
   const container = document.getElementById('rides-list');
   
   if (snapshot.empty) {
+    document.getElementById('balance-section').classList.add('hidden');
     container.innerHTML = '<div class="empty-state">No rides yet. Book your first ride!</div>';
     return;
   }
 
   const rides = [];
+  let totalBalance = 0;
+  let unpaidCount = 0;
+  
   snapshot.forEach((doc) => {
-    rides.push({ id: doc.id, data: doc.data() });
+    const rideData = doc.data();
+    rides.push({ id: doc.id, data: rideData });
+    
+    // Calculate balance from completed (unpaid) rides
+    if (rideData.status === 'completed' && rideData.final_price) {
+      totalBalance += rideData.final_price;
+      unpaidCount++;
+    }
   });
+
+  // Update balance section
+  if (totalBalance > 0) {
+    document.getElementById('balance-section').classList.remove('hidden');
+    document.getElementById('total-balance').textContent = '$' + totalBalance.toFixed(2);
+    document.getElementById('unpaid-count').textContent = unpaidCount;
+    
+    // Update payment links with amount
+    const cashappLink = document.getElementById('balance-cashapp-link');
+    const venmoLink = document.getElementById('balance-venmo-link');
+    cashappLink.href = `https://cash.app/$JasonNed/${totalBalance.toFixed(2)}`;
+    venmoLink.href = `https://venmo.com/u/Jason-Nedoroscik?txn=pay&amount=${totalBalance.toFixed(2)}&note=Patriot%20Transportation`;
+  } else {
+    document.getElementById('balance-section').classList.add('hidden');
+  }
 
   rides.sort((a, b) => {
     const statusPriority = {
       'pending': 1,
       'quoted': 2,
       'confirmed': 3,
-      'declined': 4,
-      'paid': 5
+      'completed': 4,
+      'declined': 5,
+      'paid': 6,
+      'cancelled': 7
     };
     
     const priorityA = statusPriority[a.data.status] || 99;
@@ -785,6 +828,21 @@ function createRideCard(id, data) {
         <p style="font-size:12px; color:#999; margin-top:8px;">Include "Patriot Transportation" in the note</p>
       </div>
       <button class="btn" style="background:#dc3545; color:white; margin-top:12px;" onclick="cancelRide('${id}')">Cancel Booking</button>
+    `;
+  } else if (data.status === 'completed') {
+    actionSection = `
+      <div class="price-box">
+        <div class="price-label">Total Amount Due</div>
+        <div class="price-amount">$${amount.toFixed(2)}</div>
+      </div>
+      <div class="payment-section">
+        <div class="payment-title">Payment Instructions</div>
+        <p style="font-size:13px; color:#666; margin-bottom:12px;">Ride complete! Please send payment to:</p>
+        <a href="https://cash.app/$JasonNed" class="payment-link" target="_blank">Pay with CashApp</a>
+        <a href="https://venmo.com/u/Jason-Nedoroscik" class="payment-link" target="_blank">Pay with Venmo</a>
+        <div class="payment-link" style="background:#6c757d; cursor:default;">Paid with Cash</div>
+        <p style="font-size:12px; color:#999; margin-top:8px;">Include "Patriot Transportation" in the note</p>
+      </div>
     `;
   } else if (data.status === 'paid') {
     actionSection = `
