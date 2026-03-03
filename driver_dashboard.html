@@ -315,7 +315,17 @@ onSnapshot(quotedQuery, (snapshot) => {
 // Load confirmed requests
 const confirmedQuery = query(collection(db, 'ride_requests'), where('status', '==', 'confirmed'), orderBy('pickup_date', 'asc'));
 onSnapshot(confirmedQuery, (snapshot) => {
-  displayRequests(snapshot, 'confirmed-requests');
+  // Sort by date AND time for true chronological order
+  const rides = [];
+  snapshot.forEach(doc => rides.push({id: doc.id, data: doc.data()}));
+  
+  rides.sort((a, b) => {
+    const dateTimeA = new Date(a.data.pickup_date + ' ' + a.data.pickup_time);
+    const dateTimeB = new Date(b.data.pickup_date + ' ' + b.data.pickup_time);
+    return dateTimeA - dateTimeB;
+  });
+  
+  displayRequestsSorted(rides, 'confirmed-requests');
   displayCalendar(snapshot);
 });
 
@@ -343,6 +353,20 @@ function displayRequests(snapshot, containerId) {
   snapshot.forEach((doc) => {
     const data = doc.data();
     container.innerHTML += createRequestCard(doc.id, data);
+  });
+}
+
+function displayRequestsSorted(ridesArray, containerId) {
+  const container = document.getElementById(containerId);
+  
+  if (ridesArray.length === 0) {
+    container.innerHTML = '<div class="empty-state">No requests yet</div>';
+    return;
+  }
+
+  container.innerHTML = '';
+  ridesArray.forEach((ride) => {
+    container.innerHTML += createRequestCard(ride.id, ride.data);
   });
 }
 
