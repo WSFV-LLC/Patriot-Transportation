@@ -277,10 +277,8 @@ onSnapshot(confirmedQuery, (snapshot) => {
 });
 
 // Load completed (paid) requests
-const completedQuery = query(collection(db, 'ride_requests'), where('status', '==', 'paid'), orderBy('pickup_date', 'desc'));
-onSnapshot(completedQuery, (snapshot) => {
-  displayRequests(snapshot, 'completed-requests');
-});
+const completedQuery = query(collection(db, 'ride_requests'), where('status', 'in', ['completed', 'paid']), orderBy('pickup_date', 'desc'));
+
 
 // Load cancelled requests
 const cancelledQuery = query(collection(db, 'ride_requests'), where('status', '==', 'cancelled'), orderBy('created_at', 'desc'));
@@ -349,14 +347,32 @@ function createRequestCard(id, data) {
         <button class="btn btn-deny" onclick="cancelRide('${id}')">Cancel Quote</button>
       </div>
     `;
-  } else if (data.status === 'confirmed') {
-    actionButtons = `
-      <div class="actions">
-        <button class="btn btn-paid" onclick="markAsPaid('${id}')">Mark as Paid</button>
-        <button class="btn btn-receipt" onclick="generateReceipt('${id}')">Generate Receipt</button>
-        <button class="btn btn-deny" onclick="cancelRide('${id}')">Cancel Ride</button>
-      </div>
-    `;
+} else if (data.status === 'confirmed') {
+  actionButtons = `
+    <div class="actions">
+      <button class="btn btn-paid" onclick="markAsComplete('${id}')">Ride Complete</button>
+      <button class="btn btn-deny" onclick="cancelRide('${id}')">Cancel Ride</button>
+    </div>
+  `;
+    } else if (data.status === 'completed') {
+  actionButtons = `
+    <div class="actions">
+      <button class="btn btn-paid" onclick="markAsPaid('${id}')">Mark as Paid</button>
+      <button class="btn btn-deny" onclick="cancelRide('${id}')">Cancel Ride</button>
+    </div>
+  `;
+    async function markAsComplete(id) {
+  if (!confirm('Mark this ride as complete (not yet paid)?')) return;
+  try {
+    await window.updateDoc(window.doc(window.db, 'ride_requests', id), {
+      status: 'completed',
+      completed_at: new Date()
+    });
+    alert('Marked as complete!');
+  } catch (error) {
+    alert('Error: ' + error.message);
+  }
+}
   } else if (data.status === 'paid') {
     actionButtons = `
       <div class="actions">
