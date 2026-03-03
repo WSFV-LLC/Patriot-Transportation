@@ -763,6 +763,11 @@ function loadClients() {
       const data = doc.data();
       const phone = data.client_phone;
       
+      // Exclude declined and cancelled rides only
+      if (['declined', 'cancelled'].includes(data.status)) {
+        return;
+      }
+      
       if (!clientsMap.has(phone)) {
         clientsMap.set(phone, {
           name: data.client_name,
