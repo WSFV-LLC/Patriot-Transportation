@@ -450,7 +450,7 @@ input:focus, select:focus, textarea:focus {
 
 <script type="module">
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
-import { getFirestore, collection, query, where, orderBy, onSnapshot, doc, updateDoc, addDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+import { getFirestore, collection, query, where, orderBy, onSnapshot, doc, updateDoc, addDoc, serverTimestamp, getDoc } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
 
 const firebaseConfig = {
   apiKey: "AIzaSyCU5gio9iuDF1wkY8lRJVN0ULHQxgujluM",
@@ -474,6 +474,7 @@ window.orderBy = orderBy;
 window.onSnapshot = onSnapshot;
 window.updateDoc = updateDoc;
 window.doc = doc;
+window.getDoc = getDoc;
 </script>
 
 <script>
@@ -858,11 +859,29 @@ async function cancelRide(id) {
   if (!confirm('Are you sure you want to cancel this booking?')) return;
   
   try {
+    // Get the ride data first to get calendar event ID
+    const rideDoc = await window.getDoc(window.doc(window.db, 'ride_requests', id));
+    const rideData = rideDoc.data();
+    
+    // Update status to cancelled
     await window.updateDoc(window.doc(window.db, 'ride_requests', id), {
       status: 'cancelled',
       cancelled_at: new Date(),
       cancelled_by: 'client'
     });
+    
+    // If there's a calendar event, send webhook to delete it
+    if (rideData.calendar_event_id) {
+      fetch('https://hook.us2.make.com/zlo5peda4fwlrz2nk7m1hakc4dxjblw1', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'delete',
+          event_id: rideData.calendar_event_id
+        })
+      }).catch(err => console.log('Delete calendar error:', err));
+    }
+    
     alert('Booking cancelled successfully.');
   } catch (error) {
     alert('Error cancelling booking: ' + error.message);
