@@ -865,6 +865,14 @@ function viewClientDetail(phone) {
   const balanceColor = client.balanceDue > 0 ? '#dc3545' : '#28a745';
   const balanceText = client.balanceDue > 0 ? `Balance Due: $${client.balanceDue.toFixed(2)}` : 'All Paid Up!';
   
+  // Get IDs of all completed (unpaid) rides
+  const unpaidRideIds = client.rides
+    .filter(ride => ride.status === 'completed')
+    .map(ride => ride.id);
+  
+  const markAllButton = unpaidRideIds.length > 0 ? 
+    `<button class="btn btn-paid" style="margin-top:12px;" onclick="markAllAsPaid('${client.phone}', ${JSON.stringify(unpaidRideIds).replace(/"/g, '&quot;')})">Mark All ${unpaidRideIds.length} Rides as Paid ($${client.balanceDue.toFixed(2)})</button>` : '';
+  
   document.getElementById('client-detail-view').innerHTML = `
     <button class="back-btn" onclick="backToClientsList()">← Back to Clients</button>
     <div style="background:#f8f9fa; padding:20px; border-radius:8px; margin-bottom:20px;">
@@ -880,10 +888,34 @@ function viewClientDetail(phone) {
           <div style="font-size:24px; font-weight:600; color:${balanceColor};">${balanceText}</div>
         </div>
       </div>
+      ${markAllButton}
     </div>
     <h3 style="margin-bottom:12px; color:#3d4c2a;">Ride History</h3>
     ${ridesHtml}
   `;
+}
+
+async function markAllAsPaid(clientPhone, rideIds) {
+  const rideCount = rideIds.length;
+  if (!confirm(`Mark all ${rideCount} completed rides as paid?`)) return;
+  
+  try {
+    // Update all rides to paid status
+    const updatePromises = rideIds.map(id => 
+      window.updateDoc(window.doc(window.db, 'ride_requests', id), {
+        status: 'paid',
+        paid_at: new Date()
+      })
+    );
+    
+    await Promise.all(updatePromises);
+    alert(`All ${rideCount} rides marked as paid!`);
+    
+    // Refresh the client detail view
+    setTimeout(() => viewClientDetail(clientPhone), 500);
+  } catch (error) {
+    alert('Error marking rides as paid: ' + error.message);
+  }
 }
 
 function backToClientsList() {
