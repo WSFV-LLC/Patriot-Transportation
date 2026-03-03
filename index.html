@@ -380,12 +380,12 @@ input:focus, select:focus, textarea:focus {
 
         <div class="field">
           <label>Pickup Address *</label>
-          <input type="text" id="pickup_address" required placeholder="Full address including city">
+          <input type="text" id="pickup_address" required placeholder="e.g., 123 Main St, San Antonio or Chick-fil-A, Cibolo">
         </div>
 
         <div class="field">
           <label>Drop-off Address *</label>
-          <input type="text" id="dropoff_address" required placeholder="Full address including city">
+          <input type="text" id="dropoff_address" required placeholder="e.g., San Antonio Airport or 456 Oak Ave, San Antonio">
         </div>
 
         <div class="row">
@@ -552,6 +552,13 @@ async function calculateEstimate() {
   btn.textContent = 'Calculating...';
   btn.disabled = true;
 
+  // Set a timeout in case the API never responds
+  const timeoutId = setTimeout(() => {
+    showError('Request timed out. Please include the city in your address (e.g., "Chick-fil-A, Cibolo" or "123 Main St, San Antonio") and try again.');
+    btn.textContent = 'Get Estimate & Make Offer';
+    btn.disabled = false;
+  }, 10000); // 10 second timeout
+
   try {
     distanceService.getDistanceMatrix(
       {
@@ -561,6 +568,8 @@ async function calculateEstimate() {
         unitSystem: google.maps.UnitSystem.IMPERIAL
       },
       function(response, status) {
+        clearTimeout(timeoutId); // Clear the timeout if we got a response
+        
         if (status === 'OK' && response.rows[0].elements[0].status === 'OK') {
           const distance = response.rows[0].elements[0].distance.value / 1609.34; // Convert meters to miles
           const duration = response.rows[0].elements[0].duration.value / 60; // Convert seconds to minutes
@@ -578,12 +587,24 @@ async function calculateEstimate() {
           btn.textContent = 'Get Estimate & Make Offer';
           btn.disabled = false;
         } else {
-          throw new Error('Could not calculate distance: ' + status);
+          // Handle specific error cases
+          let errorMsg = 'Could not calculate distance. ';
+          if (response.rows[0].elements[0].status === 'NOT_FOUND') {
+            errorMsg += 'Address not found. Include the city (e.g., "Chick-fil-A, Cibolo" or "123 Main St, San Antonio").';
+          } else if (response.rows[0].elements[0].status === 'ZERO_RESULTS') {
+            errorMsg += 'No route found between these addresses. Please check and try again.';
+          } else {
+            errorMsg += 'Please check your addresses and try again.';
+          }
+          showError(errorMsg);
+          btn.textContent = 'Get Estimate & Make Offer';
+          btn.disabled = false;
         }
       }
     );
   } catch (error) {
-    showError('Could not calculate distance. Please check your addresses and try again.');
+    clearTimeout(timeoutId);
+    showError('Could not calculate distance. Please include the city in your addresses and try again.');
     btn.textContent = 'Get Estimate & Make Offer';
     btn.disabled = false;
   }
