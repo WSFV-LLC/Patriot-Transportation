@@ -21,18 +21,26 @@ body {
   box-shadow: 0 2px 10px rgba(0,0,0,0.1);
 }
 .header {
+  background: #3d4c2a;
+  color: white;
+  padding: 20px;
+  border-radius: 6px;
   text-align: center;
-  border-bottom: 2px solid #3d4c2a;
-  padding-bottom: 20px;
   margin-bottom: 30px;
 }
 .header h1 {
-  color: #3d4c2a;
-  font-size: 28px;
+  color: white;
+  font-size: 32px;
   margin-bottom: 5px;
+  font-weight: 600;
+}
+.header .company-legal {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.8);
+  margin-bottom: 8px;
 }
 .header p {
-  color: #666;
+  color: rgba(255, 255, 255, 0.9);
   font-size: 14px;
 }
 .section {
@@ -194,8 +202,8 @@ function displayReceipt(data) {
   
   document.getElementById('receipt').innerHTML = `
     <div class="header">
-      <h1>WSFV, LLC</h1>
-      <p style="margin: 0; font-size: 14px; color: #666;">dba Patriot Transportation</p>
+      <p class="company-legal">WSFV, LLC</p>
+      <h1>Patriot Transportation</h1>
       <p>San Antonio & Surrounding Areas</p>
     </div>
 
