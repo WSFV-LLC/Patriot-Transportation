@@ -322,6 +322,78 @@ input:focus, select:focus, textarea:focus {
 .logout-btn:hover {
   background: rgba(61, 76, 42, 0.1);
 }
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+  body {
+    padding: 10px;
+  }
+  .container {
+    padding: 20px 16px;
+  }
+  .header {
+    flex-direction: column;
+    gap: 8px;
+  }
+  .header h1 {
+    font-size: 20px;
+  }
+  .tabs {
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    padding-bottom: 8px;
+  }
+  .tab {
+    padding: 10px 16px;
+    font-size: 13px;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .form-group label {
+    font-size: 13px;
+  }
+  .form-group input,
+  .form-group select,
+  .form-group textarea {
+    font-size: 15px;
+    padding: 12px;
+  }
+  .btn {
+    padding: 14px 24px;
+    font-size: 15px;
+  }
+  .price-box {
+    padding: 16px;
+  }
+  .price-amount {
+    font-size: 28px;
+  }
+  .payment-link {
+    padding: 12px;
+    font-size: 14px;
+  }
+  .ride-card {
+    padding: 16px;
+  }
+  .ride-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  .error-message {
+    font-size: 13px;
+  }
+  #balance-section {
+    padding: 16px !important;
+  }
+  #balance-section > div:first-child {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+  }
+  #balance-section #total-balance {
+    font-size: 28px !important;
+  }
+}
 </style>
 </head>
 <body>
