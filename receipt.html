@@ -200,6 +200,12 @@ function displayReceipt(data) {
   const paidDate = data.paid_at ? new Date(data.paid_at.seconds * 1000).toLocaleDateString() : 'N/A';
   const receiptNumber = 'PT-' + Math.random().toString(36).substr(2, 9).toUpperCase();
   
+  // Detect which dashboard to go back to
+  const referrer = document.referrer;
+  const backUrl = referrer.includes('driver_dashboard') 
+    ? 'https://wsfv-llc.github.io/Patriot-Transportation/driver_dashboard.html'
+    : 'https://wsfv-llc.github.io/Patriot-Transportation/';
+  
   document.getElementById('receipt').innerHTML = `
     <div class="header">
       <p class="company-legal">WSFV, LLC</p>
@@ -271,7 +277,7 @@ function displayReceipt(data) {
     </div>
 
     <div style="text-align:center; margin:30px 0;">
-      <a href="https://wsfv-llc.github.io/Patriot-Transportation/" style="display:inline-block; background:#3d4c2a; color:white; padding:12px 24px; text-decoration:none; border-radius:6px; font-weight:600;">← Back to Dashboard</a>
+      <a href="${backUrl}" style="display:inline-block; background:#3d4c2a; color:white; padding:12px 24px; text-decoration:none; border-radius:6px; font-weight:600;">← Back to Dashboard</a>
     </div>
 
     <div class="footer">
