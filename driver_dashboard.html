@@ -302,6 +302,7 @@ body {
   <div class="tab" onclick="showTab('cancelled')">Cancelled</div>
   <div class="tab" onclick="showTab('clients')">Clients</div>
   <div class="tab" onclick="showTab('calendar')">Calendar</div>
+  <div class="tab" onclick="showTab('tithe')">Tithe</div>
 </div>
 
 <div id="pending-tab">
@@ -341,6 +342,14 @@ body {
   <div class="calendar-view">
     <h2 style="margin-bottom:16px; color:#3d4c2a;">Upcoming Rides</h2>
     <div id="calendar-view" class="loading">Loading...</div>
+  </div>
+</div>
+
+<div id="tithe-tab" style="display:none;">
+  <div class="calendar-view">
+    <h2 style="margin-bottom:16px; color:#3d4c2a;">Weekly Tithe Tracker</h2>
+    <p style="color:#666; margin-bottom:20px; font-size:14px;">10% of weekly income (Sunday - Saturday)</p>
+    <div id="tithe-view" class="loading">Loading...</div>
   </div>
 </div>
 
@@ -613,6 +622,7 @@ function showTab(tab) {
   document.getElementById('cancelled-tab').style.display = 'none';
   document.getElementById('clients-tab').style.display = 'none';
   document.getElementById('calendar-tab').style.display = 'none';
+  document.getElementById('tithe-tab').style.display = 'none';
   
   // Show selected tab
   document.getElementById(tab + '-tab').style.display = 'block';
@@ -624,6 +634,11 @@ function showTab(tab) {
   // Load clients if switching to clients tab
   if (tab === 'clients') {
     loadClients();
+  }
+  
+  // Load tithe data if switching to tithe tab
+  if (tab === 'tithe') {
+    loadTitheData();
   }
 }
 
@@ -1027,6 +1042,107 @@ document.addEventListener('DOMContentLoaded', function() {
 function generateReceipt(id) {
   window.open(`receipt.html?id=${id}`, '_blank');
 }
+
+// Tithe tracking with localStorage
+let tithesPaid = JSON.parse(localStorage.getItem('tithesPaid') || '{}');
+
+function getWeekKey(date) {
+  // Get Sunday of the week
+  const d = new Date(date);
+  const day = d.getDay();
+  const diff = d.getDate() - day; // subtract days to get to Sunday
+  const sunday = new Date(d.setDate(diff));
+  return sunday.toISOString().split('T')[0]; // YYYY-MM-DD format
+}
+
+function loadTitheData() {
+  const allRidesQuery = window.query(window.collection(window.db, 'ride_requests'), window.where('status', '==', 'paid'), window.orderBy('paid_at', 'desc'));
+  
+  window.onSnapshot(allRidesQuery, (snapshot) => {
+    const weeklyTotals = new Map();
+    
+    snapshot.forEach((doc) => {
+      const data = doc.data();
+      if (data.paid_at && data.final_price) {
+        const paidDate = new Date(data.paid_at.seconds * 1000);
+        const weekKey = getWeekKey(paidDate);
+        
+        if (!weeklyTotals.has(weekKey)) {
+          weeklyTotals.set(weekKey, {
+            startDate: weekKey,
+            total: 0,
+            rides: []
+          });
+        }
+        
+        const week = weeklyTotals.get(weekKey);
+        week.total += data.final_price;
+        week.rides.push(data);
+      }
+    });
+    
+    displayTitheData(weeklyTotals);
+  });
+}
+
+function displayTitheData(weeklyTotals) {
+  const container = document.getElementById('tithe-view');
+  
+  if (weeklyTotals.size === 0) {
+    container.innerHTML = '<div class="empty-state">No paid rides yet</div>';
+    return;
+  }
+  
+  // Sort weeks by date, most recent first
+  const sortedWeeks = Array.from(weeklyTotals.values()).sort((a, b) => {
+    return new Date(b.startDate) - new Date(a.startDate);
+  });
+  
+  let html = '';
+  sortedWeeks.forEach(week => {
+    const sunday = new Date(week.startDate);
+    const saturday = new Date(sunday);
+    saturday.setDate(saturday.getDate() + 6);
+    
+    const weekLabel = `${sunday.toLocaleDateString('en-US', {month: 'short', day: 'numeric'})} - ${saturday.toLocaleDateString('en-US', {month: 'short', day: 'numeric', year: 'numeric'})}`;
+    const titheAmount = week.total * 0.10;
+    const isPaid = tithesPaid[week.startDate] || false;
+    
+    html += `
+      <div class="request-card" style="margin-bottom:16px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+          <div>
+            <div style="font-weight:600; font-size:16px; color:#3d4c2a;">${weekLabel}</div>
+            <div style="font-size:13px; color:#666; margin-top:4px;">${week.rides.length} paid rides</div>
+          </div>
+          <div style="text-align:right;">
+            <div style="font-size:12px; color:#666;">Income</div>
+            <div style="font-size:20px; font-weight:600; color:#3d4c2a;">$${week.total.toFixed(2)}</div>
+          </div>
+        </div>
+        <div style="background:#f8f9fa; padding:12px; border-radius:6px; display:flex; justify-content:space-between; align-items:center;">
+          <div>
+            <div style="font-size:12px; color:#666;">Tithe (10%)</div>
+            <div style="font-size:18px; font-weight:600; color:#3d4c2a;">$${titheAmount.toFixed(2)}</div>
+          </div>
+          <button class="btn ${isPaid ? 'btn-paid' : 'btn-counter'}" onclick="toggleTithePaid('${week.startDate}')" style="padding:8px 16px; font-size:13px;">
+            ${isPaid ? '✓ Tithe Paid' : 'Mark as Paid'}
+          </button>
+        </div>
+      </div>
+    `;
+  });
+  
+  container.innerHTML = html;
+}
+
+function toggleTithePaid(weekKey) {
+  tithesPaid[weekKey] = !tithesPaid[weekKey];
+  localStorage.setItem('tithesPaid', JSON.stringify(tithesPaid));
+  loadTitheData(); // Refresh display
+}
+
+window.toggleTithePaid = toggleTithePaid;
 </script>
 
 </body>
