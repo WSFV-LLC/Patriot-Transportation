@@ -525,7 +525,12 @@ function createRequestCard(id, data) {
     `;
   } else if (data.status === 'paid') {
     actionButtons = `
+      <div class="counter-input" style="margin-bottom:12px;">
+        <span style="font-weight:600;">Edit Amount: $</span>
+        <input type="number" id="edit-${id}" value="${amount.toFixed(2)}" min="1" step="0.01">
+      </div>
       <div class="actions">
+        <button class="btn btn-counter" onclick="updatePaidAmount('${id}')">Update Amount</button>
         <button class="btn btn-receipt" onclick="generateReceipt('${id}')">View Receipt</button>
         <button class="btn btn-deny" onclick="deleteRide('${id}')">Delete</button>
       </div>
@@ -749,6 +754,27 @@ async function markAsPaid(id) {
     alert('Marked as paid!');
   } catch (error) {
     alert('Error: ' + error.message);
+  }
+}
+
+async function updatePaidAmount(id) {
+  const input = document.getElementById('edit-' + id);
+  const newAmount = parseFloat(input.value);
+  
+  if (!newAmount || newAmount < 0) {
+    alert('Please enter a valid amount');
+    return;
+  }
+  
+  if (!confirm(`Update ride amount to $${newAmount.toFixed(2)}?`)) return;
+  
+  try {
+    await window.updateDoc(window.doc(window.db, 'ride_requests', id), {
+      final_price: newAmount
+    });
+    alert('Amount updated!');
+  } catch (error) {
+    alert('Error updating amount: ' + error.message);
   }
 }
 
