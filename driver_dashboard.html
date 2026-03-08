@@ -412,7 +412,15 @@ onSnapshot(confirmedQuery, (snapshot) => {
 // Load completed requests (both completed and paid)
 const completedQuery = query(collection(db, 'ride_requests'), where('status', 'in', ['completed', 'paid']), orderBy('pickup_date', 'desc'));
 onSnapshot(completedQuery, (snapshot) => {
-  displayRequests(snapshot, 'completed-requests');
+  // Filter out hidden rides
+  const visibleRides = [];
+  snapshot.forEach(doc => {
+    const data = doc.data();
+    if (!data.hidden_from_completed) {
+      visibleRides.push({id: doc.id, data: data});
+    }
+  });
+  displayFilteredRequests(visibleRides, 'completed-requests');
 });
 
 // Load cancelled requests
@@ -454,6 +462,20 @@ function displayRequestsSorted(ridesArray, containerId) {
   
   if (ridesArray.length === 0) {
     container.innerHTML = '<div class="empty-state">No requests yet</div>';
+    return;
+  }
+
+  container.innerHTML = '';
+  ridesArray.forEach((ride) => {
+    container.innerHTML += createRequestCard(ride.id, ride.data);
+  });
+}
+
+function displayFilteredRequests(ridesArray, containerId) {
+  const container = document.getElementById(containerId);
+  
+  if (ridesArray.length === 0) {
+    container.innerHTML = '<div class="empty-state">No visible rides</div>';
     return;
   }
 
@@ -533,6 +555,7 @@ function createRequestCard(id, data) {
       <div class="actions">
         <button class="btn btn-counter" onclick="updatePaidAmount('${id}')">Update Amount</button>
         <button class="btn btn-receipt" onclick="generateReceipt('${id}')">View Receipt</button>
+        <button class="btn" style="background:#6c757d; color:white;" onclick="hideRide('${id}')">Hide</button>
         <button class="btn btn-deny" onclick="deleteRide('${id}')">Delete</button>
       </div>
     `;
@@ -832,6 +855,19 @@ async function cancelRide(id) {
     alert('Ride cancelled.');
   } catch (error) {
     alert('Error: ' + error.message);
+  }
+}
+
+async function hideRide(id) {
+  if (!confirm('Hide this ride from the Completed tab? (It will still appear in Clients tab)')) return;
+  
+  try {
+    await window.updateDoc(window.doc(window.db, 'ride_requests', id), {
+      hidden_from_completed: true
+    });
+    alert('Ride hidden from Completed tab!');
+  } catch (error) {
+    alert('Error hiding ride: ' + error.message);
   }
 }
 
