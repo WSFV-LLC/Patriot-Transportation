@@ -487,6 +487,7 @@ function displayCalendar(snapshot) {
 
 function createRequestCard(id, data) {
   const statusClass = `status-${data.status}`;
+  const amount = data.final_price || data.client_bid || 0;
   
   let actionButtons = '';
   
