@@ -926,6 +926,15 @@ function createRideCard(id, data) {
         <div class="price-amount">$${amount.toFixed(2)}</div>
       </div>
       <a href="receipt.html?id=${id}" target="_blank" class="btn btn-primary" style="display:block; text-align:center; text-decoration:none; margin-top:12px;">View Receipt</a>
+      <div style="margin-top:16px; padding-top:16px; border-top:1px solid #e0e0e0;">
+        <div style="font-size:14px; font-weight:600; color:#3d4c2a; margin-bottom:12px;">Add a Tip</div>
+        <div style="display:flex; gap:8px; flex-wrap:wrap;">
+          <a href="https://cash.app/$JasonNed" class="payment-link" target="_blank" style="flex:1; min-width:120px;">Tip with CashApp</a>
+          <a href="https://venmo.com/u/Jason-Nedoroscik" class="payment-link" target="_blank" style="flex:1; min-width:120px;">Tip with Venmo</a>
+          <a href="https://www.paypal.com/ncp/payment/GGLFF2L9XDA4E" class="payment-link" target="_blank" style="flex:1; min-width:120px;">Tip with PayPal</a>
+        </div>
+        <p style="font-size:11px; color:#999; margin-top:8px; text-align:center;">Thank you for your generosity!</p>
+      </div>
     `;
   } else if (data.status === 'pending') {
     actionSection = `
