@@ -779,6 +779,29 @@ async function updatePaidAmount(id) {
   }
 }
 
+async function updateRideAmount(rideId, clientPhone) {
+  const input = document.getElementById('edit-client-' + rideId);
+  const newAmount = parseFloat(input.value);
+  
+  if (!newAmount || newAmount < 0) {
+    alert('Please enter a valid amount');
+    return;
+  }
+  
+  if (!confirm(`Update ride amount to $${newAmount.toFixed(2)}?`)) return;
+  
+  try {
+    await window.updateDoc(window.doc(window.db, 'ride_requests', rideId), {
+      final_price: newAmount
+    });
+    alert('Amount updated!');
+    // Refresh the client detail view
+    setTimeout(() => viewClientDetail(clientPhone), 500);
+  } catch (error) {
+    alert('Error updating amount: ' + error.message);
+  }
+}
+
 async function cancelRide(id) {
   if (!confirm('Are you sure you want to cancel this ride?')) return;
   
@@ -978,6 +1001,18 @@ function viewClientDetail(phone) {
     const statusClass = `status-${ride.status}`;
     const price = ride.final_price || ride.client_bid || 0;
     const isPending = ride.status === 'completed';
+    const isPaid = ride.status === 'paid';
+    
+    // Add edit button for completed and paid rides
+    const editSection = (isPending || isPaid) ? `
+      <div style="margin-top:12px; padding-top:12px; border-top:1px solid #e0e0e0;">
+        <div style="display:flex; gap:8px; align-items:center;">
+          <span style="font-size:13px; font-weight:600;">Edit: $</span>
+          <input type="number" id="edit-client-${ride.id}" value="${price.toFixed(2)}" min="1" step="0.01" style="flex:1; padding:8px; border:2px solid #3d4c2a; border-radius:4px; font-size:14px;">
+          <button class="btn btn-counter" onclick="updateRideAmount('${ride.id}', '${phone}')" style="padding:8px 16px; font-size:13px;">Update</button>
+        </div>
+      </div>
+    ` : '';
     
     ridesHtml += `
       <div class="request-card" style="margin-bottom:12px;">
@@ -989,6 +1024,7 @@ function viewClientDetail(phone) {
         <div style="font-size:18px; font-weight:600; color:${isPending ? '#dc3545' : '#28a745'}; margin-top:8px;">
           $${price.toFixed(2)} ${isPending ? '(Unpaid)' : ''}
         </div>
+        ${editSection}
       </div>
     `;
   });
