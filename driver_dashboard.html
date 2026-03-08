@@ -495,7 +495,7 @@ function createRequestCard(id, data) {
     actionButtons = `
       <div class="counter-input">
         <span style="font-weight:600;">Counter offer: $</span>
-        <input type="number" id="counter-${id}" placeholder="Enter amount" min="1" step="0.01">
+        <input type="number" id="counter-${id}" placeholder="Enter amount" min="0" step="0.01">
       </div>
       <div class="actions" style="margin-top:12px;">
         <button class="btn btn-accept" onclick="acceptBid('${id}', ${data.client_bid})">Accept Their Bid ($${data.client_bid})</button>
@@ -528,7 +528,7 @@ function createRequestCard(id, data) {
     actionButtons = `
       <div class="counter-input" style="margin-bottom:12px;">
         <span style="font-weight:600;">Edit Amount: $</span>
-        <input type="number" id="edit-${id}" value="${amount.toFixed(2)}" min="1" step="0.01">
+        <input type="number" id="edit-${id}" value="${amount.toFixed(2)}" min="0" step="0.01">
       </div>
       <div class="actions">
         <button class="btn btn-counter" onclick="updatePaidAmount('${id}')">Update Amount</button>
@@ -696,8 +696,8 @@ async function counterOffer(id) {
   const input = document.getElementById('counter-' + id);
   const amount = parseFloat(input.value);
   
-  if (!amount || amount < 1) {
-    alert('Please enter a valid counter offer amount');
+  if (isNaN(amount) || amount < 0) {
+    alert('Please enter a valid counter offer amount (minimum $0)');
     return;
   }
   
@@ -762,8 +762,8 @@ async function updatePaidAmount(id) {
   const input = document.getElementById('edit-' + id);
   const newAmount = parseFloat(input.value);
   
-  if (!newAmount || newAmount < 0) {
-    alert('Please enter a valid amount');
+  if (isNaN(newAmount) || newAmount < 0) {
+    alert('Please enter a valid amount (minimum $0)');
     return;
   }
   
@@ -783,8 +783,8 @@ async function updateRideAmount(rideId, clientPhone) {
   const input = document.getElementById('edit-client-' + rideId);
   const newAmount = parseFloat(input.value);
   
-  if (!newAmount || newAmount < 0) {
-    alert('Please enter a valid amount');
+  if (isNaN(newAmount) || newAmount < 0) {
+    alert('Please enter a valid amount (minimum $0)');
     return;
   }
   
@@ -1008,7 +1008,7 @@ function viewClientDetail(phone) {
       <div style="margin-top:12px; padding-top:12px; border-top:1px solid #e0e0e0;">
         <div style="display:flex; gap:8px; align-items:center;">
           <span style="font-size:13px; font-weight:600;">Edit: $</span>
-          <input type="number" id="edit-client-${ride.id}" value="${price.toFixed(2)}" min="1" step="0.01" style="flex:1; padding:8px; border:2px solid #3d4c2a; border-radius:4px; font-size:14px;">
+          <input type="number" id="edit-client-${ride.id}" value="${price.toFixed(2)}" min="0" step="0.01" style="flex:1; padding:8px; border:2px solid #3d4c2a; border-radius:4px; font-size:14px;">
           <button class="btn btn-counter" onclick="updateRideAmount('${ride.id}', '${phone}')" style="padding:8px 16px; font-size:13px;">Update</button>
         </div>
       </div>
