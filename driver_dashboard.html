@@ -818,8 +818,8 @@ async function updateRideAmount(rideId, clientPhone) {
       final_price: newAmount
     });
     alert('Amount updated!');
-    // Refresh the client detail view
-    setTimeout(() => viewClientDetail(clientPhone), 500);
+    // Refresh the client detail view with longer delay for Firebase sync
+    setTimeout(() => viewClientDetail(clientPhone), 1500);
   } catch (error) {
     alert('Error updating amount: ' + error.message);
   }
