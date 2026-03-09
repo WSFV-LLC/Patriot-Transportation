@@ -817,12 +817,51 @@ async function updateRideAmount(rideId, clientPhone) {
     await window.updateDoc(window.doc(window.db, 'ride_requests', rideId), {
       final_price: newAmount
     });
-    alert('Amount updated!');
-    // Refresh the client detail view with longer delay for Firebase sync
-    setTimeout(() => viewClientDetail(clientPhone), 1500);
+    alert('Amount updated! Refreshing...');
+    // Wait a moment for Firebase to propagate
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    // Reload clients data to clear cache, then view detail
+    await loadClientsAndViewDetail(clientPhone);
   } catch (error) {
     alert('Error updating amount: ' + error.message);
   }
+}
+
+async function loadClientsAndViewDetail(phone) {
+  // Reload all clients data
+  const q = window.query(window.collection(window.db, 'ride_requests'), window.where('status', 'not-in', ['declined', 'cancelled']));
+  const snapshot = await window.getDocs(q);
+  
+  const clientsMap = new Map();
+  snapshot.forEach((doc) => {
+    const data = doc.data();
+    const phone = data.client_phone;
+    
+    if (!clientsMap.has(phone)) {
+      clientsMap.set(phone, {
+        phone: phone,
+        name: data.client_name,
+        email: data.client_email,
+        rides: [],
+        balanceDue: 0
+      });
+    }
+    
+    const client = clientsMap.get(phone);
+    client.rides.push({
+      id: doc.id,
+      ...data
+    });
+    
+    if (data.status === 'completed' && data.final_price) {
+      client.balanceDue += data.final_price;
+    }
+  });
+  
+  allClientsData = Array.from(clientsMap.values());
+  
+  // Now view the detail
+  viewClientDetail(phone);
 }
 
 async function cancelRide(id) {
