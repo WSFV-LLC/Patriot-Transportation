@@ -829,31 +829,37 @@ async function updateRideAmount(rideId, clientPhone) {
 }
 
 async function loadClientsAndViewDetail(phone) {
-  // Reload all clients data
-  const q = window.query(window.collection(window.db, 'ride_requests'), window.where('status', 'not-in', ['declined', 'cancelled']));
-  const snapshot = await window.getDocs(q);
+  // Reload all clients data fresh from Firebase
+  const allRidesQuery = window.query(window.collection(window.db, 'ride_requests'), window.orderBy('created_at', 'desc'));
+  const snapshot = await window.getDocs(allRidesQuery);
   
   const clientsMap = new Map();
+  
   snapshot.forEach((doc) => {
     const data = doc.data();
-    const phone = data.client_phone;
+    const clientPhone = data.client_phone;
     
-    if (!clientsMap.has(phone)) {
-      clientsMap.set(phone, {
-        phone: phone,
+    // Exclude declined and cancelled rides only
+    if (['declined', 'cancelled'].includes(data.status)) {
+      return;
+    }
+    
+    if (!clientsMap.has(clientPhone)) {
+      clientsMap.set(clientPhone, {
         name: data.client_name,
+        phone: clientPhone,
         email: data.client_email,
-        rides: [],
-        balanceDue: 0
+        totalRides: 0,
+        balanceDue: 0,
+        rides: []
       });
     }
     
-    const client = clientsMap.get(phone);
-    client.rides.push({
-      id: doc.id,
-      ...data
-    });
+    const client = clientsMap.get(clientPhone);
+    client.totalRides++;
+    client.rides.push({id: doc.id, ...data});
     
+    // Calculate balance due (completed but not paid)
     if (data.status === 'completed' && data.final_price) {
       client.balanceDue += data.final_price;
     }
