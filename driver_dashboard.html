@@ -821,21 +821,22 @@ async function updateRideAmount(rideId, clientPhone) {
     await window.updateDoc(window.doc(window.db, 'ride_requests', rideId), {
       final_price: newAmount
     });
-    console.log('Firebase update completed');
+    console.log('Firebase update completed for ride:', rideId);
     alert('Amount updated! Refreshing...');
     // Wait a moment for Firebase to propagate
     await new Promise(resolve => setTimeout(resolve, 1500));
     console.log('Starting to reload client data');
     // Reload clients data to clear cache, then view detail
-    await loadClientsAndViewDetail(clientPhone);
+    await loadClientsAndViewDetail(clientPhone, rideId);
   } catch (error) {
     console.error('Update error:', error);
     alert('Error updating amount: ' + error.message);
   }
 }
 
-async function loadClientsAndViewDetail(phone) {
+async function loadClientsAndViewDetail(phone, updatedRideId) {
   console.log('Loading fresh client data from server for phone:', phone);
+  console.log('Looking for updated ride:', updatedRideId);
   // Reload all clients data fresh from Firebase SERVER (bypass cache)
   const allRidesQuery = window.query(window.collection(window.db, 'ride_requests'), window.orderBy('created_at', 'desc'));
   const snapshot = await window.getDocsFromServer(allRidesQuery);
@@ -849,7 +850,7 @@ async function loadClientsAndViewDetail(phone) {
     const clientPhone = data.client_phone;
     
     // Log the ride we just updated
-    if (doc.id === arguments[1]) {
+    if (doc.id === updatedRideId) {
       console.log('Found updated ride in fresh data:', doc.id, 'final_price:', data.final_price);
     }
     
