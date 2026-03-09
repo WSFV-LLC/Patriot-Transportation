@@ -215,6 +215,21 @@ body {
   background: #5a6268;
 }
 
+/* QR Code Section */
+.qr-code-section {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 24px 0;
+  margin: 20px 0;
+  border-top: 2px solid #e0e0e0;
+  border-bottom: 2px solid #e0e0e0;
+  background: #f8f9fa;
+}
+.qr-code-container {
+  text-align: center;
+}
+
 /* Mobile responsiveness */
 @media (max-width: 768px) {
   body {
@@ -278,6 +293,14 @@ body {
     align-items: flex-start;
     gap: 8px;
   }
+  .qr-code-section {
+    padding: 20px 10px;
+    margin: 12px 0;
+  }
+  .qr-code-container img {
+    width: 180px !important;
+    height: 180px !important;
+  }
 }
 </style>
 </head>
@@ -303,6 +326,14 @@ body {
   <div class="tab" onclick="showTab('clients')">Clients</div>
   <div class="tab" onclick="showTab('calendar')">Calendar</div>
   <div class="tab" onclick="showTab('tithe')">Tithe</div>
+</div>
+
+<div class="qr-code-section">
+  <div class="qr-code-container">
+    <div style="font-size: 14px; color: #666; margin-bottom: 12px; font-weight: 600;">Client Booking Portal</div>
+    <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=https://wsfv-llc.github.io/Patriot-Transportation/" alt="Client Dashboard QR Code" style="width: 200px; height: 200px; border: 3px solid #3d4c2a; border-radius: 8px;">
+    <div style="font-size: 12px; color: #999; margin-top: 8px;">bit.ly/4aEUCwW</div>
+  </div>
 </div>
 
 <div id="pending-tab">
