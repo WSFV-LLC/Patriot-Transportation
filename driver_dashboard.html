@@ -511,7 +511,8 @@ function displayCalendar(snapshot) {
 
 function createRequestCard(id, data) {
   const statusClass = `status-${data.status}`;
-  const amount = data.final_price || data.client_bid || 0;
+  // Handle $0 correctly - check if final_price exists (even if 0)
+  const amount = (data.final_price !== undefined && data.final_price !== null) ? data.final_price : (data.client_bid || 0);
   
   let actionButtons = '';
   
