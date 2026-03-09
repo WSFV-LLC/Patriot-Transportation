@@ -355,7 +355,7 @@ body {
 
 <script type="module">
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
-import { getFirestore, collection, query, where, orderBy, onSnapshot, doc, updateDoc, deleteDoc, getDoc, getDocs } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+import { getFirestore, collection, query, where, orderBy, onSnapshot, doc, updateDoc, deleteDoc, getDoc, getDocs, getDocsFromServer } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
 
 const firebaseConfig = {
   apiKey: "AIzaSyCU5gio9iuDF1wkY8lRJVN0ULHQxgujluM",
@@ -375,6 +375,7 @@ window.doc = doc;
 window.deleteDoc = deleteDoc;
 window.getDoc = getDoc;
 window.getDocs = getDocs;
+window.getDocsFromServer = getDocsFromServer;
 window.query = query;
 window.collection = collection;
 window.where = where;
@@ -829,9 +830,9 @@ async function updateRideAmount(rideId, clientPhone) {
 }
 
 async function loadClientsAndViewDetail(phone) {
-  // Reload all clients data fresh from Firebase
+  // Reload all clients data fresh from Firebase SERVER (bypass cache)
   const allRidesQuery = window.query(window.collection(window.db, 'ride_requests'), window.orderBy('created_at', 'desc'));
-  const snapshot = await window.getDocs(allRidesQuery);
+  const snapshot = await window.getDocsFromServer(allRidesQuery);
   
   const clientsMap = new Map();
   
