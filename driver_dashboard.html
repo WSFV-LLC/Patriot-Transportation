@@ -808,6 +808,8 @@ async function updateRideAmount(rideId, clientPhone) {
   const input = document.getElementById('edit-client-' + rideId);
   const newAmount = parseFloat(input.value);
   
+  console.log('Updating ride:', rideId, 'to amount:', newAmount);
+  
   if (isNaN(newAmount) || newAmount < 0) {
     alert('Please enter a valid amount (minimum $0)');
     return;
@@ -819,26 +821,37 @@ async function updateRideAmount(rideId, clientPhone) {
     await window.updateDoc(window.doc(window.db, 'ride_requests', rideId), {
       final_price: newAmount
     });
+    console.log('Firebase update completed');
     alert('Amount updated! Refreshing...');
     // Wait a moment for Firebase to propagate
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    await new Promise(resolve => setTimeout(resolve, 1500));
+    console.log('Starting to reload client data');
     // Reload clients data to clear cache, then view detail
     await loadClientsAndViewDetail(clientPhone);
   } catch (error) {
+    console.error('Update error:', error);
     alert('Error updating amount: ' + error.message);
   }
 }
 
 async function loadClientsAndViewDetail(phone) {
+  console.log('Loading fresh client data from server for phone:', phone);
   // Reload all clients data fresh from Firebase SERVER (bypass cache)
   const allRidesQuery = window.query(window.collection(window.db, 'ride_requests'), window.orderBy('created_at', 'desc'));
   const snapshot = await window.getDocsFromServer(allRidesQuery);
+  
+  console.log('Got', snapshot.size, 'rides from server');
   
   const clientsMap = new Map();
   
   snapshot.forEach((doc) => {
     const data = doc.data();
     const clientPhone = data.client_phone;
+    
+    // Log the ride we just updated
+    if (doc.id === arguments[1]) {
+      console.log('Found updated ride in fresh data:', doc.id, 'final_price:', data.final_price);
+    }
     
     // Exclude declined and cancelled rides only
     if (['declined', 'cancelled'].includes(data.status)) {
@@ -867,6 +880,9 @@ async function loadClientsAndViewDetail(phone) {
   });
   
   allClientsData = Array.from(clientsMap.values());
+  
+  const targetClient = allClientsData.find(c => c.phone === phone);
+  console.log('Target client data:', targetClient);
   
   // Now view the detail
   viewClientDetail(phone);
