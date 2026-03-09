@@ -1099,7 +1099,8 @@ function viewClientDetail(phone) {
   let ridesHtml = '';
   sortedRides.forEach(ride => {
     const statusClass = `status-${ride.status}`;
-    const price = ride.final_price || ride.client_bid || 0;
+    // Handle $0 correctly - check if final_price exists (even if 0)
+    const price = (ride.final_price !== undefined && ride.final_price !== null) ? ride.final_price : (ride.client_bid || 0);
     const isPending = ride.status === 'completed';
     const isPaid = ride.status === 'paid';
     
