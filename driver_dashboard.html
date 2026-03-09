@@ -536,7 +536,12 @@ function createRequestCard(id, data) {
     `;
   } else if (data.status === 'confirmed') {
     actionButtons = `
+      <div class="counter-input" style="margin-bottom:12px;">
+        <span style="font-weight:600;">Edit Amount: $</span>
+        <input type="number" id="edit-${id}" value="${amount.toFixed(2)}" min="0" step="0.01">
+      </div>
       <div class="actions">
+        <button class="btn btn-counter" onclick="updatePaidAmount('${id}')">Update Amount</button>
         <button class="btn btn-paid" onclick="markAsComplete('${id}')">Ride Complete</button>
         <button class="btn btn-deny" onclick="cancelRide('${id}')">Cancel Ride</button>
       </div>
@@ -1103,9 +1108,10 @@ function viewClientDetail(phone) {
     const price = (ride.final_price !== undefined && ride.final_price !== null) ? ride.final_price : (ride.client_bid || 0);
     const isPending = ride.status === 'completed';
     const isPaid = ride.status === 'paid';
+    const isConfirmed = ride.status === 'confirmed';
     
-    // Add edit button for completed and paid rides
-    const editSection = (isPending || isPaid) ? `
+    // Add edit button for confirmed, completed and paid rides
+    const editSection = (isConfirmed || isPending || isPaid) ? `
       <div style="margin-top:12px; padding-top:12px; border-top:1px solid #e0e0e0;">
         <div style="display:flex; gap:8px; align-items:center;">
           <span style="font-size:13px; font-weight:600;">Edit: $</span>
