@@ -690,11 +690,12 @@ async function acceptBid(id, amount) {
       confirmed_at: new Date()
     });
     
-    // Try to send to Make.com for calendar, but don't let it break the confirmation
+    // Get ride data for webhooks
+    const rideDoc = await window.getDoc(window.doc(window.db, 'ride_requests', id));
+    const rideData = rideDoc.data();
+    
+    // Send to Make.com for calendar
     try {
-      const rideDoc = await window.getDoc(window.doc(window.db, 'ride_requests', id));
-      const rideData = rideDoc.data();
-      
       fetch('https://hook.us2.make.com/zlo5peda4fwlrz2nk7m1hakc4dxjblw1', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -714,10 +715,30 @@ async function acceptBid(id, amount) {
       })
       .catch(err => console.log('Calendar webhook error:', err));
     } catch (err) {
-      console.log('Error fetching ride data:', err);
+      console.log('Error with calendar webhook:', err);
     }
     
-    alert('Bid accepted and booking confirmed!');
+    // Send email notification to client
+    try {
+      fetch('https://hook.us2.make.com/mmahpsdtba3je2iomxuxyse6h7kv4awx', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'accepted',
+          client_name: rideData.client_name,
+          client_email: rideData.client_email,
+          pickup_address: rideData.pickup_address,
+          pickup_date: rideData.pickup_date,
+          pickup_time: rideData.pickup_time,
+          dropoff_address: rideData.dropoff_address,
+          final_price: amount
+        })
+      }).catch(err => console.log('Email notification error:', err));
+    } catch (err) {
+      console.log('Error sending email notification:', err);
+    }
+    
+    alert('Bid accepted and booking confirmed! Client will receive an email.');
   } catch (error) {
     alert('Error accepting bid: ' + error.message);
   }
@@ -751,11 +772,33 @@ async function denyRequest(id) {
   if (!confirm('Are you sure you want to deny this request?')) return;
   
   try {
+    // Get ride data before updating
+    const rideDoc = await window.getDoc(window.doc(window.db, 'ride_requests', id));
+    const rideData = rideDoc.data();
+    
     await window.updateDoc(window.doc(window.db, 'ride_requests', id), {
       status: 'declined',
       declined_at: new Date()
     });
-    alert('Request denied. Client will be notified.');
+    
+    // Send email notification to client
+    try {
+      fetch('https://hook.us2.make.com/mmahpsdtba3je2iomxuxyse6h7kv4awx', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'declined',
+          client_name: rideData.client_name,
+          client_email: rideData.client_email,
+          pickup_date: rideData.pickup_date,
+          pickup_time: rideData.pickup_time
+        })
+      }).catch(err => console.log('Email notification error:', err));
+    } catch (err) {
+      console.log('Error sending email notification:', err);
+    }
+    
+    alert('Request denied. Client will be notified via email.');
   } catch (error) {
     alert('Error denying request: ' + error.message);
   }
@@ -976,11 +1019,12 @@ async function acceptOnBehalf(id) {
       confirmed_by: 'driver'
     });
     
-    // Try to send to Make.com for calendar, but don't let it break the confirmation
+    // Get ride data for webhooks
+    const rideDoc = await window.getDoc(window.doc(window.db, 'ride_requests', id));
+    const rideData = rideDoc.data();
+    
+    // Send to Make.com for calendar
     try {
-      const rideDoc = await window.getDoc(window.doc(window.db, 'ride_requests', id));
-      const rideData = rideDoc.data();
-      
       fetch('https://hook.us2.make.com/zlo5peda4fwlrz2nk7m1hakc4dxjblw1', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -999,10 +1043,30 @@ async function acceptOnBehalf(id) {
       })
       .catch(err => console.log('Calendar webhook error:', err));
     } catch (err) {
-      console.log('Error fetching ride data:', err);
+      console.log('Error with calendar webhook:', err);
     }
     
-    alert('Ride confirmed!');
+    // Send email notification to client
+    try {
+      fetch('https://hook.us2.make.com/mmahpsdtba3je2iomxuxyse6h7kv4awx', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'accepted',
+          client_name: rideData.client_name,
+          client_email: rideData.client_email,
+          pickup_address: rideData.pickup_address,
+          pickup_date: rideData.pickup_date,
+          pickup_time: rideData.pickup_time,
+          dropoff_address: rideData.dropoff_address,
+          final_price: rideData.final_price
+        })
+      }).catch(err => console.log('Email notification error:', err));
+    } catch (err) {
+      console.log('Error sending email notification:', err);
+    }
+    
+    alert('Ride confirmed! Client will receive an email.');
   } catch (error) {
     alert('Error: ' + error.message);
   }
