@@ -206,6 +206,8 @@ function displayReceipt(data) {
     ? 'https://wsfv-llc.github.io/Patriot-Transportation/driver_dashboard.html'
     : 'https://wsfv-llc.github.io/Patriot-Transportation/';
   
+  const paymentMethod = data.payment_method || 'N/A';
+
   document.getElementById('receipt').innerHTML = `
     <div class="header">
       <p class="company-legal">WSFV, LLC</p>
@@ -226,6 +228,10 @@ function displayReceipt(data) {
       <div class="info-row">
         <span class="info-label">Payment Date</span>
         <span class="info-value">${paidDate}</span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">Payment Method</span>
+        <span class="info-value">${paymentMethod}</span>
       </div>
     </div>
 
