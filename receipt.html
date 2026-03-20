@@ -135,6 +135,7 @@ body {
 @media print {
   body { background: white; padding: 0; }
   .print-btn { display: none; }
+  .back-btn { display: none; }
   .receipt { box-shadow: none; }
 }
 .loading {
@@ -150,7 +151,10 @@ body {
   <div class="loading">Loading receipt...</div>
 </div>
 
-<button class="print-btn" onclick="window.print()">Print Receipt</button>
+<div style="display:flex; gap:12px; justify-content:center; flex-wrap:wrap; max-width:600px; margin:0 auto;">
+  <button class="print-btn" style="flex:1; min-width:160px; margin:0;" onclick="window.print()">🖨️ Print Receipt</button>
+  <button class="print-btn" style="flex:1; min-width:160px; margin:0; background:#1a2b4a;" onclick="savePDF()">📄 Save as PDF</button>
+</div>
 
 <script type="module">
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
@@ -282,7 +286,7 @@ function displayReceipt(data) {
       <div class="total-amount">$${(data.final_price || data.client_bid || 0).toFixed(2)}</div>
     </div>
 
-    <div style="text-align:center; margin:30px 0;">
+    <div class="back-btn" style="text-align:center; margin:30px 0;">
       <a href="${backUrl}" style="display:inline-block; background:#3d4c2a; color:white; padding:12px 24px; text-decoration:none; border-radius:6px; font-weight:600;">← Back to Dashboard</a>
     </div>
 
@@ -291,6 +295,18 @@ function displayReceipt(data) {
       <p style="margin-top:10px;">For questions about this receipt, please contact us.</p>
     </div>
   `;
+}
+
+function savePDF() {
+  // On mobile, this opens the share sheet with save to files/PDF option
+  // On desktop, this opens print dialog — user selects "Save as PDF"
+  const ua = navigator.userAgent.toLowerCase();
+  const isMobile = /iphone|ipad|android/.test(ua);
+  if (isMobile) {
+    // Brief instruction for mobile users
+    alert('In the print screen that opens, choose "Save to Files" (iOS) or "Save as PDF" (Android) as the destination.');
+  }
+  window.print();
 }
 </script>
 
