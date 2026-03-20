@@ -591,8 +591,13 @@ function createRequestCard(id, data) {
         <span style="font-weight:600;">Edit Amount: $</span>
         <input type="number" id="edit-${id}" value="${amount.toFixed(2)}" min="0" step="0.01">
       </div>
+      <div class="counter-input" style="margin-bottom:12px;">
+        <span style="font-weight:600; white-space:nowrap;">Payment Method:</span>
+        <input type="text" id="payment-method-${id}" value="${data.payment_method || ''}" placeholder="e.g. Credit Card ending in 1234" style="flex:1;">
+      </div>
       <div class="actions">
         <button class="btn btn-counter" onclick="updatePaidAmount('${id}')">Update Amount</button>
+        <button class="btn btn-counter" onclick="updatePaymentMethod('${id}')">Update Payment</button>
         <button class="btn btn-receipt" onclick="generateReceipt('${id}')">View Receipt</button>
         <button class="btn" style="background:#6c757d; color:white;" onclick="hideRide('${id}')">Hide</button>
         <button class="btn btn-deny" onclick="deleteRide('${id}')">Delete</button>
@@ -850,16 +855,53 @@ async function markAsComplete(id) {
 }
 
 async function markAsPaid(id) {
-  if (!confirm('Mark this ride as paid?')) return;
+  const last4 = prompt('Enter last 4 digits of card used (leave blank for cash or payment app):');
+  if (last4 === null) return; // cancelled
+
+  if (last4 !== '' && (!/^\d{4}$/.test(last4))) {
+    alert('Please enter exactly 4 digits, or leave blank.');
+    return;
+  }
+
+  let paymentMethod;
+  if (last4 === '') {
+    paymentMethod = 'Cash / Payment App';
+  } else {
+    paymentMethod = 'Credit Card ending in ' + last4;
+  }
+
+  if (!confirm('Mark as paid? Payment method: ' + paymentMethod)) return;
   
   try {
     await window.updateDoc(window.doc(window.db, 'ride_requests', id), {
       status: 'paid',
-      paid_at: new Date()
+      paid_at: new Date(),
+      payment_method: paymentMethod
     });
     alert('Marked as paid!');
   } catch (error) {
     alert('Error: ' + error.message);
+  }
+}
+
+async function updatePaymentMethod(id) {
+  const input = document.getElementById('payment-method-' + id);
+  const method = input.value.trim();
+
+  if (!method) {
+    alert('Please enter a payment method.');
+    return;
+  }
+
+  if (!confirm('Update payment method to: ' + method + '?')) return;
+
+  try {
+    await window.updateDoc(window.doc(window.db, 'ride_requests', id), {
+      payment_method: method
+    });
+    alert('Payment method updated!');
+  } catch (error) {
+    alert('Error updating payment method: ' + error.message);
   }
 }
 
