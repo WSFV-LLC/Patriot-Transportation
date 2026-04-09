@@ -837,12 +837,18 @@ function viewClientDetail(phone) {
     const isPending = ride.status === 'completed';
     const isPaid = ride.status === 'paid';
     const isConfirmed = ride.status === 'confirmed';
+    const clientTip = (ride.tip !== undefined && ride.tip !== null) ? ride.tip : 0;
     const editSection = (isConfirmed || isPending || isPaid) ? `
       <div style="margin-top:12px; padding-top:12px; border-top:1px solid #e0e0e0;">
-        <div style="display:flex; gap:8px; align-items:center;">
-          <span style="font-size:13px; font-weight:600;">Edit: $</span>
+        <div style="display:flex; gap:8px; align-items:center; margin-bottom:8px;">
+          <span style="font-size:13px; font-weight:600;">Amount: $</span>
           <input type="number" id="edit-client-${ride.id}" value="${price.toFixed(2)}" min="0" step="0.01" style="flex:1; padding:8px; border:2px solid #3d4c2a; border-radius:4px; font-size:14px;">
           <button class="btn btn-counter" onclick="updateRideAmount('${ride.id}', '${phone}')" style="padding:8px 16px; font-size:13px;">Update</button>
+        </div>
+        <div style="display:flex; gap:8px; align-items:center;">
+          <span style="font-size:13px; font-weight:600;">Tip: $</span>
+          <input type="number" id="tip-client-${ride.id}" value="${clientTip.toFixed(2)}" min="0" step="0.01" style="flex:1; padding:8px; border:2px solid #3d4c2a; border-radius:4px; font-size:14px;">
+          <button class="btn btn-counter" onclick="updateClientTip('${ride.id}', '${phone}')" style="padding:8px 16px; font-size:13px;">Save Tip</button>
         </div>
       </div>` : '';
     ridesHtml += `
@@ -985,6 +991,20 @@ function toggleTithePaid(weekKey) {
 
 window.toggleTithePaid = toggleTithePaid;
 window.updateTip = updateTip;
+
+async function updateClientTip(rideId, clientPhone) {
+  const input = document.getElementById('tip-client-' + rideId);
+  const tipAmount = parseFloat(input.value);
+  if (isNaN(tipAmount) || tipAmount < 0) { alert('Please enter a valid tip amount (minimum $0)'); return; }
+  if (!confirm('Save tip of $' + tipAmount.toFixed(2) + '?')) return;
+  try {
+    await window.updateDoc(window.doc(window.db, 'ride_requests', rideId), { tip: tipAmount });
+    alert('Tip saved! Refreshing...');
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    await loadClientsAndViewDetail(clientPhone, rideId);
+  } catch (error) { alert('Error saving tip: ' + error.message); }
+}
+window.updateClientTip = updateClientTip;
 </script>
 
 </body>
