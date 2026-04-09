@@ -129,9 +129,7 @@ body {
   margin: 20px auto;
   display: block;
 }
-.print-btn:hover {
-  background: #2d3c1a;
-}
+.print-btn:hover { background: #2d3c1a; }
 @media print {
   body { background: white; padding: 0; }
   .print-btn { display: none; }
@@ -172,7 +170,6 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-// Get ride ID from URL
 const urlParams = new URLSearchParams(window.location.search);
 const rideId = urlParams.get('id');
 
@@ -185,15 +182,11 @@ if (!rideId) {
 async function loadReceipt(id) {
   try {
     const rideDoc = await getDoc(doc(db, 'ride_requests', id));
-    
     if (!rideDoc.exists()) {
       document.getElementById('receipt').innerHTML = '<div class="loading">Receipt not found</div>';
       return;
     }
-    
-    const data = rideDoc.data();
-    displayReceipt(data);
-    
+    displayReceipt(rideDoc.data());
   } catch (error) {
     console.error('Error loading receipt:', error);
     document.getElementById('receipt').innerHTML = '<div class="loading">Error loading receipt</div>';
@@ -203,14 +196,33 @@ async function loadReceipt(id) {
 function displayReceipt(data) {
   const paidDate = data.paid_at ? new Date(data.paid_at.seconds * 1000).toLocaleDateString() : 'N/A';
   const receiptNumber = 'PT-' + Math.random().toString(36).substr(2, 9).toUpperCase();
-  
+
   // Detect which dashboard to go back to
   const referrer = document.referrer;
-  const backUrl = referrer.includes('driver_dashboard') 
+  const backUrl = referrer.includes('driver_dashboard')
     ? 'https://wsfv-llc.github.io/Patriot-Transportation/driver_dashboard.html'
     : 'https://wsfv-llc.github.io/Patriot-Transportation/';
-  
+
   const paymentMethod = data.payment_method || 'N/A';
+
+  // Use explicit null check to correctly handle $0 amounts
+  const rideAmount = (data.final_price !== undefined && data.final_price !== null)
+    ? data.final_price
+    : (data.client_bid || 0);
+
+  // Tip — only show if greater than 0
+  const tip = (data.tip !== undefined && data.tip !== null && data.tip > 0) ? data.tip : 0;
+  const grandTotal = rideAmount + tip;
+
+  const tipRow = tip > 0 ? `
+    <div class="info-row">
+      <span class="info-label">Ride Amount</span>
+      <span class="info-value">$${rideAmount.toFixed(2)}</span>
+    </div>
+    <div class="info-row">
+      <span class="info-label">Tip</span>
+      <span class="info-value" style="color:#28a745;">$${tip.toFixed(2)}</span>
+    </div>` : '';
 
   document.getElementById('receipt').innerHTML = `
     <div class="header">
@@ -281,9 +293,18 @@ function displayReceipt(data) {
       </div>
     </div>
 
+    <div class="section">
+      <div class="section-title">Payment Summary</div>
+      ${tipRow}
+      <div class="info-row">
+        <span class="info-label" style="font-weight:600;">Total</span>
+        <span class="info-value" style="font-size:16px;">$${grandTotal.toFixed(2)}</span>
+      </div>
+    </div>
+
     <div class="total">
       <div class="total-label">Total Amount Paid</div>
-      <div class="total-amount">$${(data.final_price || data.client_bid || 0).toFixed(2)}</div>
+      <div class="total-amount">$${grandTotal.toFixed(2)}</div>
     </div>
 
     <div class="back-btn" style="text-align:center; margin:30px 0;">
@@ -298,12 +319,9 @@ function displayReceipt(data) {
 }
 
 function savePDF() {
-  // On mobile, this opens the share sheet with save to files/PDF option
-  // On desktop, this opens print dialog — user selects "Save as PDF"
   const ua = navigator.userAgent.toLowerCase();
   const isMobile = /iphone|ipad|android/.test(ua);
   if (isMobile) {
-    // Brief instruction for mobile users
     alert('In the print screen that opens, choose "Save to Files" (iOS) or "Save as PDF" (Android) as the destination.');
   }
   window.print();
