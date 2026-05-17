@@ -228,7 +228,7 @@ input:focus, select:focus, textarea:focus { outline: none; border-color: #3d4c2a
 </div>
 
 <!-- Google Maps JavaScript API -->
-<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCiU4H9v1LWki-x5rjO0CMPUtAO35GW1Tc&libraries=places"></script>
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCiU4H9v1LWki-x5rjO0CMPUtAO35GW1Tc&libraries=places&callback=initMaps" async defer></script>
 
 <script type="module">
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
@@ -268,9 +268,10 @@ let tripMiles = 0;
 let tripDurationMinutes = 0;
 let distanceService = null;
 
-window.addEventListener('load', function() {
+function initMaps() {
   distanceService = new google.maps.DistanceMatrixService();
-});
+}
+window.initMaps = initMaps;
 
 function login() {
   const phone = document.getElementById('phone_login').value.trim();
