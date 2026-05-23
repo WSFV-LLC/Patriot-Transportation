@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -324,8 +323,129 @@ function displayReceipt(data) {
   `;
 }
 
-function savePDF() {
-  window.print();
+async function savePDF() {
+  const btn = document.querySelector('.print-btn[onclick="savePDF()"]');
+  const originalText = btn.innerHTML;
+  btn.innerHTML = '⏳ Generating PDF...';
+  btn.disabled = true;
+
+  // ── PASTE YOUR CLOUDCONVERT API KEY BELOW ──────────────────────────────
+  const CLOUDCONVERT_API_KEY = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIxIiwianRpIjoiZjU2NDBlY2FhZGE0M2E3NmRhZWU1OTE4MjZiMTk4MTMwMTRlYzNkYjY4ZWJlZmEzOTBjNDQ2NjliNjJjMTJkMTRhZTEzNDMzNDA3MDViYmQiLCJpYXQiOjE3Nzk1NTUyNjUuNzg0MjY5LCJuYmYiOjE3Nzk1NTUyNjUuNzg0MjcsImV4cCI6NDkzNTIyODg2NS43Nzk3MzEsInN1YiI6IjM2OTA0NjY4Iiwic2NvcGVzIjpbInRhc2sucmVhZCIsInRhc2sud3JpdGUiXX0.X5p4j3xl6xdvu5fGuUZ0DsFPPpem0ErnQEiwbvysfCtiqrR47RyvpflH046uCsSiLmkyFhaqZsWvqCuyb_nhGwHs7hosEVJKvWlUDSw5MrZybbz3aogedrFxaQNZappgreHaP2aBHifZpYlfEnYgGZ9GI8V0O1ucHE0jPq6tuERTG1-jrg4LV70K1RIlA1yo4OnF2YV3B7Q5Rr-3tIv6NMR_lJlGdf3jMr2_tjizJfhEy0HYKDE4xcNRW10rWaL0AoBzPL3wSPYFntSEWLnMsa4ZB4JAPedktAwRCcrGa0aEeOsOcxunhyQJ_AtCkyh1UptzToUuGcEc-htQxeHFYnzsHyTX8AKpfekHatQJA6UGrOMU3O90eA_x0pkzQ_0CbTP9Gun7rqbk0OYI2kcM2DGPb3_Lu8tokk9iuj6QA7x_MTZHSl8YCYulH4Hd9ds2YVRVwR2Q4eg0-c4W5wDnFYO9k-f6A_ogL8mjJ5qvp2L2FWMYFirk1lja-VEcs1bTF3JKh9dFao0l8l604hX8XEcv39c8IpBGbZi4j57_UgpkfQuxeJzXmSFDSR5aDRialkgMdXB7ydWOrUZ3298H3yW1qmo7QJIfUxECpE5rmbO1VFaDaIg_ZoNEagV0xEFx5XftbhzYyyU98ap_Pbtq5mO00UwgFaGyMFNqMQVRYVE';
+  // ── END API KEY ────────────────────────────────────────────────────────
+
+  try {
+    // Capture the fully rendered receipt HTML
+    const receiptHTML = `<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: Arial, sans-serif; background: white; padding: 20px; }
+.receipt { max-width: 600px; margin: 0 auto; background: white; padding: 40px; }
+.header { background: #3d4c2a; color: white; padding: 20px; border-radius: 6px; text-align: center; margin-bottom: 30px; }
+.header h1 { color: white; font-size: 28px; margin-bottom: 5px; font-weight: 600; }
+.header .company-legal { font-size: 13px; color: rgba(255,255,255,0.8); margin-bottom: 8px; }
+.header p { color: rgba(255,255,255,0.9); font-size: 14px; }
+.section { margin-bottom: 24px; }
+.section-title { font-size: 11px; color: #666; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; font-weight: 600; border-bottom: 1px solid #e0e0e0; padding-bottom: 4px; }
+.info-row { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid #f0f0f0; }
+.info-label { color: #666; font-size: 13px; }
+.info-value { color: #333; font-weight: 600; font-size: 13px; }
+.route { background: #f8f9fa; padding: 16px; border-radius: 6px; margin: 16px 0; }
+.route-point { display: flex; align-items: flex-start; margin-bottom: 12px; }
+.route-point:last-child { margin-bottom: 0; }
+.route-icon { font-size: 16px; margin-right: 10px; min-width: 24px; }
+.route-address { font-size: 13px; color: #333; }
+.total { background: #3d4c2a; color: white; padding: 20px; border-radius: 6px; text-align: center; margin-top: 24px; }
+.total-label { font-size: 13px; opacity: 0.9; margin-bottom: 5px; }
+.total-amount { font-size: 32px; font-weight: bold; }
+.footer { text-align: center; margin-top: 30px; padding-top: 16px; border-top: 2px solid #f0f0f0; color: #999; font-size: 11px; }
+</style>
+</head>
+<body>
+${document.getElementById('receipt').innerHTML}
+</body>
+</html>`;
+
+    // Step 1: Create the conversion job
+    const jobResponse = await fetch('https://api.cloudconvert.com/v2/jobs', {
+      method: 'POST',
+      headers: {
+        'Authorization': 'Bearer ' + CLOUDCONVERT_API_KEY,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        tasks: {
+          'upload-receipt': {
+            operation: 'import/raw',
+            file: receiptHTML,
+            filename: 'receipt.html'
+          },
+          'convert-to-pdf': {
+            operation: 'convert',
+            input: 'upload-receipt',
+            output_format: 'pdf',
+            engine: 'chrome',
+            zoom: 1,
+            margin_top: 10,
+            margin_bottom: 10,
+            margin_left: 10,
+            margin_right: 10,
+            print_background: true,
+            page_size: 'A4'
+          },
+          'export-pdf': {
+            operation: 'export/url',
+            input: 'convert-to-pdf'
+          }
+        }
+      })
+    });
+
+    if (!jobResponse.ok) {
+      throw new Error('Failed to create conversion job: ' + jobResponse.status);
+    }
+
+    const job = await jobResponse.json();
+    const jobId = job.data.id;
+
+    // Step 2: Poll for completion
+    let pdfUrl = null;
+    for (let i = 0; i < 30; i++) {
+      await new Promise(resolve => setTimeout(resolve, 2000));
+
+      const statusResponse = await fetch('https://api.cloudconvert.com/v2/jobs/' + jobId, {
+        headers: { 'Authorization': 'Bearer ' + CLOUDCONVERT_API_KEY }
+      });
+      const statusData = await statusResponse.json();
+      const jobStatus = statusData.data.status;
+
+      if (jobStatus === 'finished') {
+        const exportTask = statusData.data.tasks.find(t => t.operation === 'export/url' && t.status === 'finished');
+        if (exportTask && exportTask.result && exportTask.result.files && exportTask.result.files[0]) {
+          pdfUrl = exportTask.result.files[0].url;
+          break;
+        }
+      } else if (jobStatus === 'error') {
+        throw new Error('Conversion failed');
+      }
+    }
+
+    if (!pdfUrl) {
+      throw new Error('Conversion timed out');
+    }
+
+    // Step 3: Open the PDF in a new tab
+    window.open(pdfUrl, '_blank');
+
+  } catch (error) {
+    console.error('PDF generation error:', error);
+    alert('Could not generate PDF. Please use the Print button instead.');
+  } finally {
+    btn.innerHTML = originalText;
+    btn.disabled = false;
+  }
 }
 window.savePDF = savePDF;
 </script>
