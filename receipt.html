@@ -131,10 +131,15 @@ body {
 }
 .print-btn:hover { background: #2d3c1a; }
 @media print {
-  body { background: white; padding: 0; }
+  body { background: white; padding: 0; margin: 0; }
   .print-btn { display: none; }
   .back-btn { display: none; }
-  .receipt { box-shadow: none; }
+  .receipt { box-shadow: none; margin: 0; padding: 20px; max-width: 100%; }
+  p[style*="text-align:center"] { display: none; }
+  @page {
+    size: A4 portrait;
+    margin: 10mm;
+  }
 }
 .loading {
   text-align: center;
