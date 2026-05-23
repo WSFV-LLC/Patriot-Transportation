@@ -294,6 +294,9 @@ body {
 </div>
 
 <div id="cancelled-tab" style="display:none;">
+  <div style="margin-bottom:12px; text-align:right;">
+    <button class="btn btn-deny" id="delete-all-btn" onclick="deleteAllCancelled()" style="width:auto; padding:10px 20px;">🗑 Delete All Cancelled</button>
+  </div>
   <div id="cancelled-requests" class="loading">Loading...</div>
 </div>
 
@@ -981,6 +984,32 @@ function toggleTithePaid(weekKey) {
 }
 
 window.toggleTithePaid = toggleTithePaid;
+
+async function deleteAllCancelled() {
+  const cards = document.querySelectorAll('#cancelled-requests .request-card');
+  const count = cards.length;
+  if (count === 0) { alert('No cancelled rides to delete.'); return; }
+  if (!confirm('Permanently delete all ' + count + ' cancelled rides? This cannot be undone.')) return;
+
+  const btn = document.getElementById('delete-all-btn');
+  btn.textContent = 'Deleting...';
+  btn.disabled = true;
+
+  try {
+    const q = window.query(window.collection(window.db, 'ride_requests'), window.where('status', '==', 'cancelled'));
+    const snapshot = await window.getDocsFromServer(q);
+    const deletePromises = [];
+    snapshot.forEach(doc => deletePromises.push(window.deleteDoc(window.doc(window.db, 'ride_requests', doc.id))));
+    await Promise.all(deletePromises);
+    alert('All cancelled rides deleted.');
+  } catch (error) {
+    alert('Error deleting: ' + error.message);
+  } finally {
+    btn.innerHTML = '🗑 Delete All Cancelled';
+    btn.disabled = false;
+  }
+}
+window.deleteAllCancelled = deleteAllCancelled;
 window.acceptQuote = acceptQuote;
 window.updateTip = updateTip;
 
