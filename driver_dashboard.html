@@ -889,7 +889,7 @@ function viewClientDetail(phone) {
           <input type="email" id="edit-client-email" value="${client.email}" style="width:100%; padding:8px; border:2px solid #3d4c2a; border-radius:4px; font-size:14px;">
         </div>
         <div style="display:flex; gap:8px;">
-          <button class="btn btn-accept" onclick="saveClientInfo('${client.phone}')" style="flex:1;">Save Changes</button>
+          <button class="btn btn-accept" onclick="saveClientInfo(this.dataset.phone)" data-phone="${client.phone}" style="flex:1;">Save Changes</button>
           <button class="btn" style="background:#6c757d; color:white; flex:1;" onclick="document.getElementById('edit-client-info-form').style.display='none'">Cancel</button>
         </div>
       </div>
@@ -1015,7 +1015,7 @@ async function saveClientInfo(oldPhone) {
     return;
   }
 
-  if (!confirm('Update this client's name, phone, and email across all their rides?')) return;
+  if (!confirm('Update client info across all their rides?')) return;
 
   try {
     // Get all rides for this client using the old phone number
