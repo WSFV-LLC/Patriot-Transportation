@@ -869,11 +869,31 @@ function viewClientDetail(phone) {
     <div style="background:#f8f9fa; padding:20px; border-radius:8px; margin-bottom:20px;">
       <h2 style="color:#3d4c2a; margin-bottom:8px;">${client.name}</h2>
       <div style="color:#666; margin-bottom:16px;">${client.phone} • ${client.email}</div>
-      <div style="display:flex; gap:20px; flex-wrap:wrap;">
+      <div style="display:flex; gap:20px; flex-wrap:wrap; margin-bottom:16px;">
         <div><div style="font-size:12px; color:#666;">Total Rides</div><div style="font-size:24px; font-weight:600; color:#3d4c2a;">${client.totalRides}</div></div>
         <div><div style="font-size:12px; color:#666;">Balance</div><div style="font-size:24px; font-weight:600; color:${balanceColor};">${balanceText}</div></div>
       </div>
       ${markAllButton}
+      <div id="edit-client-info-form" style="display:none; margin-top:16px; padding-top:16px; border-top:1px solid #e0e0e0;">
+        <div style="font-weight:600; color:#3d4c2a; margin-bottom:12px;">Edit Client Information</div>
+        <div style="margin-bottom:10px;">
+          <label style="font-size:12px; color:#666; display:block; margin-bottom:4px;">Full Name</label>
+          <input type="text" id="edit-client-name" value="${client.name}" style="width:100%; padding:8px; border:2px solid #3d4c2a; border-radius:4px; font-size:14px;">
+        </div>
+        <div style="margin-bottom:10px;">
+          <label style="font-size:12px; color:#666; display:block; margin-bottom:4px;">Phone Number</label>
+          <input type="tel" id="edit-client-phone" value="${client.phone}" style="width:100%; padding:8px; border:2px solid #3d4c2a; border-radius:4px; font-size:14px;">
+        </div>
+        <div style="margin-bottom:12px;">
+          <label style="font-size:12px; color:#666; display:block; margin-bottom:4px;">Email</label>
+          <input type="email" id="edit-client-email" value="${client.email}" style="width:100%; padding:8px; border:2px solid #3d4c2a; border-radius:4px; font-size:14px;">
+        </div>
+        <div style="display:flex; gap:8px;">
+          <button class="btn btn-accept" onclick="saveClientInfo('${client.phone}')" style="flex:1;">Save Changes</button>
+          <button class="btn" style="background:#6c757d; color:white; flex:1;" onclick="document.getElementById('edit-client-info-form').style.display='none'">Cancel</button>
+        </div>
+      </div>
+      <button class="btn btn-counter" onclick="document.getElementById('edit-client-info-form').style.display='block'" style="margin-top:12px; width:100%;">✏️ Edit Client Info</button>
     </div>
     <h3 style="margin-bottom:12px; color:#3d4c2a;">Ride History</h3>
     ${ridesHtml}`;
@@ -984,6 +1004,49 @@ function toggleTithePaid(weekKey) {
 }
 
 window.toggleTithePaid = toggleTithePaid;
+
+async function saveClientInfo(oldPhone) {
+  const newName = document.getElementById('edit-client-name').value.trim();
+  const newPhone = document.getElementById('edit-client-phone').value.trim();
+  const newEmail = document.getElementById('edit-client-email').value.trim();
+
+  if (!newName || !newPhone || !newEmail) {
+    alert('Please fill in all fields.');
+    return;
+  }
+
+  if (!confirm('Update this client's name, phone, and email across all their rides?')) return;
+
+  try {
+    // Get all rides for this client using the old phone number
+    const q = window.query(window.collection(window.db, 'ride_requests'), window.where('client_phone', '==', oldPhone));
+    const snapshot = await window.getDocsFromServer(q);
+
+    if (snapshot.empty) {
+      alert('No rides found for this client.');
+      return;
+    }
+
+    // Update name, phone, and email on every ride
+    const updatePromises = [];
+    snapshot.forEach(d => {
+      updatePromises.push(window.updateDoc(window.doc(window.db, 'ride_requests', d.id), {
+        client_name: newName,
+        client_phone: newPhone,
+        client_email: newEmail
+      }));
+    });
+
+    await Promise.all(updatePromises);
+    alert('Client information updated across ' + snapshot.size + ' ride(s)!');
+
+    // Reload clients and go back to the updated client detail
+    await loadClientsAndViewDetail(newPhone, null);
+  } catch (error) {
+    alert('Error updating client info: ' + error.message);
+  }
+}
+window.saveClientInfo = saveClientInfo;
 
 async function deleteAllCancelled() {
   const cards = document.querySelectorAll('#cancelled-requests .request-card');
