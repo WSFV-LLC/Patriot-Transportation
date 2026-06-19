@@ -6,96 +6,371 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Patriot Transportation</title>
 <style>
+@import url('https://fonts.googleapis.com/css2?family=Oswald:wght@400;600;700&family=Open+Sans:wght@400;600&display=swap');
+
 * { box-sizing: border-box; margin: 0; padding: 0; }
+
 body {
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-family: 'Open Sans', sans-serif;
   min-height: 100vh;
+  background-image: 
+    linear-gradient(to bottom, rgba(10,10,15,0.45), rgba(10,10,15,0.65)),
+    url('https://wsfv-llc.github.io/Patriot-Transportation/skyline.png');
+  background-size: cover;
+  background-position: top center;
+  background-repeat: no-repeat;
+  background-color: #0a0a0f;
   padding: 20px;
-  background: linear-gradient(135deg, #3d4c2a 0%, #5a6d3e 100%);
 }
+
 .container { max-width: 700px; margin: 0 auto; }
-.card {
-  background: white;
-  border-radius: 12px;
-  padding: 32px;
-  box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+
+/* ── HERO HEADER ── */
+.hero {
+  text-align: center;
+  padding: 32px 20px 24px;
+  position: relative;
+}
+.hero-stars {
+  color: #c8952a;
+  font-size: 18px;
+  letter-spacing: 8px;
+  margin-bottom: 8px;
+}
+.hero-badge {
+  display: inline-block;
+  border: 2px solid #c8952a;
+  color: #c8952a;
+  font-family: 'Oswald', sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 2px;
+  padding: 4px 12px;
+  border-radius: 2px;
+  margin-bottom: 12px;
+  text-transform: uppercase;
+}
+.hero h1 {
+  font-family: 'Oswald', sans-serif;
+  font-size: 42px;
+  font-weight: 700;
+  color: white;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  line-height: 1;
+  margin-bottom: 4px;
+}
+.hero h1 span {
+  color: #a83838;
+  display: block;
+  font-size: 48px;
+}
+.hero-sub {
+  color: rgba(255,255,255,0.6);
+  font-size: 13px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
   margin-bottom: 20px;
 }
-h1 { color: #3d4c2a; font-size: 28px; margin-bottom: 8px; text-align: center; }
-.subtitle { text-align: center; color: #666; font-size: 14px; margin-bottom: 24px; }
-.tabs { display: flex; gap: 8px; margin-bottom: 24px; border-bottom: 2px solid #e0e0e0; }
+.hero-divider {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin: 16px 0;
+}
+.hero-divider-line {
+  height: 1px;
+  width: 60px;
+  background: linear-gradient(to right, transparent, #c8952a);
+}
+.hero-divider-line.right {
+  background: linear-gradient(to left, transparent, #c8952a);
+}
+.hero-divider-star { color: #c8952a; font-size: 14px; }
+
+/* ── DRIVER PROFILE ── */
+.driver-profile {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(200,149,42,0.3);
+  border-radius: 12px;
+  padding: 20px 24px;
+  margin-bottom: 24px;
+}
+.driver-photo {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  border: 3px solid #c8952a;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+.driver-info { text-align: left; }
+.driver-name {
+  font-family: 'Oswald', sans-serif;
+  font-size: 20px;
+  font-weight: 600;
+  color: white;
+  margin-bottom: 2px;
+}
+.driver-title {
+  color: #c8952a;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+.driver-tagline {
+  color: rgba(255,255,255,0.6);
+  font-size: 12px;
+  font-style: italic;
+}
+
+/* ── SERVICE ICONS ── */
+.services {
+  display: flex;
+  justify-content: center;
+  gap: 0;
+  margin-bottom: 28px;
+  border: 1px solid rgba(200,149,42,0.2);
+  border-radius: 8px;
+  overflow: hidden;
+}
+.service-item {
+  flex: 1;
+  text-align: center;
+  padding: 14px 8px;
+  border-right: 1px solid rgba(200,149,42,0.2);
+  background: rgba(255,255,255,0.02);
+}
+.service-item:last-child { border-right: none; }
+.service-icon { font-size: 20px; margin-bottom: 6px; }
+.service-label {
+  font-size: 9px;
+  color: rgba(255,255,255,0.6);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+/* ── CARD ── */
+.card {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 12px;
+  padding: 28px;
+  margin-bottom: 20px;
+  backdrop-filter: blur(10px);
+}
+
+/* ── LOGIN ── */
+.login-section { max-width: 400px; margin: 0 auto; }
+.field { margin-bottom: 20px; }
+label {
+  display: block;
+  font-weight: 600;
+  color: #c8952a;
+  margin-bottom: 6px;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+input, select, textarea {
+  width: 100%;
+  padding: 12px 16px;
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 6px;
+  font-size: 15px;
+  background: rgba(255,255,255,0.08);
+  color: white;
+  transition: border-color 0.3s;
+  font-family: 'Open Sans', sans-serif;
+}
+input::placeholder, textarea::placeholder { color: rgba(255,255,255,0.35); }
+input:focus, select:focus, textarea:focus {
+  outline: none;
+  border-color: #c8952a;
+  background: rgba(255,255,255,0.1);
+}
+select option { background: #1a1a1a; color: white; }
+.row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+/* ── BUTTONS ── */
+.btn {
+  width: 100%; padding: 14px; border: none; border-radius: 6px;
+  font-size: 15px; font-weight: 700; cursor: pointer; transition: all 0.3s;
+  font-family: 'Oswald', sans-serif; letter-spacing: 1px; text-transform: uppercase;
+}
+.btn-primary {
+  background: linear-gradient(135deg, #8b2c2c, #6b1f1f);
+  color: #f5f0e6;
+  border: 1px solid rgba(200,149,42,0.4);
+}
+.btn-primary:hover {
+  background: linear-gradient(135deg, #9c3535, #7a2525);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(139,44,44,0.35);
+  border-color: #c8952a;
+}
+.btn-primary:disabled { background: #444; border-color: #444; cursor: not-allowed; transform: none; }
+.btn-confirm {
+  background: linear-gradient(135deg, #1a6b1a, #145214);
+  color: white;
+  margin-top: 12px;
+  border: 1px solid #1a6b1a;
+}
+.btn-confirm:hover { background: linear-gradient(135deg, #228822, #1a6b1a); }
+
+/* ── TABS ── */
+.tabs { display: flex; gap: 0; margin-bottom: 24px; border-bottom: 2px solid rgba(200,149,42,0.3); }
 .tab {
   flex: 1; padding: 12px; background: none; border: none;
   border-bottom: 3px solid transparent; cursor: pointer;
-  font-weight: 600; font-size: 15px; color: #666; transition: all 0.3s;
+  font-weight: 700; font-size: 13px; color: rgba(255,255,255,0.5);
+  transition: all 0.3s; font-family: 'Oswald', sans-serif;
+  letter-spacing: 1px; text-transform: uppercase;
+  margin-bottom: -2px;
 }
-.tab.active { color: #3d4c2a; border-bottom-color: #3d4c2a; }
-.tab:hover { color: #3d4c2a; }
-.login-section { max-width: 400px; margin: 0 auto; }
-.field { margin-bottom: 20px; }
-label { display: block; font-weight: 600; color: #3d4c2a; margin-bottom: 6px; font-size: 14px; }
-input, select, textarea {
-  width: 100%; padding: 12px; border: 2px solid #e0e0e0;
-  border-radius: 6px; font-size: 15px; transition: border-color 0.3s; background: white;
-}
-input:focus, select:focus, textarea:focus { outline: none; border-color: #3d4c2a; }
-.row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-.btn {
-  width: 100%; padding: 14px; border: none; border-radius: 8px;
-  font-size: 16px; font-weight: 600; cursor: pointer; transition: all 0.3s;
-}
-.btn-primary { background: #3d4c2a; color: white; }
-.btn-primary:hover { background: #2d3c1a; transform: translateY(-2px); box-shadow: 0 6px 20px rgba(61,76,42,0.3); }
-.btn-primary:disabled { background: #ccc; cursor: not-allowed; transform: none; }
-.btn-confirm { background: #28a745; color: white; margin-top: 12px; }
-.btn-confirm:hover { background: #218838; }
+.tab.active { color: #c8952a; border-bottom-color: #c8952a; }
+.tab:hover { color: rgba(200,149,42,0.8); }
+
+/* ── QUOTE BOX ── */
 .quote-box {
-  background: #3d4c2a; border-radius: 8px; padding: 24px;
-  margin: 24px 0; text-align: center; color: white;
+  background: linear-gradient(135deg, rgba(139,44,44,0.25), rgba(107,31,31,0.15));
+  border: 1px solid rgba(200,149,42,0.4);
+  border-radius: 8px; padding: 24px;
+  margin: 24px 0; text-align: center;
 }
-.quote-label { font-size: 13px; opacity: 0.85; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
-.quote-price { font-size: 48px; font-weight: bold; margin-bottom: 6px; }
-.quote-note { font-size: 12px; opacity: 0.7; margin-top: 6px; }
-.ride-card { background: #f8f9fa; border: 2px solid #e0e0e0; border-radius: 8px; padding: 20px; margin-bottom: 16px; }
-.ride-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 2px solid #e0e0e0; }
-.ride-date { font-size: 18px; font-weight: 600; color: #3d4c2a; }
-.status-badge { padding: 6px 12px; border-radius: 20px; font-size: 11px; font-weight: 600; text-transform: uppercase; }
-.status-pending { background: #fff3cd; color: #856404; }
-.status-quoted { background: #d1ecf1; color: #0c5460; }
-.status-confirmed { background: #d4edda; color: #155724; }
-.status-completed { background: #cce5ff; color: #004085; }
-.status-declined { background: #f8d7da; color: #721c24; }
-.status-cancelled { background: #f8d7da; color: #721c24; }
-.status-paid { background: #c3e6cb; color: #1e7e34; }
-.ride-detail { display: flex; align-items: center; margin-bottom: 8px; font-size: 14px; color: #555; }
-.ride-icon { margin-right: 8px; font-weight: bold; }
-.price-box { background: white; border: 2px solid #3d4c2a; border-radius: 6px; padding: 16px; margin: 16px 0; text-align: center; }
-.price-label { font-size: 12px; color: #666; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; }
-.price-amount { font-size: 32px; font-weight: bold; color: #3d4c2a; }
-.payment-section { background: #fff9e6; border: 2px solid #3d4c2a; border-radius: 6px; padding: 16px; margin-top: 16px; }
-.payment-title { font-weight: 600; color: #3d4c2a; margin-bottom: 12px; text-align: center; }
-.payment-link { display: block; background: #3d4c2a; color: white; padding: 10px; border-radius: 6px; text-align: center; text-decoration: none; font-weight: 600; margin-bottom: 8px; }
-.payment-link:hover { background: #2d3c1a; }
-.success { background: #d4edda; border: 2px solid #28a745; border-radius: 8px; padding: 24px; text-align: center; }
-.success h2 { color: #28a745; margin-bottom: 12px; }
-.empty-state { text-align: center; padding: 60px 20px; color: #999; }
-.loading { text-align: center; padding: 40px; color: #666; }
+.quote-label {
+  font-size: 11px; color: #c8952a; text-transform: uppercase;
+  letter-spacing: 2px; margin-bottom: 8px; font-weight: 600;
+}
+.quote-price { font-size: 52px; font-weight: 700; color: white; font-family: 'Oswald', sans-serif; }
+.quote-note { font-size: 12px; color: rgba(255,255,255,0.5); margin-top: 6px; }
+
+/* ── RIDE CARDS ── */
+.ride-card {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 8px; padding: 20px; margin-bottom: 16px;
+}
+.ride-header {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 16px; padding-bottom: 12px;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+.ride-date { font-size: 16px; font-weight: 700; color: #c8952a; font-family: 'Oswald', sans-serif; }
+.status-badge { padding: 5px 12px; border-radius: 20px; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; }
+.status-pending { background: rgba(200,149,42,0.2); color: #c8952a; border: 1px solid #c8952a; }
+.status-quoted { background: rgba(13,202,240,0.15); color: #0dcaf0; border: 1px solid #0dcaf0; }
+.status-confirmed { background: rgba(25,135,84,0.2); color: #28a745; border: 1px solid #28a745; }
+.status-completed { background: rgba(13,110,253,0.2); color: #6ea8fe; border: 1px solid #6ea8fe; }
+.status-declined { background: rgba(139,44,44,0.25); color: #e08a8a; border: 1px solid rgba(139,44,44,0.6); }
+.status-cancelled { background: rgba(139,44,44,0.25); color: #e08a8a; border: 1px solid rgba(139,44,44,0.6); }
+.status-paid { background: rgba(25,135,84,0.2); color: #28a745; border: 1px solid #28a745; }
+.ride-detail { display: flex; align-items: flex-start; margin-bottom: 8px; font-size: 14px; color: rgba(255,255,255,0.7); }
+.ride-icon { margin-right: 8px; flex-shrink: 0; }
+
+/* ── PRICE BOX ── */
+.price-box {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(200,149,42,0.4);
+  border-radius: 6px; padding: 16px; margin: 16px 0; text-align: center;
+}
+.price-label { font-size: 11px; color: #c8952a; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; font-weight: 600; }
+.price-amount { font-size: 36px; font-weight: 700; color: white; font-family: 'Oswald', sans-serif; }
+
+/* ── PAYMENT ── */
+.payment-section {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(200,149,42,0.3);
+  border-radius: 6px; padding: 16px; margin-top: 16px;
+}
+.payment-title { font-weight: 700; color: #c8952a; margin-bottom: 12px; text-align: center; font-family: 'Oswald', sans-serif; letter-spacing: 1px; text-transform: uppercase; font-size: 14px; }
+.payment-link {
+  display: block; background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.15);
+  color: white; padding: 11px; border-radius: 6px;
+  text-align: center; text-decoration: none;
+  font-weight: 600; margin-bottom: 8px; font-size: 14px;
+  transition: all 0.3s;
+}
+.payment-link:hover { background: rgba(200,149,42,0.2); border-color: #c8952a; color: #c8952a; }
+
+/* ── SUCCESS ── */
+.success {
+  background: rgba(25,135,84,0.15);
+  border: 1px solid #28a745;
+  border-radius: 8px; padding: 24px; text-align: center;
+}
+.success h2 { color: #28a745; margin-bottom: 12px; font-family: 'Oswald', sans-serif; font-size: 24px; letter-spacing: 1px; }
+.success p { color: rgba(255,255,255,0.7); }
+
+/* ── BALANCE ── */
+#balance-section {
+  background: rgba(200,149,42,0.1) !important;
+  border: 1px solid rgba(200,149,42,0.4) !important;
+  border-radius: 8px;
+}
+
+/* ── MISC ── */
+.empty-state { text-align: center; padding: 60px 20px; color: rgba(255,255,255,0.3); }
+.loading { text-align: center; padding: 40px; color: rgba(255,255,255,0.4); }
 .hidden { display: none; }
-.error { background: #f8d7da; border: 2px solid #dc3545; border-radius: 6px; padding: 12px; color: #721c24; margin-bottom: 16px; font-size: 14px; }
-.logout-btn { background: none; border: 1px solid #3d4c2a; color: #3d4c2a; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 12px; margin-left: 12px; }
-.logout-btn:hover { background: rgba(61,76,42,0.1); }
+.error { background: rgba(204,34,0,0.15); border: 1px solid #cc2200; border-radius: 6px; padding: 12px; color: #ff6b6b; margin-bottom: 16px; font-size: 14px; }
+.logout-btn {
+  background: none; border: 1px solid rgba(200,149,42,0.5);
+  color: #c8952a; padding: 6px 14px; border-radius: 4px;
+  cursor: pointer; font-size: 12px; font-weight: 600;
+  text-transform: uppercase; letter-spacing: 0.5px;
+  transition: all 0.3s;
+}
+.logout-btn:hover { background: rgba(200,149,42,0.1); }
+
+/* ── QR SECTION ── */
+.qr-section {
+  text-align: center;
+  margin-top: 24px;
+  padding-top: 24px;
+  border-top: 1px solid rgba(255,255,255,0.1);
+}
+.qr-label {
+  font-size: 11px; color: rgba(255,255,255,0.4);
+  text-transform: uppercase; letter-spacing: 1px;
+  margin-bottom: 12px; font-weight: 600;
+}
+
+/* ── FOOTER ── */
+.footer-stars {
+  text-align: center;
+  color: #c8952a;
+  font-size: 14px;
+  letter-spacing: 8px;
+  margin-top: 8px;
+  padding-bottom: 8px;
+}
+
+/* ── MOBILE ── */
 @media (max-width: 768px) {
   body { padding: 10px; }
-  .container { padding: 20px 16px; }
+  .hero h1 { font-size: 32px; }
+  .hero h1 span { font-size: 38px; }
+  .driver-profile { flex-direction: column; text-align: center; }
+  .driver-info { text-align: center; }
+  .services { flex-wrap: wrap; }
+  .service-item { min-width: 30%; border-bottom: 1px solid rgba(200,149,42,0.2); }
   .tabs { overflow-x: auto; flex-wrap: nowrap; padding-bottom: 8px; }
-  .tab { padding: 10px 16px; font-size: 13px; white-space: nowrap; flex-shrink: 0; }
-  .btn { padding: 14px 24px; font-size: 15px; }
-  .price-box { padding: 16px; }
+  .tab { padding: 10px 16px; font-size: 12px; white-space: nowrap; flex-shrink: 0; }
+  .btn { padding: 14px 24px; }
   .price-amount { font-size: 28px; }
-  .payment-link { padding: 12px; font-size: 14px; }
-  .ride-card { padding: 16px; }
   .ride-header { flex-direction: column; align-items: flex-start; gap: 8px; }
-  #balance-section { padding: 16px !important; }
+  .row { grid-template-columns: 1fr; }
   #balance-section > div:first-child { flex-direction: column !important; align-items: flex-start !important; }
   #balance-section #total-balance { font-size: 28px !important; }
 }
@@ -104,31 +379,81 @@ input:focus, select:focus, textarea:focus { outline: none; border-color: #3d4c2a
 <body>
 
 <div class="container">
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-stars">★ ★ ★</div>
+    <div class="hero-badge">U.S. Army Veteran Retired · 20 Years of Service</div>
+    <h1>Patriot<span>Transportation</span></h1>
+    <div class="hero-sub">San Antonio &amp; Surrounding Areas</div>
+    <div class="hero-divider">
+      <div class="hero-divider-line"></div>
+      <div class="hero-divider-star">★</div>
+      <div class="hero-divider-line right"></div>
+    </div>
+  </div>
+
+  <!-- DRIVER PROFILE -->
+  <div class="driver-profile">
+    <img src="https://wsfv-llc.github.io/Patriot-Transportation/driver.png" alt="Your Driver" class="driver-photo">
+    <div class="driver-info">
+      <div class="driver-name">Jason Nedoroscik</div>
+      <div class="driver-title">Veteran Owner &amp; Operator</div>
+      <div class="driver-tagline">Driven by Service. Committed to Excellence. Focused on You.</div>
+    </div>
+  </div>
+
+  <!-- SERVICES -->
+  <div class="services">
+    <div class="service-item">
+      <div class="service-icon">✈️</div>
+      <div class="service-label">Airport<br>Transfers</div>
+    </div>
+    <div class="service-item">
+      <div class="service-icon">💼</div>
+      <div class="service-label">Business<br>Travel</div>
+    </div>
+    <div class="service-item">
+      <div class="service-icon">🎉</div>
+      <div class="service-label">Special<br>Events</div>
+    </div>
+    <div class="service-item">
+      <div class="service-icon">🛣️</div>
+      <div class="service-label">Long Distance<br>Rides</div>
+    </div>
+    <div class="service-item">
+      <div class="service-icon">🛡️</div>
+      <div class="service-label">Safe &amp;<br>On Time</div>
+    </div>
+  </div>
+
   <!-- Login Screen -->
   <div id="login-screen" class="card">
-    <h1>Patriot Transportation</h1>
-    <p class="subtitle">San Antonio &amp; Surrounding Areas</p>
     <div class="login-section">
       <div class="field">
         <label>Enter Your Phone Number</label>
         <input type="tel" id="phone_login" placeholder="(555) 555-5555" maxlength="10">
       </div>
-      <button class="btn btn-primary" onclick="login()">Continue</button>
-      <p style="text-align:center; margin-top:20px; font-size:13px; color:#666;">For questions or assistance, please call <a href="tel:+12109606034" style="color:#3d4c2a; font-weight:600;">210-960-6034</a></p>
-      <div style="text-align:center; margin-top:20px; padding-top:20px; border-top:2px solid #e0e0e0;">
-        <p style="font-size:12px; color:#999; margin-bottom:10px; font-weight:600; text-transform:uppercase; letter-spacing:0.5px;">Share this app with a friend</p>
-        <img src="https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=https://wsfv-llc.github.io/Patriot-Transportation/&color=3d4c2a&bgcolor=ffffff&margin=6" alt="QR Code" style="width:160px; height:160px; border:3px solid #3d4c2a; border-radius:8px;">
+      <button class="btn btn-primary" onclick="login()">Continue →</button>
+      <p style="text-align:center; margin-top:20px; font-size:13px; color:rgba(255,255,255,0.4);">
+        Questions? Call <a href="tel:+12109606034" style="color:#c8952a; font-weight:600;">210-960-6034</a>
+      </p>
+      <div class="qr-section">
+        <div class="qr-label">Share this app with a friend</div>
+        <img src="https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=https://wsfv-llc.github.io/Patriot-Transportation/&color=c8952a&bgcolor=0a0a0a&margin=6" alt="QR Code" style="width:140px; height:140px; border:2px solid #c8952a; border-radius:8px;">
       </div>
     </div>
   </div>
 
   <!-- Main App -->
   <div id="main-app" class="card hidden">
-    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
-      <h1 style="margin:0;">Patriot Transportation</h1>
-      <button class="logout-btn" onclick="logout()">Change Number</button>
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+      <div>
+        <div style="font-family:'Oswald',sans-serif; font-size:20px; font-weight:700; color:white; letter-spacing:1px;">PATRIOT TRANSPORTATION</div>
+        <div style="font-size:12px; color:rgba(255,255,255,0.4); text-transform:uppercase; letter-spacing:1px;">Welcome back!</div>
+      </div>
+      <button class="logout-btn" onclick="logout()">Change #</button>
     </div>
-    <p class="subtitle" style="margin-bottom:16px;">Welcome back!</p>
 
     <div class="tabs">
       <button class="tab active" onclick="showTab('book')">Book a Ride</button>
@@ -186,7 +511,7 @@ input:focus, select:focus, textarea:focus { outline: none; border-color: #3d4c2a
           <label>Special Instructions</label>
           <textarea id="notes" rows="2" placeholder="If airport pickup, please include flight number"></textarea>
         </div>
-        <button type="button" class="btn btn-primary" id="quote-btn" onclick="calculateQuote()">Get My Quote</button>
+        <button type="button" class="btn btn-primary" id="quote-btn" onclick="calculateQuote()">Get My Quote →</button>
       </form>
 
       <div id="quote-section" class="hidden">
@@ -195,11 +520,11 @@ input:focus, select:focus, textarea:focus { outline: none; border-color: #3d4c2a
           <div class="quote-price" id="quote-price">$--</div>
           <div class="quote-note">Based on $2.25/mile · <span id="quote-miles">--</span> miles</div>
         </div>
-        <button type="button" class="btn btn-primary" id="submit-btn" onclick="submitRequest()">Submit Booking Request</button>
+        <button type="button" class="btn btn-primary" id="submit-btn" onclick="submitRequest()">Submit Booking Request →</button>
       </div>
 
       <div id="success-section" class="success hidden">
-        <h2>&#10003; Request Submitted!</h2>
+        <h2>✓ Request Submitted!</h2>
         <p>We've received your booking request and will confirm shortly.</p>
         <button class="btn btn-primary" onclick="resetBookingForm()" style="margin-top:16px;">Book Another Ride</button>
       </div>
@@ -207,12 +532,12 @@ input:focus, select:focus, textarea:focus { outline: none; border-color: #3d4c2a
 
     <!-- Rides Tab -->
     <div id="rides-tab" class="hidden">
-      <div id="balance-section" class="hidden" style="background:#fff3cd; border:2px solid #ffc107; border-radius:8px; padding:20px; margin-bottom:20px;">
+      <div id="balance-section" class="hidden" style="padding:20px; margin-bottom:20px;">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
           <div>
-            <div style="font-size:14px; color:#856404; font-weight:600;">Outstanding Balance</div>
-            <div id="total-balance" style="font-size:32px; font-weight:bold; color:#856404;">$0.00</div>
-            <div style="font-size:12px; color:#856404; margin-top:4px;"><span id="unpaid-count">0</span> unpaid rides</div>
+            <div style="font-size:13px; color:#c8952a; font-weight:700; text-transform:uppercase; letter-spacing:1px;">Outstanding Balance</div>
+            <div id="total-balance" style="font-size:32px; font-weight:700; color:white; font-family:'Oswald',sans-serif;">$0.00</div>
+            <div style="font-size:12px; color:rgba(255,255,255,0.5); margin-top:4px;"><span id="unpaid-count">0</span> unpaid rides</div>
           </div>
         </div>
         <div style="display:flex; gap:8px; flex-wrap:wrap;">
@@ -220,11 +545,14 @@ input:focus, select:focus, textarea:focus { outline: none; border-color: #3d4c2a
           <a id="balance-venmo-link" href="https://venmo.com/u/Jason-Nedoroscik" class="payment-link" target="_blank" style="flex:1; min-width:150px;">Pay Total with Venmo</a>
           <a id="balance-paypal-link" href="https://www.paypal.com/ncp/payment/GGLFF2L9XDA4E" class="payment-link" target="_blank" style="flex:1; min-width:150px;">Pay Total with Credit Card / PayPal</a>
         </div>
-        <p style="font-size:11px; color:#856404; margin-top:12px; text-align:center;">Include "Patriot Transportation" in the payment note</p>
+        <p style="font-size:11px; color:rgba(200,149,42,0.6); margin-top:12px; text-align:center;">Include "Patriot Transportation" in the payment note</p>
       </div>
-      <div id="rides-list" class="loading">Loading your rides...</div>
+      <div id="rides-list" class="loading" style="color:rgba(255,255,255,0.4);">Loading your rides...</div>
     </div>
   </div>
+
+  <div class="footer-stars">★ ★ ★</div>
+
 </div>
 
 <!-- Google Maps JavaScript API -->
@@ -322,48 +650,36 @@ async function calculateQuote() {
   btn.disabled = true;
 
   const timeoutId = setTimeout(() => {
-    showError('Request timed out. Please include the city in your address (e.g., "Chick-fil-A, Cibolo" or "123 Main St, San Antonio") and try again.');
-    btn.textContent = 'Get My Quote';
+    showError('Request timed out. Please include the city in your address and try again.');
+    btn.textContent = 'Get My Quote →';
     btn.disabled = false;
   }, 10000);
 
   try {
     distanceService.getDistanceMatrix(
-      {
-        origins: [pickup],
-        destinations: [dropoff],
-        travelMode: 'DRIVING',
-        unitSystem: google.maps.UnitSystem.IMPERIAL
-      },
+      { origins: [pickup], destinations: [dropoff], travelMode: 'DRIVING', unitSystem: google.maps.UnitSystem.IMPERIAL },
       function(response, status) {
         clearTimeout(timeoutId);
-
         if (status === 'OK' && response.rows[0].elements[0].status === 'OK') {
           const distanceMeters = response.rows[0].elements[0].distance.value;
           const durationSeconds = response.rows[0].elements[0].duration.value;
-
           tripMiles = distanceMeters / 1609.34;
           tripDurationMinutes = Math.round(durationSeconds / 60);
-
-          // $2.25 per mile, rounded to nearest dollar
           quotedPrice = Math.round(tripMiles * PRICE_PER_MILE);
-
           document.getElementById('quote-price').textContent = '$' + quotedPrice.toFixed(2);
           document.getElementById('quote-miles').textContent = tripMiles.toFixed(1);
           document.getElementById('quote-section').classList.remove('hidden');
-          btn.textContent = 'Get My Quote';
+          btn.textContent = 'Get My Quote →';
           btn.disabled = false;
         } else {
           let errorMsg = 'Could not calculate distance. ';
           if (response.rows[0].elements[0].status === 'NOT_FOUND') {
-            errorMsg += 'Address not found. Include the city (e.g., "Chick-fil-A, Cibolo" or "123 Main St, San Antonio").';
-          } else if (response.rows[0].elements[0].status === 'ZERO_RESULTS') {
-            errorMsg += 'No route found between these addresses. Please check and try again.';
+            errorMsg += 'Address not found. Include the city (e.g., "Chick-fil-A, Cibolo").';
           } else {
             errorMsg += 'Please check your addresses and try again.';
           }
           showError(errorMsg);
-          btn.textContent = 'Get My Quote';
+          btn.textContent = 'Get My Quote →';
           btn.disabled = false;
         }
       }
@@ -371,7 +687,7 @@ async function calculateQuote() {
   } catch (error) {
     clearTimeout(timeoutId);
     showError('Could not calculate distance. Please include the city in your addresses and try again.');
-    btn.textContent = 'Get My Quote';
+    btn.textContent = 'Get My Quote →';
     btn.disabled = false;
   }
 }
@@ -404,14 +720,12 @@ async function submitRequest() {
     };
 
     fetch('https://hook.us2.make.com/jzkgfy68268az8wz34ylv8nyb2vxbcof', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(rideData)
     }).catch(err => console.log('Notification error:', err));
 
     await window.addDoc(window.collection(window.db, 'ride_requests'), {
-      ...rideData,
-      created_at: window.serverTimestamp()
+      ...rideData, created_at: window.serverTimestamp()
     });
 
     document.getElementById('booking-form').classList.add('hidden');
@@ -431,12 +745,10 @@ function resetBookingForm() {
   document.getElementById('booking-form').classList.remove('hidden');
   document.getElementById('quote-section').classList.add('hidden');
   document.getElementById('success-section').classList.add('hidden');
-  quotedPrice = 0;
-  tripMiles = 0;
-  tripDurationMinutes = 0;
+  quotedPrice = 0; tripMiles = 0; tripDurationMinutes = 0;
 
   const submitBtn = document.getElementById('submit-btn');
-  if (submitBtn) { submitBtn.textContent = 'Submit Booking Request'; submitBtn.disabled = false; }
+  if (submitBtn) { submitBtn.textContent = 'Submit Booking Request →'; submitBtn.disabled = false; }
 
   const nameField = document.getElementById('client_name');
   const emailField = document.getElementById('client_email');
@@ -511,10 +823,8 @@ function displayRides(snapshot) {
 
 function createRideCard(id, data) {
   const statusClass = `status-${data.status}`;
-  // Explicit null check for $0 safety
   const amount = (data.final_price !== undefined && data.final_price !== null)
-    ? data.final_price
-    : (data.quoted_price || 0);
+    ? data.final_price : (data.quoted_price || 0);
 
   let actionSection = '';
 
@@ -523,7 +833,7 @@ function createRideCard(id, data) {
       <div class="price-box">
         <div class="price-label">Quoted Price</div>
         <div class="price-amount">$${amount.toFixed(2)}</div>
-        <p style="font-size:12px; color:#999; margin-top:8px;">Awaiting driver confirmation</p>
+        <p style="font-size:12px; color:rgba(255,255,255,0.4); margin-top:8px;">Awaiting driver confirmation</p>
       </div>`;
   } else if (data.status === 'quoted') {
     actionSection = `
@@ -540,14 +850,14 @@ function createRideCard(id, data) {
       </div>
       <div class="payment-section">
         <div class="payment-title">Payment Instructions</div>
-        <p style="font-size:13px; color:#666; margin-bottom:12px;">Please send payment to:</p>
+        <p style="font-size:13px; color:rgba(255,255,255,0.5); margin-bottom:12px;">Please send payment to:</p>
         <a href="https://cash.app/$JasonNed" class="payment-link" target="_blank">Pay with CashApp</a>
         <a href="https://venmo.com/u/Jason-Nedoroscik" class="payment-link" target="_blank">Pay with Venmo</a>
         <a href="https://www.paypal.com/ncp/payment/GGLFF2L9XDA4E" class="payment-link" target="_blank">Pay with Credit Card / PayPal</a>
-        <div class="payment-link" style="background:#6c757d; cursor:default;">Pay with Cash (at pickup)</div>
-        <p style="font-size:12px; color:#999; margin-top:8px;">Include "Patriot Transportation" in the note</p>
+        <div class="payment-link" style="opacity:0.5; cursor:default;">Pay with Cash (at pickup)</div>
+        <p style="font-size:12px; color:rgba(255,255,255,0.3); margin-top:8px;">Include "Patriot Transportation" in the note</p>
       </div>
-      <button class="btn" style="background:#dc3545; color:white; margin-top:12px;" onclick="cancelRide('${id}')">Cancel Booking</button>`;
+      <button class="btn" style="background:rgba(139,44,44,0.3); border:1px solid rgba(139,44,44,0.6); color:#e08a8a; margin-top:12px;" onclick="cancelRide('${id}')">Cancel Booking</button>`;
   } else if (data.status === 'completed') {
     actionSection = `
       <div class="price-box">
@@ -556,12 +866,12 @@ function createRideCard(id, data) {
       </div>
       <div class="payment-section">
         <div class="payment-title">Payment Instructions</div>
-        <p style="font-size:13px; color:#666; margin-bottom:12px;">Ride complete! Please send payment to:</p>
+        <p style="font-size:13px; color:rgba(255,255,255,0.5); margin-bottom:12px;">Ride complete! Please send payment to:</p>
         <a href="https://cash.app/$JasonNed" class="payment-link" target="_blank">Pay with CashApp</a>
         <a href="https://venmo.com/u/Jason-Nedoroscik" class="payment-link" target="_blank">Pay with Venmo</a>
         <a href="https://www.paypal.com/ncp/payment/GGLFF2L9XDA4E" class="payment-link" target="_blank">Pay with Credit Card / PayPal</a>
-        <div class="payment-link" style="background:#6c757d; cursor:default;">Paid with Cash</div>
-        <p style="font-size:12px; color:#999; margin-top:8px;">Include "Patriot Transportation" in the note</p>
+        <div class="payment-link" style="opacity:0.5; cursor:default;">Paid with Cash</div>
+        <p style="font-size:12px; color:rgba(255,255,255,0.3); margin-top:8px;">Include "Patriot Transportation" in the note</p>
       </div>`;
   } else if (data.status === 'paid') {
     actionSection = `
@@ -570,23 +880,23 @@ function createRideCard(id, data) {
         <div class="price-amount">$${amount.toFixed(2)}</div>
       </div>
       <a href="receipt.html?id=${id}" target="_blank" class="btn btn-primary" style="display:block; text-align:center; text-decoration:none; margin-top:12px;">View Receipt</a>
-      <div style="margin-top:16px; padding-top:16px; border-top:1px solid #e0e0e0;">
-        <div style="font-size:14px; font-weight:600; color:#3d4c2a; margin-bottom:12px;">Add a Tip</div>
+      <div style="margin-top:16px; padding-top:16px; border-top:1px solid rgba(255,255,255,0.1);">
+        <div style="font-size:13px; font-weight:700; color:#c8952a; margin-bottom:12px; text-transform:uppercase; letter-spacing:1px;">Add a Tip</div>
         <div style="display:flex; gap:8px; flex-wrap:wrap;">
           <a href="https://cash.app/$JasonNed" class="payment-link" target="_blank" style="flex:1; min-width:120px;">Tip with CashApp</a>
           <a href="https://venmo.com/u/Jason-Nedoroscik" class="payment-link" target="_blank" style="flex:1; min-width:120px;">Tip with Venmo</a>
           <a href="https://www.paypal.com/ncp/payment/GGLFF2L9XDA4E" class="payment-link" target="_blank" style="flex:1; min-width:120px;">Tip with PayPal</a>
         </div>
-        <p style="font-size:11px; color:#999; margin-top:8px; text-align:center;">Thank you for your generosity!</p>
+        <p style="font-size:11px; color:rgba(255,255,255,0.3); margin-top:8px; text-align:center;">Thank you for your generosity!</p>
       </div>`;
   } else if (data.status === 'declined') {
     actionSection = `
-      <div style="text-align:center; padding:16px; background:#f8d7da; border-radius:6px; color:#721c24;">
-        This request was declined. Please submit a new request or call us at <a href="tel:+12109414925" style="color:#721c24; font-weight:600;">210-941-4925</a>.
+      <div style="text-align:center; padding:16px; background:rgba(139,44,44,0.2); border:1px solid rgba(139,44,44,0.6); border-radius:6px; color:#e08a8a;">
+        This request was declined. Please submit a new request or call <a href="tel:+12109606034" style="color:#c8952a; font-weight:600;">210-960-6034</a>.
       </div>`;
   } else if (data.status === 'cancelled') {
     actionSection = `
-      <div style="text-align:center; padding:16px; background:#f8d7da; border-radius:6px; color:#721c24;">
+      <div style="text-align:center; padding:16px; background:rgba(139,44,44,0.2); border:1px solid rgba(139,44,44,0.6); border-radius:6px; color:#e08a8a;">
         This booking has been cancelled.
       </div>`;
   }
