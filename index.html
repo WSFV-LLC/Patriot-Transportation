@@ -110,6 +110,22 @@ body {
   object-fit: cover;
   flex-shrink: 0;
 }
+.van-photo-wrap {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  overflow: hidden;
+  flex-shrink: 0;
+  border: 3px solid #c8952a;
+  background: white;
+}
+.van-photo-wrap img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center center;
+  transform: scale(1.35) translateX(8%);
+}
 .driver-info { text-align: left; }
 .driver-name {
   font-family: 'Oswald', sans-serif;
@@ -377,6 +393,7 @@ select option { background: #1a1a1a; color: white; }
     gap: 12px;
   }
   .driver-photo { width: 64px; height: 64px; }
+  .van-photo-wrap { width: 64px; height: 64px; }
   .driver-info { text-align: center; }
   .driver-name { font-size: 17px; }
   .driver-title { font-size: 11px; }
@@ -427,10 +444,10 @@ select option { background: #1a1a1a; color: white; }
 
   <!-- HERO -->
   <div class="hero">
-    <div class="hero-stars">★ ★ ★</div>
+    <div class="hero-stars">★ ★ ★ ★ ★</div>
     <div class="hero-badge">U.S. Army Veteran Retired · 20 Years of Service</div>
     <h1>Patriot<span>Transportation</span></h1>
-    <div class="hero-sub">San Antonio &amp; Surrounding Areas</div>
+    <div class="hero-sub">Serving San Antonio, Austin &amp; Houston</div>
     <div class="hero-divider">
       <div class="hero-divider-line"></div>
       <div class="hero-divider-star">★</div>
@@ -440,7 +457,12 @@ select option { background: #1a1a1a; color: white; }
 
   <!-- DRIVER PROFILE -->
   <div class="driver-profile">
-    <img src="https://wsfv-llc.github.io/Patriot-Transportation/driver.png" alt="Your Driver" class="driver-photo">
+    <div style="display:flex; gap:8px; flex-shrink:0;">
+      <img src="https://wsfv-llc.github.io/Patriot-Transportation/driver.png" alt="Your Driver" class="driver-photo">
+      <div class="van-photo-wrap">
+        <img src="https://wsfv-llc.github.io/Patriot-Transportation/van.jpg" alt="Our Vehicle">
+      </div>
+    </div>
     <div class="driver-info">
       <div class="driver-name">Jason Nedoroscik</div>
       <div class="driver-title">Veteran Owner &amp; Operator</div>
@@ -596,7 +618,7 @@ select option { background: #1a1a1a; color: white; }
     </div>
   </div>
 
-  <div class="footer-stars">★ ★ ★</div>
+  <div class="footer-stars">★ ★ ★ ★ ★</div>
 
 </div>
 
