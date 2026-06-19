@@ -358,21 +358,60 @@ select option { background: #1a1a1a; color: white; }
 
 /* ── MOBILE ── */
 @media (max-width: 768px) {
-  body { padding: 10px; }
-  .hero h1 { font-size: 32px; }
-  .hero h1 span { font-size: 38px; }
-  .driver-profile { flex-direction: column; text-align: center; }
+  body {
+    padding: 10px;
+    background-size: cover;
+    background-position: top center;
+  }
+  .hero { padding: 20px 10px 16px; }
+  .hero-badge { font-size: 9px; padding: 4px 8px; letter-spacing: 1px; }
+  .hero h1 { font-size: 26px; letter-spacing: 1px; }
+  .hero h1 span { font-size: 30px; }
+  .hero-sub { font-size: 11px; letter-spacing: 2px; }
+  .driver-profile {
+    flex-direction: column;
+    text-align: center;
+    padding: 16px;
+    gap: 12px;
+  }
+  .driver-photo { width: 64px; height: 64px; }
   .driver-info { text-align: center; }
-  .services { flex-wrap: wrap; }
-  .service-item { min-width: 30%; border-bottom: 1px solid rgba(200,149,42,0.2); }
+  .driver-name { font-size: 17px; }
+  .driver-title { font-size: 11px; }
+  .driver-tagline { font-size: 11px; }
+  .services {
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+  }
+  .service-item {
+    min-width: 30%;
+    padding: 10px 4px;
+    border-bottom: 1px solid rgba(200,149,42,0.2);
+  }
+  .service-icon { font-size: 16px; margin-bottom: 4px; }
+  .service-label { font-size: 8px; }
+  .card { padding: 18px; }
   .tabs { overflow-x: auto; flex-wrap: nowrap; padding-bottom: 8px; }
-  .tab { padding: 10px 16px; font-size: 12px; white-space: nowrap; flex-shrink: 0; }
-  .btn { padding: 14px 24px; }
-  .price-amount { font-size: 28px; }
-  .ride-header { flex-direction: column; align-items: flex-start; gap: 8px; }
-  .row { grid-template-columns: 1fr; }
+  .tab { padding: 10px 12px; font-size: 11px; white-space: nowrap; flex-shrink: 0; }
+  label { font-size: 12px; }
+  input, select, textarea { padding: 11px 14px; font-size: 15px; }
+  .btn { padding: 14px 20px; font-size: 14px; }
+  .price-amount { font-size: 26px; }
+  .quote-price { font-size: 40px; }
+  .ride-card { padding: 16px; }
+  .ride-header { flex-direction: column; align-items: flex-start; gap: 6px; }
+  .ride-date { font-size: 14px; }
+  .row { grid-template-columns: 1fr; gap: 0; }
   #balance-section > div:first-child { flex-direction: column !important; align-items: flex-start !important; }
-  #balance-section #total-balance { font-size: 28px !important; }
+  #balance-section #total-balance { font-size: 26px !important; }
+  .payment-link { padding: 10px; font-size: 13px; }
+  .qr-section img { width: 110px !important; height: 110px !important; }
+}
+
+@media (max-width: 400px) {
+  .hero h1 { font-size: 22px; }
+  .hero h1 span { font-size: 26px; }
+  .service-item { min-width: 45%; }
 }
 </style>
 </head>
