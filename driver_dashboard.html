@@ -13,7 +13,7 @@ body {
   padding: 20px;
 }
 .header {
-  background: #3d4c2a;
+  background: linear-gradient(135deg, #6b1f1f, #4a1515);
   color: white;
   padding: 20px;
   border-radius: 8px;
@@ -44,9 +44,9 @@ body {
   transition: all 0.3s;
 }
 .tab.active {
-  background: #3d4c2a;
+  background: #6b1f1f;
   color: white;
-  border-color: #3d4c2a;
+  border-color: #6b1f1f;
 }
 .request-card {
   background: white;
@@ -66,7 +66,7 @@ body {
 .client-name {
   font-size: 20px;
   font-weight: 600;
-  color: #3d4c2a;
+  color: #6b1f1f;
 }
 .status-badge {
   padding: 6px 12px;
@@ -107,7 +107,7 @@ body {
 }
 .bid-section {
   background: #f8f9fa;
-  border: 2px solid #3d4c2a;
+  border: 2px solid #6b1f1f;
   border-radius: 6px;
   padding: 16px;
   margin-bottom: 16px;
@@ -122,7 +122,7 @@ body {
 .bid-amount {
   font-size: 24px;
   font-weight: bold;
-  color: #3d4c2a;
+  color: #6b1f1f;
 }
 .counter-input {
   display: flex;
@@ -133,7 +133,7 @@ body {
 .counter-input input {
   flex: 1;
   padding: 10px;
-  border: 2px solid #3d4c2a;
+  border: 2px solid #6b1f1f;
   border-radius: 4px;
   font-size: 16px;
   font-weight: 600;
@@ -182,7 +182,7 @@ body {
   padding: 16px;
   border-radius: 6px;
   margin-bottom: 12px;
-  border-left: 4px solid #3d4c2a;
+  border-left: 4px solid #6b1f1f;
   cursor: pointer;
   transition: all 0.3s;
 }
@@ -272,7 +272,7 @@ body {
 <div class="qr-code-section">
   <div class="qr-code-container">
     <div style="font-size: 14px; color: #666; margin-bottom: 12px; font-weight: 600;">Client Booking Portal</div>
-    <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=https://wsfv-llc.github.io/Patriot-Transportation/" alt="Client Dashboard QR Code" style="width: 200px; height: 200px; border: 3px solid #3d4c2a; border-radius: 8px;">
+    <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=https://wsfv-llc.github.io/Patriot-Transportation/" alt="Client Dashboard QR Code" style="width: 200px; height: 200px; border: 3px solid #6b1f1f; border-radius: 8px;">
     <div style="font-size: 12px; color: #999; margin-top: 8px;">bit.ly/4aEUCwW</div>
   </div>
 </div>
@@ -303,7 +303,7 @@ body {
 <div id="clients-tab" style="display:none;">
   <div class="calendar-view">
     <div id="clients-list-view">
-      <h2 style="margin-bottom:16px; color:#3d4c2a;">All Clients</h2>
+      <h2 style="margin-bottom:16px; color:#6b1f1f;">All Clients</h2>
       <input type="text" id="client-search" placeholder="Search by name or phone..." style="width:100%; padding:12px; border:2px solid #e0e0e0; border-radius:6px; margin-bottom:16px; font-size:15px;">
       <div id="clients-list" class="loading">Loading...</div>
     </div>
@@ -313,7 +313,7 @@ body {
 
 <div id="tithe-tab" style="display:none;">
   <div class="calendar-view">
-    <h2 style="margin-bottom:16px; color:#3d4c2a;">Weekly Tithe Tracker</h2>
+    <h2 style="margin-bottom:16px; color:#6b1f1f;">Weekly Tithe Tracker</h2>
     <p style="color:#666; margin-bottom:20px; font-size:14px;">10% of weekly income (Sunday - Saturday)</p>
     <div id="tithe-view" class="loading">Loading...</div>
   </div>
@@ -536,7 +536,6 @@ function createRequestCard(id, data) {
         <div class="bid-row"><span class="bid-label">Trip Distance:</span><span style="font-size:18px; font-weight:600;">${data.trip_miles ? data.trip_miles.toFixed(1) + ' miles' : 'N/A'}</span></div>
         <div class="bid-row"><span class="bid-label">Quoted Price:</span><span class="bid-amount">$${(data.final_price !== undefined && data.final_price !== null ? data.final_price : (data.quoted_price || 0)).toFixed(2)}</span></div>
         ${(data.tip !== undefined && data.tip !== null && data.tip > 0) ? `<div class="bid-row"><span class="bid-label">Tip:</span><span style="font-size:18px; font-weight:600; color:#28a745;">$${data.tip.toFixed(2)}</span></div>` : ''}
-        ${(data.tip !== undefined && data.tip !== null && data.tip > 0) ? `<div class="bid-row"><span class="bid-label">Tip:</span><span style="font-size:18px; font-weight:600; color:#28a745;">$${data.tip.toFixed(2)}</span></div>` : ''}
       </div>
       ${actionButtons}
     </div>`;
@@ -585,8 +584,8 @@ async function acceptQuote(id) {
         body: JSON.stringify({ ...rideData, ride_id: id })
       }).then(r => r.json()).then(data => {
         if (data.event_id) window.updateDoc(window.doc(window.db, 'ride_requests', id), { calendar_event_id: data.event_id }).catch(err => console.log(err));
-      }).catch(err => console.log(err));
-    } catch(err) { console.log(err); }
+      }).catch(err => console.log('Calendar webhook error:', err));
+    } catch(err) { console.log('Calendar webhook exception:', err); }
     try {
       fetch('https://hook.us2.make.com/mmahpsdtba3je2iomxuxyse6h7kv4awx', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
@@ -596,6 +595,7 @@ async function acceptQuote(id) {
     alert('Bid accepted and booking confirmed! Client will receive an email.');
   } catch (error) { alert('Error accepting bid: ' + error.message); }
 }
+window.acceptQuote = acceptQuote;
 
 async function denyRequest(id) {
   if (!confirm('Are you sure you want to deny this request?')) return;
@@ -805,7 +805,7 @@ function displayClients(clients) {
       <div class="client-card" onclick="viewClientDetail('${client.phone}')">
         <div style="display:flex; justify-content:space-between; align-items:center;">
           <div>
-            <div style="font-weight:600; font-size:16px; color:#3d4c2a;">${client.name}</div>
+            <div style="font-weight:600; font-size:16px; color:#6b1f1f;">${client.name}</div>
             <div style="font-size:14px; color:#666; margin-top:4px;">${client.phone} • ${client.email}</div>
           </div>
           <div style="text-align:right;">
@@ -836,19 +836,19 @@ function viewClientDetail(phone) {
       <div style="margin-top:12px; padding-top:12px; border-top:1px solid #e0e0e0;">
         <div style="display:flex; gap:8px; align-items:center; margin-bottom:8px;">
           <span style="font-size:13px; font-weight:600;">Amount: $</span>
-          <input type="number" id="edit-client-${ride.id}" value="${price.toFixed(2)}" min="0" step="0.01" style="flex:1; padding:8px; border:2px solid #3d4c2a; border-radius:4px; font-size:14px;">
+          <input type="number" id="edit-client-${ride.id}" value="${price.toFixed(2)}" min="0" step="0.01" style="flex:1; padding:8px; border:2px solid #6b1f1f; border-radius:4px; font-size:14px;">
           <button class="btn btn-counter" onclick="updateRideAmount('${ride.id}', '${phone}')" style="padding:8px 16px; font-size:13px;">Update</button>
         </div>
         <div style="display:flex; gap:8px; align-items:center;">
           <span style="font-size:13px; font-weight:600;">Tip: $</span>
-          <input type="number" id="tip-client-${ride.id}" value="${clientTip.toFixed(2)}" min="0" step="0.01" style="flex:1; padding:8px; border:2px solid #3d4c2a; border-radius:4px; font-size:14px;">
+          <input type="number" id="tip-client-${ride.id}" value="${clientTip.toFixed(2)}" min="0" step="0.01" style="flex:1; padding:8px; border:2px solid #6b1f1f; border-radius:4px; font-size:14px;">
           <button class="btn btn-counter" onclick="updateClientTip('${ride.id}', '${phone}')" style="padding:8px 16px; font-size:13px;">Save Tip</button>
         </div>
       </div>` : '';
     ridesHtml += `
       <div class="request-card" style="margin-bottom:12px;">
         <div class="request-header">
-          <div style="font-weight:600; color:#3d4c2a;">${ride.pickup_date} at ${ride.pickup_time}</div>
+          <div style="font-weight:600; color:#6b1f1f;">${ride.pickup_date} at ${ride.pickup_time}</div>
           <div class="status-badge ${statusClass}">${ride.status}</div>
         </div>
         <div style="font-size:14px; color:#666; margin-top:8px;">${ride.pickup_address} → ${ride.dropoff_address}</div>
@@ -867,26 +867,26 @@ function viewClientDetail(phone) {
   document.getElementById('client-detail-view').innerHTML = `
     <button class="back-btn" onclick="backToClientsList()">← Back to Clients</button>
     <div style="background:#f8f9fa; padding:20px; border-radius:8px; margin-bottom:20px;">
-      <h2 style="color:#3d4c2a; margin-bottom:8px;">${client.name}</h2>
+      <h2 style="color:#6b1f1f; margin-bottom:8px;">${client.name}</h2>
       <div style="color:#666; margin-bottom:16px;">${client.phone} • ${client.email}</div>
       <div style="display:flex; gap:20px; flex-wrap:wrap; margin-bottom:16px;">
-        <div><div style="font-size:12px; color:#666;">Total Rides</div><div style="font-size:24px; font-weight:600; color:#3d4c2a;">${client.totalRides}</div></div>
+        <div><div style="font-size:12px; color:#666;">Total Rides</div><div style="font-size:24px; font-weight:600; color:#6b1f1f;">${client.totalRides}</div></div>
         <div><div style="font-size:12px; color:#666;">Balance</div><div style="font-size:24px; font-weight:600; color:${balanceColor};">${balanceText}</div></div>
       </div>
       ${markAllButton}
       <div id="edit-client-info-form" style="display:none; margin-top:16px; padding-top:16px; border-top:1px solid #e0e0e0;">
-        <div style="font-weight:600; color:#3d4c2a; margin-bottom:12px;">Edit Client Information</div>
+        <div style="font-weight:600; color:#6b1f1f; margin-bottom:12px;">Edit Client Information</div>
         <div style="margin-bottom:10px;">
           <label style="font-size:12px; color:#666; display:block; margin-bottom:4px;">Full Name</label>
-          <input type="text" id="edit-client-name" value="${client.name}" style="width:100%; padding:8px; border:2px solid #3d4c2a; border-radius:4px; font-size:14px;">
+          <input type="text" id="edit-client-name" value="${client.name}" style="width:100%; padding:8px; border:2px solid #6b1f1f; border-radius:4px; font-size:14px;">
         </div>
         <div style="margin-bottom:10px;">
           <label style="font-size:12px; color:#666; display:block; margin-bottom:4px;">Phone Number</label>
-          <input type="tel" id="edit-client-phone" value="${client.phone}" style="width:100%; padding:8px; border:2px solid #3d4c2a; border-radius:4px; font-size:14px;">
+          <input type="tel" id="edit-client-phone" value="${client.phone}" style="width:100%; padding:8px; border:2px solid #6b1f1f; border-radius:4px; font-size:14px;">
         </div>
         <div style="margin-bottom:12px;">
           <label style="font-size:12px; color:#666; display:block; margin-bottom:4px;">Email</label>
-          <input type="email" id="edit-client-email" value="${client.email}" style="width:100%; padding:8px; border:2px solid #3d4c2a; border-radius:4px; font-size:14px;">
+          <input type="email" id="edit-client-email" value="${client.email}" style="width:100%; padding:8px; border:2px solid #6b1f1f; border-radius:4px; font-size:14px;">
         </div>
         <div style="display:flex; gap:8px;">
           <button class="btn btn-accept" onclick="saveClientInfo(this.dataset.phone)" data-phone="${client.phone}" style="flex:1;">Save Changes</button>
@@ -895,7 +895,7 @@ function viewClientDetail(phone) {
       </div>
       <button class="btn btn-counter" onclick="document.getElementById('edit-client-info-form').style.display='block'" style="margin-top:12px; width:100%;">✏️ Edit Client Info</button>
     </div>
-    <h3 style="margin-bottom:12px; color:#3d4c2a;">Ride History</h3>
+    <h3 style="margin-bottom:12px; color:#6b1f1f;">Ride History</h3>
     ${ridesHtml}`;
 }
 
@@ -975,18 +975,18 @@ function displayTitheData(weeklyTotals) {
       <div class="request-card" style="margin-bottom:16px;">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
           <div>
-            <div style="font-weight:600; font-size:16px; color:#3d4c2a;">${weekLabel}</div>
+            <div style="font-weight:600; font-size:16px; color:#6b1f1f;">${weekLabel}</div>
             <div style="font-size:13px; color:#666; margin-top:4px;">${week.rides.length} paid rides</div>
           </div>
           <div style="text-align:right;">
             <div style="font-size:12px; color:#666;">Income</div>
-            <div style="font-size:20px; font-weight:600; color:#3d4c2a;">$${week.total.toFixed(2)}</div>
+            <div style="font-size:20px; font-weight:600; color:#6b1f1f;">$${week.total.toFixed(2)}</div>
           </div>
         </div>
         <div style="background:#f8f9fa; padding:12px; border-radius:6px; display:flex; justify-content:space-between; align-items:center;">
           <div>
             <div style="font-size:12px; color:#666;">Tithe (10%)</div>
-            <div style="font-size:18px; font-weight:600; color:#3d4c2a;">$${titheAmount.toFixed(2)}</div>
+            <div style="font-size:18px; font-weight:600; color:#6b1f1f;">$${titheAmount.toFixed(2)}</div>
           </div>
           <button class="btn ${isPaid ? 'btn-paid' : 'btn-counter'}" onclick="toggleTithePaid('${week.startDate}')" style="padding:8px 16px; font-size:13px;">
             ${isPaid ? '✓ Tithe Paid' : 'Mark as Paid'}
@@ -1073,7 +1073,6 @@ async function deleteAllCancelled() {
   }
 }
 window.deleteAllCancelled = deleteAllCancelled;
-window.acceptQuote = acceptQuote;
 window.updateTip = updateTip;
 
 async function updateClientTip(rideId, clientPhone) {
