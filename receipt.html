@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -20,7 +21,7 @@ body {
   box-shadow: 0 2px 10px rgba(0,0,0,0.1);
 }
 .header {
-  background: #3d4c2a;
+  background: linear-gradient(135deg, #6b1f1f, #4a1515);
   color: white;
   padding: 20px;
   border-radius: 6px;
@@ -47,11 +48,13 @@ body {
 }
 .section-title {
   font-size: 12px;
-  color: #666;
+  color: #a87c2a;
   text-transform: uppercase;
   letter-spacing: 1px;
   margin-bottom: 10px;
   font-weight: 600;
+  border-bottom: 1px solid #e8d9b8;
+  padding-bottom: 4px;
 }
 .info-row {
   display: flex;
@@ -92,7 +95,7 @@ body {
   color: #333;
 }
 .total {
-  background: #3d4c2a;
+  background: linear-gradient(135deg, #6b1f1f, #4a1515);
   color: white;
   padding: 20px;
   border-radius: 6px;
@@ -117,7 +120,7 @@ body {
   font-size: 12px;
 }
 .print-btn {
-  background: #3d4c2a;
+  background: #6b1f1f;
   color: white;
   border: none;
   padding: 12px 30px;
@@ -128,7 +131,7 @@ body {
   margin: 20px auto;
   display: block;
 }
-.print-btn:hover { background: #2d3c1a; }
+.print-btn:hover { background: #5a1818; }
 @media print {
   body { background: white; padding: 0; margin: 0; }
   .print-btn { display: none; }
@@ -155,7 +158,7 @@ body {
 
 <div style="display:flex; gap:12px; justify-content:center; flex-wrap:wrap; max-width:600px; margin:0 auto;">
   <button class="print-btn" style="flex:1; min-width:160px; margin:0;" onclick="window.print()">🖨️ Print Receipt</button>
-  <button class="print-btn" style="flex:1; min-width:160px; margin:0; background:#1a2b4a;" onclick="savePDF()">📄 Save as PDF</button>
+  <button class="print-btn" style="flex:1; min-width:160px; margin:0; background:#a87c2a;" onclick="savePDF()">📄 Save as PDF</button>
 </div>
 <p style="text-align:center; font-size:12px; color:#999; max-width:600px; margin:8px auto 0;">iOS: tap the share icon in the print screen and choose "Save to Files" &nbsp;|&nbsp; Android: select "Save as PDF" as the printer</p>
 
@@ -313,7 +316,7 @@ function displayReceipt(data) {
     </div>
 
     <div class="back-btn" style="text-align:center; margin:30px 0;">
-      <a href="${backUrl}" style="display:inline-block; background:#3d4c2a; color:white; padding:12px 24px; text-decoration:none; border-radius:6px; font-weight:600;">← Back to Dashboard</a>
+      <a href="${backUrl}" style="display:inline-block; background:#6b1f1f; color:white; padding:12px 24px; text-decoration:none; border-radius:6px; font-weight:600;">← Back to Dashboard</a>
     </div>
 
     <div class="footer">
@@ -330,7 +333,7 @@ async function savePDF() {
   btn.disabled = true;
 
   // ── PASTE YOUR CLOUDCONVERT API KEY BELOW ──────────────────────────────
-  const CLOUDCONVERT_API_KEY = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIxIiwianRpIjoiZjU2NDBlY2FhZGE0M2E3NmRhZWU1OTE4MjZiMTk4MTMwMTRlYzNkYjY4ZWJlZmEzOTBjNDQ2NjliNjJjMTJkMTRhZTEzNDMzNDA3MDViYmQiLCJpYXQiOjE3Nzk1NTUyNjUuNzg0MjY5LCJuYmYiOjE3Nzk1NTUyNjUuNzg0MjcsImV4cCI6NDkzNTIyODg2NS43Nzk3MzEsInN1YiI6IjM2OTA0NjY4Iiwic2NvcGVzIjpbInRhc2sucmVhZCIsInRhc2sud3JpdGUiXX0.X5p4j3xl6xdvu5fGuUZ0DsFPPpem0ErnQEiwbvysfCtiqrR47RyvpflH046uCsSiLmkyFhaqZsWvqCuyb_nhGwHs7hosEVJKvWlUDSw5MrZybbz3aogedrFxaQNZappgreHaP2aBHifZpYlfEnYgGZ9GI8V0O1ucHE0jPq6tuERTG1-jrg4LV70K1RIlA1yo4OnF2YV3B7Q5Rr-3tIv6NMR_lJlGdf3jMr2_tjizJfhEy0HYKDE4xcNRW10rWaL0AoBzPL3wSPYFntSEWLnMsa4ZB4JAPedktAwRCcrGa0aEeOsOcxunhyQJ_AtCkyh1UptzToUuGcEc-htQxeHFYnzsHyTX8AKpfekHatQJA6UGrOMU3O90eA_x0pkzQ_0CbTP9Gun7rqbk0OYI2kcM2DGPb3_Lu8tokk9iuj6QA7x_MTZHSl8YCYulH4Hd9ds2YVRVwR2Q4eg0-c4W5wDnFYO9k-f6A_ogL8mjJ5qvp2L2FWMYFirk1lja-VEcs1bTF3JKh9dFao0l8l604hX8XEcv39c8IpBGbZi4j57_UgpkfQuxeJzXmSFDSR5aDRialkgMdXB7ydWOrUZ3298H3yW1qmo7QJIfUxECpE5rmbO1VFaDaIg_ZoNEagV0xEFx5XftbhzYyyU98ap_Pbtq5mO00UwgFaGyMFNqMQVRYVE';
+  const CLOUDCONVERT_API_KEY = 'YOUR_CLOUDCONVERT_API_KEY_HERE';
   // ── END API KEY ────────────────────────────────────────────────────────
 
   try {
@@ -343,7 +346,7 @@ async function savePDF() {
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body { font-family: Arial, sans-serif; background: white; padding: 20px; }
 .receipt { max-width: 600px; margin: 0 auto; background: white; padding: 40px; }
-.header { background: #3d4c2a; color: white; padding: 20px; border-radius: 6px; text-align: center; margin-bottom: 30px; }
+.header { background: linear-gradient(135deg, #6b1f1f, #4a1515); color: white; padding: 20px; border-radius: 6px; text-align: center; margin-bottom: 30px; }
 .header h1 { color: white; font-size: 28px; margin-bottom: 5px; font-weight: 600; }
 .header .company-legal { font-size: 13px; color: rgba(255,255,255,0.8); margin-bottom: 8px; }
 .header p { color: rgba(255,255,255,0.9); font-size: 14px; }
@@ -357,7 +360,7 @@ body { font-family: Arial, sans-serif; background: white; padding: 20px; }
 .route-point:last-child { margin-bottom: 0; }
 .route-icon { font-size: 16px; margin-right: 10px; min-width: 24px; }
 .route-address { font-size: 13px; color: #333; }
-.total { background: #3d4c2a; color: white; padding: 20px; border-radius: 6px; text-align: center; margin-top: 24px; }
+.total { background: linear-gradient(135deg, #6b1f1f, #4a1515); color: white; padding: 20px; border-radius: 6px; text-align: center; margin-top: 24px; }
 .total-label { font-size: 13px; opacity: 0.9; margin-bottom: 5px; }
 .total-amount { font-size: 32px; font-weight: bold; }
 .footer { text-align: center; margin-top: 30px; padding-top: 16px; border-top: 2px solid #f0f0f0; color: #999; font-size: 11px; }
