@@ -363,7 +363,7 @@ select option { background: #1a1a1a; color: white; }
   body {
     padding: 10px;
     background-size: 200% auto;
-    background-position: top center;
+    background-position: top left;
   }
   .hero { padding: 20px 10px 16px; }
   .hero-badge { font-size: 9px; padding: 4px 8px; letter-spacing: 1px; }
@@ -386,9 +386,14 @@ select option { background: #1a1a1a; color: white; }
     margin-bottom: 20px;
   }
   .service-item {
-    min-width: 30%;
+    flex: 0 0 33.333% !important;
+    width: 33.333% !important;
+    max-width: 33.333% !important;
+    min-width: 0 !important;
     padding: 10px 4px;
+    border-right: none !important;
     border-bottom: 1px solid rgba(200,149,42,0.2);
+    box-sizing: border-box;
   }
   .service-icon { font-size: 16px; margin-bottom: 4px; }
   .service-label { font-size: 8px; }
@@ -413,7 +418,6 @@ select option { background: #1a1a1a; color: white; }
 @media (max-width: 400px) {
   .hero h1 { font-size: 22px; }
   .hero h1 span { font-size: 26px; }
-  .service-item { min-width: 45%; }
 }
 </style>
 </head>
