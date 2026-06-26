@@ -526,9 +526,9 @@ function createRequestCard(id, data) {
       <div class="detail-item" style="margin-bottom:12px;">
         <div class="detail-label">Route</div>
         <div class="detail-value">
-          <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(data.pickup_address)}" target="_blank" style="color:#6b1f1f; text-decoration:underline;">${data.pickup_address}</a>
+          <span class="address-link" onclick="event.stopPropagation(); showMapMenu(${JSON.stringify(data.pickup_address)}, event)" style="color:#6b1f1f; text-decoration:underline; cursor:pointer;">${data.pickup_address}</span>
           →
-          <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(data.dropoff_address)}" target="_blank" style="color:#6b1f1f; text-decoration:underline;">${data.dropoff_address}</a>
+          <span class="address-link" onclick="event.stopPropagation(); showMapMenu(${JSON.stringify(data.dropoff_address)}, event)" style="color:#6b1f1f; text-decoration:underline; cursor:pointer;">${data.dropoff_address}</span>
         </div>
       </div>
       <div class="detail-item" style="margin-bottom:12px;">
@@ -645,7 +645,7 @@ function showPhoneMenu(digits, event) {
   // Close the menu when clicking elsewhere
   setTimeout(() => {
     document.addEventListener('click', closePhoneMenu);
-  }, 0);
+  }, 100);
 }
 
 function closePhoneMenu(e) {
@@ -656,6 +656,53 @@ function closePhoneMenu(e) {
   }
 }
 window.showPhoneMenu = showPhoneMenu;
+
+// Show a small Google Maps/Apple Maps choice menu near the tapped address
+function showMapMenu(address, event) {
+  const existing = document.getElementById('map-menu-popup');
+  if (existing) existing.remove();
+
+  const encoded = encodeURIComponent(address);
+
+  const menu = document.createElement('div');
+  menu.id = 'map-menu-popup';
+  menu.style.position = 'fixed';
+  menu.style.zIndex = '9999';
+  menu.style.background = 'white';
+  menu.style.border = '2px solid #6b1f1f';
+  menu.style.borderRadius = '8px';
+  menu.style.boxShadow = '0 4px 16px rgba(0,0,0,0.3)';
+  menu.style.overflow = 'hidden';
+  menu.style.minWidth = '160px';
+
+  menu.innerHTML = `
+    <a href="https://www.google.com/maps/search/?api=1&query=${encoded}" target="_blank" style="display:block; padding:12px 16px; color:#6b1f1f; text-decoration:none; font-weight:600; border-bottom:1px solid #eee;">📍 Google Maps</a>
+    <a href="https://maps.apple.com/?q=${encoded}" target="_blank" style="display:block; padding:12px 16px; color:#6b1f1f; text-decoration:none; font-weight:600;">🗺️ Apple Maps</a>
+  `;
+
+  document.body.appendChild(menu);
+
+  const rect = event.target.getBoundingClientRect();
+  let top = rect.bottom + window.scrollY + 4;
+  let left = rect.left + window.scrollX;
+  const menuWidth = menu.offsetWidth;
+  if (left + menuWidth > window.innerWidth) left = window.innerWidth - menuWidth - 10;
+  menu.style.top = top + 'px';
+  menu.style.left = left + 'px';
+
+  setTimeout(() => {
+    document.addEventListener('click', closeMapMenu);
+  }, 100);
+}
+
+function closeMapMenu(e) {
+  const menu = document.getElementById('map-menu-popup');
+  if (menu && !menu.contains(e.target)) {
+    menu.remove();
+    document.removeEventListener('click', closeMapMenu);
+  }
+}
+window.showMapMenu = showMapMenu;
 
 async function denyRequest(id) {
   if (!confirm('Are you sure you want to deny this request?')) return;
@@ -912,9 +959,9 @@ function viewClientDetail(phone) {
           <div class="status-badge ${statusClass}">${ride.status}</div>
         </div>
         <div style="font-size:14px; color:#666; margin-top:8px;">
-          <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(ride.pickup_address)}" target="_blank" style="color:#6b1f1f; text-decoration:underline;">${ride.pickup_address}</a>
+          <span class="address-link" onclick="event.stopPropagation(); showMapMenu(${JSON.stringify(ride.pickup_address)}, event)" style="color:#6b1f1f; text-decoration:underline; cursor:pointer;">${ride.pickup_address}</span>
           →
-          <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(ride.dropoff_address)}" target="_blank" style="color:#6b1f1f; text-decoration:underline;">${ride.dropoff_address}</a>
+          <span class="address-link" onclick="event.stopPropagation(); showMapMenu(${JSON.stringify(ride.dropoff_address)}, event)" style="color:#6b1f1f; text-decoration:underline; cursor:pointer;">${ride.dropoff_address}</span>
         </div>
         <div style="font-size:18px; font-weight:600; color:${isPending ? '#dc3545' : '#28a745'}; margin-top:8px;">
           $${price.toFixed(2)} ${isPending ? '(Unpaid)' : ''}
