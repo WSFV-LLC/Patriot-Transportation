@@ -518,7 +518,7 @@ function createRequestCard(id, data) {
         <div class="status-badge ${statusClass}">${data.status}</div>
       </div>
       <div class="detail-grid">
-        <div class="detail-item"><div class="detail-label">Phone</div><div class="detail-value">${data.client_phone}</div></div>
+        <div class="detail-item"><div class="detail-label">Phone</div><div class="detail-value">${createPhoneLink(data.client_phone)}</div></div>
         <div class="detail-item"><div class="detail-label">Email</div><div class="detail-value">${data.client_email}</div></div>
         <div class="detail-item"><div class="detail-label">Date & Time</div><div class="detail-value">${data.pickup_date} at ${data.pickup_time}</div></div>
         <div class="detail-item"><div class="detail-label">Passengers</div><div class="detail-value">${data.passengers} passengers</div></div>
@@ -546,6 +546,14 @@ function createRequestCard(id, data) {
 }
 
 window.createRequestCard = createRequestCard;
+
+// Build a clickable phone number that opens a Call/Text choice menu
+function createPhoneLink(phone) {
+  if (!phone) return '';
+  const digits = phone.replace(/\D/g, '');
+  return `<span class="phone-link" onclick="event.stopPropagation(); showPhoneMenu('${digits}', event)" style="color:#6b1f1f; text-decoration:underline; cursor:pointer;">${phone}</span>`;
+}
+window.createPhoneLink = createPhoneLink;
 </script>
 
 <script>
@@ -600,6 +608,54 @@ async function acceptQuote(id) {
   } catch (error) { alert('Error accepting bid: ' + error.message); }
 }
 window.acceptQuote = acceptQuote;
+
+// Show a small Call/Text choice menu near the tapped phone number
+function showPhoneMenu(digits, event) {
+  // Remove any existing menu first
+  const existing = document.getElementById('phone-menu-popup');
+  if (existing) existing.remove();
+
+  const menu = document.createElement('div');
+  menu.id = 'phone-menu-popup';
+  menu.style.position = 'fixed';
+  menu.style.zIndex = '9999';
+  menu.style.background = 'white';
+  menu.style.border = '2px solid #6b1f1f';
+  menu.style.borderRadius = '8px';
+  menu.style.boxShadow = '0 4px 16px rgba(0,0,0,0.3)';
+  menu.style.overflow = 'hidden';
+  menu.style.minWidth = '140px';
+
+  menu.innerHTML = `
+    <a href="tel:${digits}" style="display:block; padding:12px 16px; color:#6b1f1f; text-decoration:none; font-weight:600; border-bottom:1px solid #eee;">📞 Call</a>
+    <a href="sms:${digits}" style="display:block; padding:12px 16px; color:#6b1f1f; text-decoration:none; font-weight:600;">💬 Text</a>
+  `;
+
+  document.body.appendChild(menu);
+
+  // Position near the click, keeping it on screen
+  const rect = event.target.getBoundingClientRect();
+  let top = rect.bottom + window.scrollY + 4;
+  let left = rect.left + window.scrollX;
+  const menuWidth = menu.offsetWidth;
+  if (left + menuWidth > window.innerWidth) left = window.innerWidth - menuWidth - 10;
+  menu.style.top = top + 'px';
+  menu.style.left = left + 'px';
+
+  // Close the menu when clicking elsewhere
+  setTimeout(() => {
+    document.addEventListener('click', closePhoneMenu);
+  }, 0);
+}
+
+function closePhoneMenu(e) {
+  const menu = document.getElementById('phone-menu-popup');
+  if (menu && !menu.contains(e.target)) {
+    menu.remove();
+    document.removeEventListener('click', closePhoneMenu);
+  }
+}
+window.showPhoneMenu = showPhoneMenu;
 
 async function denyRequest(id) {
   if (!confirm('Are you sure you want to deny this request?')) return;
@@ -810,7 +866,7 @@ function displayClients(clients) {
         <div style="display:flex; justify-content:space-between; align-items:center;">
           <div>
             <div style="font-weight:600; font-size:16px; color:#6b1f1f;">${client.name}</div>
-            <div style="font-size:14px; color:#666; margin-top:4px;">${client.phone} • ${client.email}</div>
+            <div style="font-size:14px; color:#666; margin-top:4px;" onclick="event.stopPropagation()">${createPhoneLink(client.phone)} • ${client.email}</div>
           </div>
           <div style="text-align:right;">
             <div class="balance-badge ${balanceClass}">${balanceText}</div>
@@ -876,7 +932,7 @@ function viewClientDetail(phone) {
     <button class="back-btn" onclick="backToClientsList()">← Back to Clients</button>
     <div style="background:#f8f9fa; padding:20px; border-radius:8px; margin-bottom:20px;">
       <h2 style="color:#6b1f1f; margin-bottom:8px;">${client.name}</h2>
-      <div style="color:#666; margin-bottom:16px;">${client.phone} • ${client.email}</div>
+      <div style="color:#666; margin-bottom:16px;">${createPhoneLink(client.phone)} • ${client.email}</div>
       <div style="display:flex; gap:20px; flex-wrap:wrap; margin-bottom:16px;">
         <div><div style="font-size:12px; color:#666;">Total Rides</div><div style="font-size:24px; font-weight:600; color:#6b1f1f;">${client.totalRides}</div></div>
         <div><div style="font-size:12px; color:#666;">Balance</div><div style="font-size:24px; font-weight:600; color:${balanceColor};">${balanceText}</div></div>
