@@ -635,10 +635,11 @@ function showPhoneMenu(digits, event) {
 
   // Position near the click, keeping it on screen
   const rect = event.target.getBoundingClientRect();
-  let top = rect.bottom + window.scrollY + 4;
-  let left = rect.left + window.scrollX;
+  let top = rect.bottom + 4;
+  let left = rect.left;
   const menuWidth = menu.offsetWidth;
   if (left + menuWidth > window.innerWidth) left = window.innerWidth - menuWidth - 10;
+  if (top + 100 > window.innerHeight) top = rect.top - 90;
   menu.style.top = top + 'px';
   menu.style.left = left + 'px';
 
@@ -683,10 +684,11 @@ function showMapMenu(address, event) {
   document.body.appendChild(menu);
 
   const rect = event.target.getBoundingClientRect();
-  let top = rect.bottom + window.scrollY + 4;
-  let left = rect.left + window.scrollX;
+  let top = rect.bottom + 4;
+  let left = rect.left;
   const menuWidth = menu.offsetWidth;
   if (left + menuWidth > window.innerWidth) left = window.innerWidth - menuWidth - 10;
+  if (top + 100 > window.innerHeight) top = rect.top - 90;
   menu.style.top = top + 'px';
   menu.style.left = left + 'px';
 
