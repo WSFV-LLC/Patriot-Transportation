@@ -526,9 +526,9 @@ function createRequestCard(id, data) {
       <div class="detail-item" style="margin-bottom:12px;">
         <div class="detail-label">Route</div>
         <div class="detail-value">
-          <span class="address-link" onclick="event.stopPropagation(); showMapMenu(${JSON.stringify(data.pickup_address)}, event)" style="color:#6b1f1f; text-decoration:underline; cursor:pointer;">${data.pickup_address}</span>
+          <span class="address-link" data-address="${data.pickup_address.replace(/"/g, '&quot;')}" onclick="event.stopPropagation(); showMapMenu(this.dataset.address, event)" style="color:#6b1f1f; text-decoration:underline; cursor:pointer;">${data.pickup_address}</span>
           →
-          <span class="address-link" onclick="event.stopPropagation(); showMapMenu(${JSON.stringify(data.dropoff_address)}, event)" style="color:#6b1f1f; text-decoration:underline; cursor:pointer;">${data.dropoff_address}</span>
+          <span class="address-link" data-address="${data.dropoff_address.replace(/"/g, '&quot;')}" onclick="event.stopPropagation(); showMapMenu(this.dataset.address, event)" style="color:#6b1f1f; text-decoration:underline; cursor:pointer;">${data.dropoff_address}</span>
         </div>
       </div>
       <div class="detail-item" style="margin-bottom:12px;">
@@ -959,9 +959,9 @@ function viewClientDetail(phone) {
           <div class="status-badge ${statusClass}">${ride.status}</div>
         </div>
         <div style="font-size:14px; color:#666; margin-top:8px;">
-          <span class="address-link" onclick="event.stopPropagation(); showMapMenu(${JSON.stringify(ride.pickup_address)}, event)" style="color:#6b1f1f; text-decoration:underline; cursor:pointer;">${ride.pickup_address}</span>
+          <span class="address-link" data-address="${ride.pickup_address.replace(/"/g, '&quot;')}" onclick="event.stopPropagation(); showMapMenu(this.dataset.address, event)" style="color:#6b1f1f; text-decoration:underline; cursor:pointer;">${ride.pickup_address}</span>
           →
-          <span class="address-link" onclick="event.stopPropagation(); showMapMenu(${JSON.stringify(ride.dropoff_address)}, event)" style="color:#6b1f1f; text-decoration:underline; cursor:pointer;">${ride.dropoff_address}</span>
+          <span class="address-link" data-address="${ride.dropoff_address.replace(/"/g, '&quot;')}" onclick="event.stopPropagation(); showMapMenu(this.dataset.address, event)" style="color:#6b1f1f; text-decoration:underline; cursor:pointer;">${ride.dropoff_address}</span>
         </div>
         <div style="font-size:18px; font-weight:600; color:${isPending ? '#dc3545' : '#28a745'}; margin-top:8px;">
           $${price.toFixed(2)} ${isPending ? '(Unpaid)' : ''}
