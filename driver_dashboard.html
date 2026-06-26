@@ -525,7 +525,11 @@ function createRequestCard(id, data) {
       </div>
       <div class="detail-item" style="margin-bottom:12px;">
         <div class="detail-label">Route</div>
-        <div class="detail-value">${data.pickup_address} → ${data.dropoff_address}</div>
+        <div class="detail-value">
+          <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(data.pickup_address)}" target="_blank" style="color:#6b1f1f; text-decoration:underline;">${data.pickup_address}</a>
+          →
+          <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(data.dropoff_address)}" target="_blank" style="color:#6b1f1f; text-decoration:underline;">${data.dropoff_address}</a>
+        </div>
       </div>
       <div class="detail-item" style="margin-bottom:12px;">
         <div class="detail-label">Luggage</div>
@@ -851,7 +855,11 @@ function viewClientDetail(phone) {
           <div style="font-weight:600; color:#6b1f1f;">${ride.pickup_date} at ${ride.pickup_time}</div>
           <div class="status-badge ${statusClass}">${ride.status}</div>
         </div>
-        <div style="font-size:14px; color:#666; margin-top:8px;">${ride.pickup_address} → ${ride.dropoff_address}</div>
+        <div style="font-size:14px; color:#666; margin-top:8px;">
+          <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(ride.pickup_address)}" target="_blank" style="color:#6b1f1f; text-decoration:underline;">${ride.pickup_address}</a>
+          →
+          <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(ride.dropoff_address)}" target="_blank" style="color:#6b1f1f; text-decoration:underline;">${ride.dropoff_address}</a>
+        </div>
         <div style="font-size:18px; font-weight:600; color:${isPending ? '#dc3545' : '#28a745'}; margin-top:8px;">
           $${price.toFixed(2)} ${isPending ? '(Unpaid)' : ''}
         </div>
