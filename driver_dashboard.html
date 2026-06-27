@@ -228,7 +228,9 @@ body {
   .header { flex-direction: column; gap: 12px; text-align: center; }
   .header > div { text-align: center !important; }
   .header h1 { font-size: 20px; }
-  #total-income { font-size: 24px !important; }
+  #total-income { font-size: 22px !important; }
+  #total-tips { font-size: 22px !important; }
+  .header > div[style*="display:flex"] { gap: 16px !important; justify-content: center !important; }
   .tabs { overflow-x: auto; flex-wrap: nowrap; padding-bottom: 8px; }
   .tab { padding: 10px 16px; font-size: 13px; white-space: nowrap; }
   .request-card { padding: 16px; }
@@ -253,9 +255,15 @@ body {
     <h1>Driver Dashboard</h1>
     <div style="font-size:14px;">Patriot Transportation</div>
   </div>
-  <div style="text-align:right;">
-    <div style="font-size:12px; color:rgba(255,255,255,0.8); margin-bottom:4px;">Total Income</div>
-    <div id="total-income" style="font-size:28px; font-weight:bold;">$0.00</div>
+  <div style="display:flex; gap:24px;">
+    <div style="text-align:right;">
+      <div style="font-size:12px; color:rgba(255,255,255,0.8); margin-bottom:4px;">Total Income</div>
+      <div id="total-income" style="font-size:28px; font-weight:bold;">$0.00</div>
+    </div>
+    <div style="text-align:right;">
+      <div style="font-size:12px; color:rgba(255,255,255,0.8); margin-bottom:4px;">Total Tips</div>
+      <div id="total-tips" style="font-size:28px; font-weight:bold; color:#90ee90;">$0.00</div>
+    </div>
   </div>
 </div>
 
@@ -413,11 +421,14 @@ onSnapshot(cancelledQuery, (snapshot) => { displayRequests(snapshot, 'cancelled-
 const paidQuery = query(collection(db, 'ride_requests'), where('status', '==', 'paid'));
 onSnapshot(paidQuery, (snapshot) => {
   let totalIncome = 0;
+  let totalTips = 0;
   snapshot.forEach((doc) => {
     const data = doc.data();
     if (data.final_price) totalIncome += data.final_price;
+    if (data.tip) totalTips += data.tip;
   });
   document.getElementById('total-income').textContent = '$' + totalIncome.toFixed(2);
+  document.getElementById('total-tips').textContent = '$' + totalTips.toFixed(2);
 });
 
 function displayRequests(snapshot, containerId) {
