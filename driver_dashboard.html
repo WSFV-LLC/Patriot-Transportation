@@ -466,6 +466,17 @@ function createRequestCard(id, data) {
       </div>`;
   } else if (data.status === 'confirmed') {
     actionButtons = `
+      <div style="display:flex; gap:8px; margin-bottom:12px;">
+        <div style="flex:1;">
+          <span style="font-weight:600; font-size:13px; display:block; margin-bottom:4px;">Pickup Date:</span>
+          <input type="date" id="edit-date-${id}" value="${data.pickup_date}" style="width:100%; padding:8px; border:2px solid #6b1f1f; border-radius:4px; font-size:14px;">
+        </div>
+        <div style="flex:1;">
+          <span style="font-weight:600; font-size:13px; display:block; margin-bottom:4px;">Pickup Time:</span>
+          <input type="time" id="edit-time-${id}" value="${data.pickup_time}" style="width:100%; padding:8px; border:2px solid #6b1f1f; border-radius:4px; font-size:14px;">
+        </div>
+      </div>
+      <button class="btn btn-counter" style="margin-bottom:12px;" onclick="updateDateTime('${id}')">Update Date/Time</button>
       <div class="counter-input" style="margin-bottom:12px;">
         <span style="font-weight:600;">Edit Amount: $</span>
         <input type="number" id="edit-${id}" value="${amount.toFixed(2)}" min="0" step="0.01">
@@ -1201,6 +1212,51 @@ async function updateClientTip(rideId, clientPhone) {
   } catch (error) { alert('Error saving tip: ' + error.message); }
 }
 window.updateClientTip = updateClientTip;
+
+async function updateDateTime(id) {
+  const dateInput = document.getElementById('edit-date-' + id);
+  const timeInput = document.getElementById('edit-time-' + id);
+  const newDate = dateInput.value;
+  const newTime = timeInput.value;
+
+  if (!newDate || !newTime) {
+    alert('Please select both a date and a time.');
+    return;
+  }
+
+  if (!confirm(`Update pickup to ${newDate} at ${newTime}?`)) return;
+
+  try {
+    await window.updateDoc(window.doc(window.db, 'ride_requests', id), {
+      pickup_date: newDate,
+      pickup_time: newTime
+    });
+
+    // Notify client of the reschedule via existing webhook
+    const rideDoc = await window.getDoc(window.doc(window.db, 'ride_requests', id));
+    const rideData = rideDoc.data();
+    try {
+      fetch('https://hook.us2.make.com/mmahpsdtba3je2iomxuxyse6h7kv4awx', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'rescheduled',
+          client_name: rideData.client_name,
+          client_email: rideData.client_email,
+          pickup_address: rideData.pickup_address,
+          dropoff_address: rideData.dropoff_address,
+          pickup_date: newDate,
+          pickup_time: newTime,
+          final_price: rideData.final_price
+        })
+      }).catch(err => console.log('Reschedule notification error:', err));
+    } catch (err) { console.log(err); }
+
+    alert('Pickup date/time updated!');
+  } catch (error) {
+    alert('Error updating date/time: ' + error.message);
+  }
+}
+window.updateDateTime = updateDateTime;
 </script>
 
 </body>
