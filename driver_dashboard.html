@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -488,6 +487,11 @@ function createRequestCard(id, data) {
         </div>
       </div>
       <button class="btn btn-counter" style="margin-bottom:12px;" onclick="updateDateTime('${id}')">Update Date/Time</button>
+      <div style="margin-bottom:12px;">
+        <span style="font-weight:600; font-size:13px; display:block; margin-bottom:4px;">Notes:</span>
+        <textarea id="edit-notes-${id}" rows="2" style="width:100%; padding:8px; border:2px solid #6b1f1f; border-radius:4px; font-size:14px; font-family:inherit;">${data.notes || ''}</textarea>
+        <button class="btn btn-counter" style="margin-top:6px;" onclick="updateNotes('${id}')">Save Notes</button>
+      </div>
       <div class="counter-input" style="margin-bottom:12px;">
         <span style="font-weight:600;">Edit Amount: $</span>
         <input type="number" id="edit-${id}" value="${amount.toFixed(2)}" min="0" step="0.01">
@@ -557,7 +561,7 @@ function createRequestCard(id, data) {
         <div class="detail-label">Luggage</div>
         <div class="detail-value">${data.luggage_type}</div>
       </div>
-      ${data.notes ? `<div class="detail-item" style="margin-bottom:12px;"><div class="detail-label">Notes</div><div class="detail-value">${data.notes}</div></div>` : ''}
+      ${data.notes ? `<div class="detail-item" style="margin-bottom:12px;"><div class="detail-label">Notes</div><div class="detail-value">${formatNotes(data.notes)}</div></div>` : ''}
       <div class="bid-section">
         <div class="bid-row"><span class="bid-label">Trip Distance:</span><span style="font-size:18px; font-weight:600;">${data.trip_miles ? data.trip_miles.toFixed(1) + ' miles' : 'N/A'}</span></div>
         <div class="bid-row"><span class="bid-label">Quoted Price:</span><span class="bid-amount">$${(data.final_price !== undefined && data.final_price !== null ? data.final_price : (data.quoted_price || 0)).toFixed(2)}</span></div>
@@ -580,6 +584,72 @@ window.createPhoneLink = createPhoneLink;
 
 <script>
 let currentTab = 'pending';
+
+// ── FLIGHT DETECTION ──────────────────────────────────────────────────────
+const AIRLINE_MAP = {
+  // Delta
+  'delta': 'DL', 'dl': 'DL', 'delta air lines': 'DL', 'delta airlines': 'DL',
+  // United
+  'united': 'UA', 'ua': 'UA', 'united airlines': 'UA', 'united air lines': 'UA',
+  // American
+  'american': 'AA', 'aa': 'AA', 'american airlines': 'AA', 'american air lines': 'AA',
+  // Southwest
+  'southwest': 'WN', 'wn': 'WN', 'sw': 'WN', 'swa': 'WN', 'southwest airlines': 'WN',
+  // Alaska
+  'alaska': 'AS', 'as': 'AS', 'ak': 'AS', 'alaska airlines': 'AS',
+  // JetBlue
+  'jetblue': 'B6', 'b6': 'B6', 'jb': 'B6', 'jetblue airways': 'B6', 'jetblue airlines': 'B6',
+  // Spirit
+  'spirit': 'NK', 'nk': 'NK', 'spirit airlines': 'NK',
+  // Frontier
+  'frontier': 'F9', 'f9': 'F9', 'frontier airlines': 'F9',
+  // Allegiant
+  'allegiant': 'G4', 'g4': 'G4', 'allegiant air': 'G4', 'allegiant airlines': 'G4',
+  // Sun Country
+  'sun country': 'SY', 'sy': 'SY', 'sun country airlines': 'SY'
+};
+
+function detectFlight(text) {
+  if (!text) return null;
+  // Normalize: lowercase, remove punctuation
+  let t = text.toLowerCase().trim();
+  // Strip leading words like 'flight', 'flt'
+  t = t.replace(/^(flight|flt)\s+/i, '');
+  // Strip trailing words like 'airlines', 'airways', 'air lines', 'air'
+  t = t.replace(/\s+(airlines|airways|air lines|air)\b/gi, '');
+  // Try to match airline name/code + optional 'flight'/'flt' + number
+  // Pattern: (airline)(optional space)(optional flight/flt)(optional space)(number)
+  const pattern = /^(.+?)\s*(?:flight|flt)?\s*(\d{1,4}[a-z]?)$/i;
+  const m = t.match(pattern);
+  if (!m) return null;
+  const airlineRaw = m[1].trim().toLowerCase();
+  const flightNum = m[2].trim().toUpperCase();
+  const code = AIRLINE_MAP[airlineRaw];
+  if (!code) return null;
+  return code + flightNum;
+}
+
+function formatNotes(notes) {
+  if (!notes) return '';
+  // Split into sentences/segments and look for flight numbers
+  const flightId = detectFlight(notes.trim());
+  if (flightId) {
+    const url = 'https://flightaware.com/live/flight/' + flightId;
+    return notes + ' <a href="' + url + '" target="_blank" style="color:#6b1f1f; font-weight:700; text-decoration:underline;">✈ Track ' + flightId + '</a>';
+  }
+  // Also check if a flight number appears anywhere within a longer note
+  const inlinePattern = /\b(delta|dl|united|ua|american|aa|southwest|wn|sw|swa|alaska|as|ak|jetblue|b6|jb|spirit|nk|frontier|f9|allegiant|g4|sun country|sy)\s*(?:airlines?|airways?|air lines?)?\s*(?:flight|flt)?\s*(\d{1,4}[a-z]?)\b/gi;
+  let matched = false;
+  const formatted = notes.replace(inlinePattern, (match, airline, num) => {
+    const code = AIRLINE_MAP[airline.toLowerCase().replace(/\s*(airlines?|airways?|air lines?|air)\s*/gi, '').trim()];
+    if (!code) return match;
+    const flightId = code + num.toUpperCase();
+    const url = 'https://flightaware.com/live/flight/' + flightId;
+    matched = true;
+    return match + ' <a href="' + url + '" target="_blank" style="color:#6b1f1f; font-weight:700; text-decoration:underline;">✈ Track ' + flightId + '</a>';
+  });
+  return matched ? formatted : notes;
+}
 let allClientsData = null;
 
 function showTab(tab) {
@@ -1268,6 +1338,17 @@ async function updateDateTime(id) {
   }
 }
 window.updateDateTime = updateDateTime;
+
+async function updateNotes(id) {
+  const input = document.getElementById('edit-notes-' + id);
+  const newNotes = input.value.trim();
+  if (!confirm('Save updated notes?')) return;
+  try {
+    await window.updateDoc(window.doc(window.db, 'ride_requests', id), { notes: newNotes });
+    alert('Notes saved!');
+  } catch (error) { alert('Error saving notes: ' + error.message); }
+}
+window.updateNotes = updateNotes;
 </script>
 
 </body>
