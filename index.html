@@ -751,10 +751,10 @@ async function calculateQuote() {
   btn.disabled = true;
 
   const timeoutId = setTimeout(() => {
-    showError('Request timed out. Please include the city in your address and try again.');
+    showError('This is taking longer than expected. Please check your connection and try again. If the problem continues, make sure your address includes the city and state.');
     btn.textContent = 'Get My Quote →';
     btn.disabled = false;
-  }, 10000);
+  }, 20000);
 
   try {
     distanceService.getDistanceMatrix(
