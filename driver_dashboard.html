@@ -211,6 +211,34 @@ body {
   margin-bottom: 16px;
 }
 .back-btn:hover { background: #5a6268; }
+/* ── ACCORDION CONFIRMED CARDS ── */
+.confirmed-card {
+  background: white;
+  border-radius: 8px;
+  margin-bottom: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  overflow: hidden;
+}
+.confirmed-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  cursor: pointer;
+  user-select: none;
+  transition: background 0.2s;
+}
+.confirmed-card-header:hover { background: #f8f9fa; }
+.confirmed-card-header.open { background: #f0ebe8; border-bottom: 2px solid #6b1f1f; }
+.confirmed-card-left { flex: 1; }
+.confirmed-card-name { font-size: 17px; font-weight: 700; color: #6b1f1f; margin-bottom: 3px; }
+.confirmed-card-time { font-size: 13px; color: #555; margin-bottom: 2px; }
+.confirmed-card-address { font-size: 12px; color: #888; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 220px; }
+.confirmed-card-chevron { font-size: 18px; color: #6b1f1f; transition: transform 0.3s; margin-left: 12px; }
+.confirmed-card-chevron.open { transform: rotate(180deg); }
+.confirmed-card-body { display: none; padding: 16px 20px; border-top: 1px solid #f0f0f0; }
+.confirmed-card-body.open { display: block; }
+
 .qr-code-section {
   display: flex;
   justify-content: center;
@@ -441,7 +469,13 @@ function displayRequestsSorted(ridesArray, containerId) {
   const container = document.getElementById(containerId);
   if (ridesArray.length === 0) { container.innerHTML = '<div class="empty-state">No requests yet</div>'; return; }
   container.innerHTML = '';
-  ridesArray.forEach((ride) => { container.innerHTML += createRequestCard(ride.id, ride.data); });
+  ridesArray.forEach((ride) => {
+    if (containerId === 'confirmed-requests') {
+      container.innerHTML += createConfirmedCard(ride.id, ride.data);
+    } else {
+      container.innerHTML += createRequestCard(ride.id, ride.data);
+    }
+  });
 }
 
 function displayFilteredRequests(ridesArray, containerId) {
@@ -572,6 +606,88 @@ function createRequestCard(id, data) {
 }
 
 window.createRequestCard = createRequestCard;
+
+// ── ACCORDION CARD FOR CONFIRMED RIDES ────────────────────────────────────
+function createConfirmedCard(id, data) {
+  const amount = (data.final_price !== undefined && data.final_price !== null) ? data.final_price : (data.quoted_price || 0);
+
+  const fullBody = `
+    <div class="detail-grid" style="margin-bottom:12px;">
+      <div class="detail-item"><div class="detail-label">Phone</div><div class="detail-value">${createPhoneLink(data.client_phone)}</div></div>
+      <div class="detail-item"><div class="detail-label">Email</div><div class="detail-value">${data.client_email}</div></div>
+      <div class="detail-item"><div class="detail-label">Passengers</div><div class="detail-value">${data.passengers} passengers</div></div>
+      <div class="detail-item"><div class="detail-label">Amount</div><div class="detail-value">$${amount.toFixed(2)}</div></div>
+    </div>
+    <div class="detail-item" style="margin-bottom:12px;">
+      <div class="detail-label">Route</div>
+      <div class="detail-value">
+        <span class="address-link" data-address="${data.pickup_address.replace(/"/g, '&quot;')}" onclick="event.stopPropagation(); showMapMenu(this.dataset.address, event)" style="color:#6b1f1f; text-decoration:underline; cursor:pointer;">${data.pickup_address}</span>
+        →
+        <span class="address-link" data-address="${data.dropoff_address.replace(/"/g, '&quot;')}" onclick="event.stopPropagation(); showMapMenu(this.dataset.address, event)" style="color:#6b1f1f; text-decoration:underline; cursor:pointer;">${data.dropoff_address}</span>
+      </div>
+    </div>
+    <div class="detail-item" style="margin-bottom:12px;">
+      <div class="detail-label">Luggage</div>
+      <div class="detail-value">${data.luggage_type}</div>
+    </div>
+    ${data.notes ? `<div class="detail-item" style="margin-bottom:12px;"><div class="detail-label">Notes</div><div class="detail-value">${formatNotes(data.notes)}</div></div>` : ''}
+    <div class="bid-section" style="margin-bottom:12px;">
+      <div class="bid-row"><span class="bid-label">Trip Distance:</span><span style="font-size:16px; font-weight:600;">${data.trip_miles ? data.trip_miles.toFixed(1) + ' miles' : 'N/A'}</span></div>
+      <div class="bid-row"><span class="bid-label">Quoted Price:</span><span class="bid-amount">$${amount.toFixed(2)}</span></div>
+    </div>
+    <div style="display:flex; gap:8px; margin-bottom:12px;">
+      <div style="flex:1;">
+        <span style="font-weight:600; font-size:13px; display:block; margin-bottom:4px;">Pickup Date:</span>
+        <input type="date" id="edit-date-${id}" value="${data.pickup_date}" style="width:100%; padding:8px; border:2px solid #6b1f1f; border-radius:4px; font-size:14px;">
+      </div>
+      <div style="flex:1;">
+        <span style="font-weight:600; font-size:13px; display:block; margin-bottom:4px;">Pickup Time:</span>
+        <input type="time" id="edit-time-${id}" value="${data.pickup_time}" style="width:100%; padding:8px; border:2px solid #6b1f1f; border-radius:4px; font-size:14px;">
+      </div>
+    </div>
+    <button class="btn btn-counter" style="margin-bottom:12px; width:100%;" onclick="updateDateTime('${id}')">Update Date/Time</button>
+    <div style="margin-bottom:12px;">
+      <span style="font-weight:600; font-size:13px; display:block; margin-bottom:4px;">Notes:</span>
+      <textarea id="edit-notes-${id}" rows="2" style="width:100%; padding:8px; border:2px solid #6b1f1f; border-radius:4px; font-size:14px; font-family:inherit;">${data.notes || ''}</textarea>
+      <button class="btn btn-counter" style="margin-top:6px; width:100%;" onclick="updateNotes('${id}')">Save Notes</button>
+    </div>
+    <div class="counter-input" style="margin-bottom:12px;">
+      <span style="font-weight:600;">Edit Amount: $</span>
+      <input type="number" id="edit-${id}" value="${amount.toFixed(2)}" min="0" step="0.01">
+    </div>
+    <div class="actions">
+      <button class="btn btn-counter" onclick="updatePaidAmount('${id}')">Update Amount</button>
+      <button class="btn btn-paid" onclick="markAsComplete('${id}')">Ride Complete</button>
+      <button class="btn btn-deny" onclick="cancelRide('${id}')">Cancel Ride</button>
+    </div>`;
+
+  return `
+    <div class="confirmed-card" id="confirmed-card-${id}">
+      <div class="confirmed-card-header" onclick="toggleConfirmed('${id}')">
+        <div class="confirmed-card-left">
+          <div class="confirmed-card-name">${data.client_name}</div>
+          <div class="confirmed-card-time">${data.pickup_date} at ${data.pickup_time}</div>
+          <div class="confirmed-card-address">${data.pickup_address}</div>
+        </div>
+        <div class="confirmed-card-chevron" id="chevron-${id}">▼</div>
+      </div>
+      <div class="confirmed-card-body" id="body-${id}">
+        ${fullBody}
+      </div>
+    </div>`;
+}
+
+function toggleConfirmed(id) {
+  const body = document.getElementById('body-' + id);
+  const chevron = document.getElementById('chevron-' + id);
+  const header = chevron.parentElement;
+  const isOpen = body.classList.contains('open');
+  body.classList.toggle('open', !isOpen);
+  chevron.classList.toggle('open', !isOpen);
+  header.classList.toggle('open', !isOpen);
+}
+window.createConfirmedCard = createConfirmedCard;
+window.toggleConfirmed = toggleConfirmed;
 
 // Build a clickable phone number that opens a Call/Text choice menu
 function createPhoneLink(phone) {
