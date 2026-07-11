@@ -766,7 +766,7 @@ async function calculateQuote() {
           const durationSeconds = response.rows[0].elements[0].duration.value;
           tripMiles = distanceMeters / 1609.34;
           tripDurationMinutes = Math.round(durationSeconds / 60);
-          quotedPrice = Math.round(tripMiles * PRICE_PER_MILE);
+          quotedPrice = Math.max(5, Math.round(tripMiles * PRICE_PER_MILE));
           document.getElementById('quote-price').textContent = '$' + quotedPrice.toFixed(2);
           document.getElementById('quote-miles').textContent = tripMiles.toFixed(1);
           document.getElementById('quote-section').classList.remove('hidden');
