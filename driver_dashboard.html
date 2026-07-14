@@ -211,6 +211,52 @@ body {
   margin-bottom: 16px;
 }
 .back-btn:hover { background: #5a6268; }
+/* ── ACCORDION COMPLETED CARDS ── */
+.completed-card {
+  background: white;
+  border-radius: 8px;
+  margin-bottom: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  overflow: hidden;
+}
+.completed-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  cursor: pointer;
+  user-select: none;
+  transition: background 0.2s;
+}
+.completed-card-header:hover { background: #f8f9fa; }
+.completed-card-header.open { background: #f0f5ff; border-bottom: 2px solid #004085; }
+.completed-card-name { font-size: 17px; font-weight: 700; color: #004085; margin-bottom: 3px; }
+.completed-card-meta { font-size: 13px; color: #555; margin-bottom: 2px; }
+.completed-card-address { font-size: 12px; color: #888; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 220px; }
+.completed-card-right { display: flex; align-items: center; gap: 10px; }
+.completed-card-amount { font-size: 16px; font-weight: 700; color: #28a745; }
+.completed-card-chevron { font-size: 18px; color: #004085; transition: transform 0.3s; }
+.completed-card-chevron.open { transform: rotate(180deg); }
+.completed-card-body { display: none; padding: 16px 20px; border-top: 1px solid #f0f0f0; }
+.completed-card-body.open { display: block; }
+
+/* ── CLIENTS TAB MOBILE ── */
+.client-stack-card {
+  background: white;
+  border-radius: 8px;
+  margin-bottom: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  overflow: hidden;
+}
+.client-stack-header {
+  padding: 16px;
+  border-left: 4px solid #6b1f1f;
+  cursor: pointer;
+}
+.client-stack-header:hover { background: #f8f9fa; }
+.client-stack-name { font-size: 17px; font-weight: 700; color: #6b1f1f; margin-bottom: 4px; }
+.client-stack-meta { font-size: 13px; color: #666; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 4px; }
+
 /* ── ACCORDION CONFIRMED CARDS ── */
 .confirmed-card {
   background: white;
@@ -482,7 +528,13 @@ function displayFilteredRequests(ridesArray, containerId) {
   const container = document.getElementById(containerId);
   if (ridesArray.length === 0) { container.innerHTML = '<div class="empty-state">No rides this week</div>'; return; }
   container.innerHTML = '';
-  ridesArray.forEach((ride) => { container.innerHTML += createRequestCard(ride.id, ride.data); });
+  ridesArray.forEach((ride) => {
+    if (containerId === 'completed-requests') {
+      container.innerHTML += createCompletedCard(ride.id, ride.data);
+    } else {
+      container.innerHTML += createRequestCard(ride.id, ride.data);
+    }
+  });
 }
 
 function createRequestCard(id, data) {
@@ -687,6 +739,91 @@ function toggleConfirmed(id) {
   header.classList.toggle('open', !isOpen);
 }
 window.createConfirmedCard = createConfirmedCard;
+
+// ── ACCORDION CARD FOR COMPLETED RIDES ───────────────────────────────────
+function createCompletedCard(id, data) {
+  const amount = (data.final_price !== undefined && data.final_price !== null) ? data.final_price : (data.quoted_price || 0);
+  const tip = (data.tip !== undefined && data.tip !== null && data.tip > 0) ? data.tip : 0;
+  const statusClass = `status-${data.status}`;
+
+  let actionButtons = '';
+  if (data.status === 'completed') {
+    actionButtons = `
+      <div class="actions" style="margin-top:12px;">
+        <button class="btn btn-paid" onclick="markAsPaid('${id}')">Mark as Paid</button>
+        <button class="btn btn-deny" onclick="cancelRide('${id}')">Cancel Ride</button>
+      </div>`;
+  } else if (data.status === 'paid') {
+    actionButtons = `
+      <div class="counter-input" style="margin-bottom:12px; margin-top:12px;">
+        <span style="font-weight:600;">Edit Amount: $</span>
+        <input type="number" id="edit-${id}" value="${amount.toFixed(2)}" min="0" step="0.01">
+      </div>
+      <div class="counter-input" style="margin-bottom:12px;">
+        <span style="font-weight:600; white-space:nowrap;">Payment Method:</span>
+        <input type="text" id="payment-method-${id}" value="${data.payment_method || ''}" placeholder="e.g. Credit Card ending in 1234" style="flex:1;">
+      </div>
+      <div class="counter-input" style="margin-bottom:12px;">
+        <span style="font-weight:600; white-space:nowrap;">Tip: $</span>
+        <input type="number" id="tip-${id}" value="${tip.toFixed(2)}" min="0" step="0.01" style="flex:1;">
+      </div>
+      <div class="actions">
+        <button class="btn btn-counter" onclick="updatePaidAmount('${id}')">Update Amount</button>
+        <button class="btn btn-counter" onclick="updatePaymentMethod('${id}')">Update Payment</button>
+        <button class="btn btn-counter" onclick="updateTip('${id}')">Save Tip</button>
+        <button class="btn btn-receipt" onclick="generateReceipt('${id}')">View Receipt</button>
+        <button class="btn" style="background:#6c757d; color:white;" onclick="hideRide('${id}')">Hide</button>
+        <button class="btn btn-deny" onclick="deleteRide('${id}')">Delete</button>
+      </div>`;
+  }
+
+  return `
+    <div class="completed-card" id="completed-card-${id}">
+      <div class="completed-card-header" onclick="toggleCompleted('${id}')">
+        <div style="flex:1;">
+          <div class="completed-card-name">${data.client_name}</div>
+          <div class="completed-card-meta">${data.pickup_date} at ${data.pickup_time}</div>
+          <div class="completed-card-address">${data.pickup_address}</div>
+        </div>
+        <div class="completed-card-right">
+          <div>
+            <div class="completed-card-amount">$${amount.toFixed(2)}</div>
+            ${tip > 0 ? `<div style="font-size:11px; color:#28a745; text-align:right;">+$${tip.toFixed(2)} tip</div>` : ''}
+            <div><span class="status-badge ${statusClass}" style="font-size:10px;">${data.status}</span></div>
+          </div>
+          <div class="completed-card-chevron" id="comp-chevron-${id}">▼</div>
+        </div>
+      </div>
+      <div class="completed-card-body" id="comp-body-${id}">
+        <div class="detail-item" style="margin-bottom:12px;">
+          <div class="detail-label">Route</div>
+          <div class="detail-value">
+            <span class="address-link" data-address="${data.pickup_address.replace(/"/g, '&quot;')}" onclick="event.stopPropagation(); showMapMenu(this.dataset.address, event)" style="color:#6b1f1f; text-decoration:underline; cursor:pointer;">${data.pickup_address}</span>
+            →
+            <span class="address-link" data-address="${data.dropoff_address.replace(/"/g, '&quot;')}" onclick="event.stopPropagation(); showMapMenu(this.dataset.address, event)" style="color:#6b1f1f; text-decoration:underline; cursor:pointer;">${data.dropoff_address}</span>
+          </div>
+        </div>
+        <div class="detail-grid" style="margin-bottom:12px;">
+          <div class="detail-item"><div class="detail-label">Phone</div><div class="detail-value">${createPhoneLink(data.client_phone)}</div></div>
+          <div class="detail-item"><div class="detail-label">Passengers</div><div class="detail-value">${data.passengers}</div></div>
+        </div>
+        ${data.notes ? `<div class="detail-item" style="margin-bottom:12px;"><div class="detail-label">Notes</div><div class="detail-value">${formatNotes(data.notes)}</div></div>` : ''}
+        ${actionButtons}
+      </div>
+    </div>`;
+}
+
+function toggleCompleted(id) {
+  const body = document.getElementById('comp-body-' + id);
+  const chevron = document.getElementById('comp-chevron-' + id);
+  const header = chevron.closest('.completed-card-header');
+  const isOpen = body.classList.contains('open');
+  body.classList.toggle('open', !isOpen);
+  chevron.classList.toggle('open', !isOpen);
+  header.classList.toggle('open', !isOpen);
+}
+window.createCompletedCard = createCompletedCard;
+window.toggleCompleted = toggleCompleted;
 window.toggleConfirmed = toggleConfirmed;
 
 // Build a clickable phone number that opens a Call/Text choice menu
@@ -1117,18 +1254,17 @@ function displayClients(clients) {
   let html = '';
   filteredClients.forEach(client => {
     const balanceClass = client.balanceDue > 0 ? '' : 'paid';
-    const balanceText = client.balanceDue > 0 ? `Due: $${client.balanceDue.toFixed(2)}` : 'Paid Up';
+    const balanceText = client.balanceDue > 0 ? `Balance Due: $${client.balanceDue.toFixed(2)}` : '✓ Paid Up';
+    const balanceColor = client.balanceDue > 0 ? '#dc3545' : '#28a745';
     html += `
-      <div class="client-card" onclick="viewClientDetail('${client.phone}')">
-        <div style="display:flex; justify-content:space-between; align-items:center;">
-          <div>
-            <div style="font-weight:600; font-size:16px; color:#6b1f1f;">${client.name}</div>
-            <div style="font-size:14px; color:#666; margin-top:4px;" onclick="event.stopPropagation()">${createPhoneLink(client.phone)} • ${client.email}</div>
+      <div class="client-stack-card">
+        <div class="client-stack-header" onclick="viewClientDetail('${client.phone}')">
+          <div class="client-stack-name">${client.name}</div>
+          <div class="client-stack-meta">
+            <div onclick="event.stopPropagation()">${createPhoneLink(client.phone)}</div>
+            <div style="font-size:12px; color:#999;">${client.totalRides} ride${client.totalRides !== 1 ? 's' : ''}</div>
           </div>
-          <div style="text-align:right;">
-            <div class="balance-badge ${balanceClass}">${balanceText}</div>
-            <div style="font-size:12px; color:#999; margin-top:4px;">Total Rides: ${client.totalRides}</div>
-          </div>
+          <div style="margin-top:6px; font-size:13px; font-weight:700; color:${balanceColor};">${balanceText}</div>
         </div>
       </div>`;
   });
@@ -1272,7 +1408,8 @@ function loadTitheData() {
         const weekKey = getWeekKey(paidDate);
         if (!weeklyTotals.has(weekKey)) weeklyTotals.set(weekKey, { startDate: weekKey, total: 0, rides: [] });
         const week = weeklyTotals.get(weekKey);
-        week.total += data.final_price;
+        const tip = (data.tip !== undefined && data.tip !== null) ? data.tip : 0;
+        week.total += data.final_price + tip;
         week.rides.push(data);
       }
     });
