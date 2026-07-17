@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -343,6 +344,24 @@ select option { background: #1a1a1a; color: white; }
 .empty-state { text-align: center; padding: 60px 20px; color: rgba(255,255,255,0.3); }
 .loading { text-align: center; padding: 40px; color: rgba(255,255,255,0.4); }
 .hidden { display: none; }
+
+/* Google Places Autocomplete dropdown styling */
+.pac-container {
+  border-radius: 6px;
+  border: 1px solid rgba(200,149,42,0.4);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+  font-family: 'Open Sans', sans-serif;
+  z-index: 99999 !important;
+}
+.pac-item {
+  padding: 10px 14px;
+  font-size: 14px;
+  cursor: pointer;
+  border-top: 1px solid #f0f0f0;
+}
+.pac-item:hover { background: rgba(200,149,42,0.1); }
+.pac-item-query { color: #333; font-weight: 600; }
+.pac-matched { color: #6b1f1f; }
 .error { background: rgba(204,34,0,0.15); border: 1px solid #cc2200; border-radius: 6px; padding: 12px; color: #ff6b6b; margin-bottom: 16px; font-size: 14px; }
 .logout-btn {
   background: none; border: 1px solid rgba(200,149,42,0.5);
@@ -699,6 +718,32 @@ let distanceService = null;
 
 function initMaps() {
   distanceService = new google.maps.DistanceMatrixService();
+
+  // Autocomplete on pickup address
+  const pickupInput = document.getElementById('pickup_address');
+  const pickupAuto = new google.maps.places.Autocomplete(pickupInput, {
+    componentRestrictions: { country: 'us' },
+    fields: ['formatted_address', 'name', 'geometry']
+  });
+  pickupAuto.addListener('place_changed', () => {
+    const place = pickupAuto.getPlace();
+    if (place.formatted_address) {
+      pickupInput.value = place.formatted_address;
+    }
+  });
+
+  // Autocomplete on dropoff address
+  const dropoffInput = document.getElementById('dropoff_address');
+  const dropoffAuto = new google.maps.places.Autocomplete(dropoffInput, {
+    componentRestrictions: { country: 'us' },
+    fields: ['formatted_address', 'name', 'geometry']
+  });
+  dropoffAuto.addListener('place_changed', () => {
+    const place = dropoffAuto.getPlace();
+    if (place.formatted_address) {
+      dropoffInput.value = place.formatted_address;
+    }
+  });
 }
 window.initMaps = initMaps;
 
