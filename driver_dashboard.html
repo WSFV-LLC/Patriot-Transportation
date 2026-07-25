@@ -1608,6 +1608,7 @@ async function updateDateTime(id) {
           dropoff_address: rideData.dropoff_address,
           pickup_date: newDate,
           pickup_time: newTime,
+          trip_duration_minutes: rideData.trip_duration_minutes || 30,
           final_price: rideData.final_price
         })
       }).then(r => r.json()).then(data => {
