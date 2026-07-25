@@ -1573,6 +1573,31 @@ async function updateDateTime(id) {
     // Notify client of the reschedule via existing webhook
     const rideDoc = await window.getDoc(window.doc(window.db, 'ride_requests', id));
     const rideData = rideDoc.data();
+    // Fire calendar webhook to delete old event and create new one
+    try {
+      fetch('https://hook.us2.make.com/zlo5peda4fwlrz2nk7m1hakc4dxjblw1', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'rescheduled',
+          calendar_event_id: rideData.calendar_event_id || null,
+          client_name: rideData.client_name,
+          client_email: rideData.client_email,
+          pickup_address: rideData.pickup_address,
+          dropoff_address: rideData.dropoff_address,
+          pickup_date: newDate,
+          pickup_time: newTime,
+          final_price: rideData.final_price
+        })
+      }).then(r => r.json()).then(data => {
+        if (data.event_id) {
+          window.updateDoc(window.doc(window.db, 'ride_requests', id), {
+            calendar_event_id: data.event_id
+          }).catch(err => console.log('Error saving new event ID:', err));
+        }
+      }).catch(err => console.log('Reschedule calendar webhook error:', err));
+    } catch (err) { console.log(err); }
+
+    // Also notify client of the time change via email webhook
     try {
       fetch('https://hook.us2.make.com/mmahpsdtba3je2iomxuxyse6h7kv4awx', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
@@ -1586,7 +1611,7 @@ async function updateDateTime(id) {
           pickup_time: newTime,
           final_price: rideData.final_price
         })
-      }).catch(err => console.log('Reschedule notification error:', err));
+      }).catch(err => console.log('Reschedule email notification error:', err));
     } catch (err) { console.log(err); }
 
     alert('Pickup date/time updated!');
