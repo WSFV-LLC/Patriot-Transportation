@@ -1612,9 +1612,11 @@ async function updateDateTime(id) {
           final_price: rideData.final_price
         })
       }).then(r => r.json()).then(data => {
-        if (data.event_id) {
+        // Handle both Create Event (event_id) and Update Event (id) response formats
+        const newEventId = data.event_id || data.id || null;
+        if (newEventId) {
           window.updateDoc(window.doc(window.db, 'ride_requests', id), {
-            calendar_event_id: data.event_id
+            calendar_event_id: newEventId
           }).catch(err => console.log('Error saving new event ID:', err));
         }
       }).catch(err => console.log('Reschedule calendar webhook error:', err));
