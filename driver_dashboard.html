@@ -218,6 +218,102 @@ body {
   margin-bottom: 16px;
 }
 .back-btn:hover { background: #5a6268; }
+/* ── COMPACT ICON BUTTONS ── */
+.icon-btn-row {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-start;
+  flex-wrap: wrap;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid #f0f0f0;
+}
+.icon-btn {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  background: #f0f0f0;
+  color: #333;
+}
+.icon-btn:hover { transform: scale(1.1); }
+.icon-btn.green { background: #d4edda; color: #155724; }
+.icon-btn.yellow { background: #fff3cd; color: #856404; }
+.icon-btn.red { background: #f8d7da; color: #721c24; }
+.icon-btn.blue { background: #cce5ff; color: #004085; }
+.icon-btn.grey { background: #e2e3e5; color: #383d41; }
+
+/* ── COMPACT DETAIL ROW ── */
+.compact-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+.compact-item {
+  padding: 6px 8px;
+  background: #f8f9fa;
+  border-radius: 4px;
+}
+.compact-label {
+  font-size: 10px;
+  color: #999;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 2px;
+}
+.compact-value {
+  font-size: 13px;
+  font-weight: 600;
+  color: #333;
+}
+
+/* ── INLINE EDIT SECTIONS ── */
+.edit-section {
+  display: none;
+  background: #fff9f9;
+  border: 1px solid #e0c0c0;
+  border-radius: 6px;
+  padding: 10px;
+  margin-top: 8px;
+}
+.edit-section.open { display: block; }
+.edit-toggle {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+  color: #6b1f1f;
+  padding: 2px 6px;
+  border-radius: 4px;
+  vertical-align: middle;
+}
+.edit-toggle:hover { background: rgba(107,31,31,0.08); }
+
+/* ── TRIP INFO BAR ── */
+.trip-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #f8f9fa;
+  border-left: 3px solid #6b1f1f;
+  padding: 6px 10px;
+  border-radius: 0 4px 4px 0;
+  margin-bottom: 10px;
+  font-size: 13px;
+}
+.trip-bar-price {
+  font-size: 18px;
+  font-weight: 700;
+  color: #6b1f1f;
+}
+
 /* ── ACCORDION COMPLETED CARDS ── */
 .completed-card {
   background: white;
@@ -672,53 +768,66 @@ function createConfirmedCard(id, data) {
   const amount = (data.final_price !== undefined && data.final_price !== null) ? data.final_price : (data.quoted_price || 0);
 
   const fullBody = `
-    <div class="detail-grid" style="margin-bottom:12px;">
-      <div class="detail-item"><div class="detail-label">Phone</div><div class="detail-value">${createPhoneLink(data.client_phone)}</div></div>
-      <div class="detail-item"><div class="detail-label">Email</div><div class="detail-value">${data.client_email}</div></div>
-      <div class="detail-item"><div class="detail-label">Passengers</div><div class="detail-value">${data.passengers} passengers</div></div>
-      <div class="detail-item"><div class="detail-label">Amount</div><div class="detail-value">$${amount.toFixed(2)}</div></div>
+    <div class="trip-bar">
+      <span style="color:#666;">${data.trip_miles ? data.trip_miles.toFixed(1) + ' miles' : 'N/A'}</span>
+      <span class="trip-bar-price">$${amount.toFixed(2)}</span>
     </div>
-    <div class="detail-item" style="margin-bottom:12px;">
-      <div class="detail-label">Route</div>
-      <div class="detail-value">
-        <span class="address-link" data-address="${data.pickup_address.replace(/"/g, '&quot;')}" onclick="event.stopPropagation(); showMapMenu(this.dataset.address, event)" style="color:#6b1f1f; text-decoration:underline; cursor:pointer;">${data.pickup_address}</span>
-        →
-        <span class="address-link" data-address="${data.dropoff_address.replace(/"/g, '&quot;')}" onclick="event.stopPropagation(); showMapMenu(this.dataset.address, event)" style="color:#6b1f1f; text-decoration:underline; cursor:pointer;">${data.dropoff_address}</span>
+    <div class="compact-grid">
+      <div class="compact-item"><div class="compact-label">Phone</div><div class="compact-value">${createPhoneLink(data.client_phone)}</div></div>
+      <div class="compact-item"><div class="compact-label">Email</div><div class="compact-value" style="font-size:11px; word-break:break-all;">${data.client_email}</div></div>
+      <div class="compact-item"><div class="compact-label">Passengers</div><div class="compact-value">${data.passengers}</div></div>
+      <div class="compact-item"><div class="compact-label">Luggage</div><div class="compact-value" style="font-size:11px;">${data.luggage_type}</div></div>
+    </div>
+    <div style="font-size:12px; color:#666; margin-bottom:8px; line-height:1.4;">
+      <span class="address-link" data-address="${data.pickup_address.replace(/"/g, '&quot;')}" onclick="event.stopPropagation(); showMapMenu(this.dataset.address, event)" style="color:#6b1f1f; text-decoration:underline; cursor:pointer;">${data.pickup_address}</span>
+      <span style="color:#999;"> → </span>
+      <span class="address-link" data-address="${data.dropoff_address.replace(/"/g, '&quot;')}" onclick="event.stopPropagation(); showMapMenu(this.dataset.address, event)" style="color:#6b1f1f; text-decoration:underline; cursor:pointer;">${data.dropoff_address}</span>
+    </div>
+    ${data.notes ? `
+    <div style="font-size:12px; color:#555; background:#f8f9fa; padding:6px 8px; border-radius:4px; margin-bottom:8px;">
+      📝 ${formatNotes(data.notes)}
+      <button class="edit-toggle" onclick="toggleEditSection('notes-edit-${id}')" title="Edit notes">✏️</button>
+    </div>
+    <div class="edit-section" id="notes-edit-${id}">
+      <textarea id="edit-notes-${id}" rows="2" style="width:100%; padding:8px; border:1px solid #e0c0c0; border-radius:4px; font-size:13px; font-family:inherit;">${data.notes || ''}</textarea>
+      <button class="btn btn-counter" style="margin-top:6px; padding:6px 12px; font-size:12px;" onclick="updateNotes('${id}')">Save</button>
+    </div>` : `
+    <div style="font-size:12px; color:#999; margin-bottom:8px;">
+      No notes
+      <button class="edit-toggle" onclick="toggleEditSection('notes-edit-${id}')" title="Add notes">✏️</button>
+    </div>
+    <div class="edit-section" id="notes-edit-${id}">
+      <textarea id="edit-notes-${id}" rows="2" style="width:100%; padding:8px; border:1px solid #e0c0c0; border-radius:4px; font-size:13px; font-family:inherit;"></textarea>
+      <button class="btn btn-counter" style="margin-top:6px; padding:6px 12px; font-size:12px;" onclick="updateNotes('${id}')">Save</button>
+    </div>`}
+
+    <div style="font-size:12px; color:#666; margin-bottom:4px;">
+      📅 ${data.pickup_date} at ${data.pickup_time}
+      <button class="edit-toggle" onclick="toggleEditSection('dt-edit-${id}')" title="Edit date/time">✏️</button>
+    </div>
+    <div class="edit-section" id="dt-edit-${id}">
+      <div style="display:flex; gap:8px;">
+        <input type="date" id="edit-date-${id}" value="${data.pickup_date}" style="flex:1; padding:6px; border:1px solid #e0c0c0; border-radius:4px; font-size:13px;">
+        <input type="time" id="edit-time-${id}" value="${data.pickup_time}" style="flex:1; padding:6px; border:1px solid #e0c0c0; border-radius:4px; font-size:13px;">
+      </div>
+      <button class="btn btn-counter" style="margin-top:6px; padding:6px 12px; font-size:12px; width:100%;" onclick="updateDateTime('${id}')">Save Date/Time</button>
+    </div>
+
+    <div style="font-size:12px; color:#666; margin-bottom:4px;">
+      💵 $${amount.toFixed(2)}
+      <button class="edit-toggle" onclick="toggleEditSection('amt-edit-${id}')" title="Edit amount">✏️</button>
+    </div>
+    <div class="edit-section" id="amt-edit-${id}">
+      <div style="display:flex; gap:8px; align-items:center;">
+        <span style="font-size:13px;">$</span>
+        <input type="number" id="edit-${id}" value="${amount.toFixed(2)}" min="0" step="0.01" style="flex:1; padding:6px; border:1px solid #e0c0c0; border-radius:4px; font-size:13px;">
+        <button class="btn btn-counter" style="padding:6px 12px; font-size:12px;" onclick="updatePaidAmount('${id}')">Save</button>
       </div>
     </div>
-    <div class="detail-item" style="margin-bottom:12px;">
-      <div class="detail-label">Luggage</div>
-      <div class="detail-value">${data.luggage_type}</div>
-    </div>
-    ${data.notes ? `<div class="detail-item" style="margin-bottom:12px;"><div class="detail-label">Notes</div><div class="detail-value">${formatNotes(data.notes)}</div></div>` : ''}
-    <div class="bid-section" style="margin-bottom:12px;">
-      <div class="bid-row"><span class="bid-label">Trip Distance:</span><span style="font-size:16px; font-weight:600;">${data.trip_miles ? data.trip_miles.toFixed(1) + ' miles' : 'N/A'}</span></div>
-      <div class="bid-row"><span class="bid-label">Quoted Price:</span><span class="bid-amount">$${amount.toFixed(2)}</span></div>
-    </div>
-    <div style="display:flex; gap:8px; margin-bottom:12px;">
-      <div style="flex:1;">
-        <span style="font-weight:600; font-size:13px; display:block; margin-bottom:4px;">Pickup Date:</span>
-        <input type="date" id="edit-date-${id}" value="${data.pickup_date}" style="width:100%; padding:8px; border:2px solid #6b1f1f; border-radius:4px; font-size:14px;">
-      </div>
-      <div style="flex:1;">
-        <span style="font-weight:600; font-size:13px; display:block; margin-bottom:4px;">Pickup Time:</span>
-        <input type="time" id="edit-time-${id}" value="${data.pickup_time}" style="width:100%; padding:8px; border:2px solid #6b1f1f; border-radius:4px; font-size:14px;">
-      </div>
-    </div>
-    <button class="btn btn-counter" style="margin-bottom:12px; width:100%;" onclick="updateDateTime('${id}')">Update Date/Time</button>
-    <div style="margin-bottom:12px;">
-      <span style="font-weight:600; font-size:13px; display:block; margin-bottom:4px;">Notes:</span>
-      <textarea id="edit-notes-${id}" rows="2" style="width:100%; padding:8px; border:2px solid #6b1f1f; border-radius:4px; font-size:14px; font-family:inherit;">${data.notes || ''}</textarea>
-      <button class="btn btn-counter" style="margin-top:6px; width:100%;" onclick="updateNotes('${id}')">Save Notes</button>
-    </div>
-    <div class="counter-input" style="margin-bottom:12px;">
-      <span style="font-weight:600;">Edit Amount: $</span>
-      <input type="number" id="edit-${id}" value="${amount.toFixed(2)}" min="0" step="0.01">
-    </div>
-    <div class="actions">
-      <button class="btn btn-counter" onclick="updatePaidAmount('${id}')">Update Amount</button>
-      <button class="btn btn-paid" onclick="markAsComplete('${id}')">Ride Complete</button>
-      <button class="btn btn-deny" onclick="cancelRide('${id}')">Cancel Ride</button>
+
+    <div class="icon-btn-row">
+      <button class="icon-btn green" onclick="markAsComplete('${id}')" title="Mark Ride Complete">✅</button>
+      <button class="icon-btn red" onclick="cancelRide('${id}')" title="Cancel Ride">🚫</button>
     </div>`;
 
   return `
@@ -748,6 +857,12 @@ function toggleConfirmed(id) {
 }
 window.createConfirmedCard = createConfirmedCard;
 
+function toggleEditSection(sectionId) {
+  const section = document.getElementById(sectionId);
+  if (section) section.classList.toggle('open');
+}
+window.toggleEditSection = toggleEditSection;
+
 // ── ACCORDION CARD FOR COMPLETED RIDES ───────────────────────────────────
 function createCompletedCard(id, data) {
   const amount = (data.final_price !== undefined && data.final_price !== null) ? data.final_price : (data.quoted_price || 0);
@@ -757,33 +872,50 @@ function createCompletedCard(id, data) {
   let actionButtons = '';
   if (data.status === 'completed') {
     actionButtons = `
-      <div class="actions" style="margin-top:12px;">
-        <button class="btn btn-paid" onclick="markAsPaid('${id}')">Mark as Paid</button>
-        <button class="btn btn-counter" onclick="undoComplete('${id}')">Undo Complete</button>
-        <button class="btn btn-deny" onclick="cancelRide('${id}')">Cancel Ride</button>
+      <div class="icon-btn-row">
+        <button class="icon-btn green" onclick="markAsPaid('${id}')" title="Mark as Paid">💳</button>
+        <button class="icon-btn yellow" onclick="undoComplete('${id}')" title="Undo Complete">↩️</button>
+        <button class="icon-btn red" onclick="cancelRide('${id}')" title="Cancel Ride">🚫</button>
       </div>`;
   } else if (data.status === 'paid') {
     actionButtons = `
-      <div class="counter-input" style="margin-bottom:12px; margin-top:12px;">
-        <span style="font-weight:600;">Edit Amount: $</span>
-        <input type="number" id="edit-${id}" value="${amount.toFixed(2)}" min="0" step="0.01">
+      <div style="font-size:12px; color:#666; margin-bottom:4px;">
+        💵 $${amount.toFixed(2)}
+        <button class="edit-toggle" onclick="toggleEditSection('comp-amt-${id}')" title="Edit amount">✏️</button>
       </div>
-      <div class="counter-input" style="margin-bottom:12px;">
-        <span style="font-weight:600; white-space:nowrap;">Payment Method:</span>
-        <input type="text" id="payment-method-${id}" value="${data.payment_method || ''}" placeholder="e.g. Credit Card ending in 1234" style="flex:1;">
+      <div class="edit-section" id="comp-amt-${id}">
+        <div style="display:flex; gap:8px; align-items:center; margin-bottom:6px;">
+          <span style="font-size:13px;">$</span>
+          <input type="number" id="edit-${id}" value="${amount.toFixed(2)}" min="0" step="0.01" style="flex:1; padding:6px; border:1px solid #e0c0c0; border-radius:4px; font-size:13px;">
+          <button class="btn btn-counter" style="padding:6px 12px; font-size:12px;" onclick="updatePaidAmount('${id}')">Save</button>
+        </div>
       </div>
-      <div class="counter-input" style="margin-bottom:12px;">
-        <span style="font-weight:600; white-space:nowrap;">Tip: $</span>
-        <input type="number" id="tip-${id}" value="${tip.toFixed(2)}" min="0" step="0.01" style="flex:1;">
+      <div style="font-size:12px; color:#666; margin-bottom:4px;">
+        💳 ${data.payment_method || 'No payment method'}
+        <button class="edit-toggle" onclick="toggleEditSection('comp-pay-${id}')" title="Edit payment method">✏️</button>
       </div>
-      <div class="actions">
-        <button class="btn btn-counter" onclick="updatePaidAmount('${id}')">Update Amount</button>
-        <button class="btn btn-counter" onclick="updatePaymentMethod('${id}')">Update Payment</button>
-        <button class="btn btn-counter" onclick="updateTip('${id}')">Save Tip</button>
-        <button class="btn btn-receipt" onclick="generateReceipt('${id}')">View Receipt</button>
-        <button class="btn btn-counter" onclick="undoPaid('${id}')">Undo Paid</button>
-        <button class="btn" style="background:#6c757d; color:white;" onclick="hideRide('${id}')">Hide</button>
-        <button class="btn btn-deny" onclick="deleteRide('${id}')">Delete</button>
+      <div class="edit-section" id="comp-pay-${id}">
+        <div style="display:flex; gap:8px; align-items:center;">
+          <input type="text" id="payment-method-${id}" value="${data.payment_method || ''}" placeholder="e.g. Credit Card ending in 1234" style="flex:1; padding:6px; border:1px solid #e0c0c0; border-radius:4px; font-size:13px;">
+          <button class="btn btn-counter" style="padding:6px 12px; font-size:12px;" onclick="updatePaymentMethod('${id}')">Save</button>
+        </div>
+      </div>
+      <div style="font-size:12px; color:#666; margin-bottom:4px;">
+        💰 Tip: $${tip.toFixed(2)}
+        <button class="edit-toggle" onclick="toggleEditSection('comp-tip-${id}')" title="Edit tip">✏️</button>
+      </div>
+      <div class="edit-section" id="comp-tip-${id}">
+        <div style="display:flex; gap:8px; align-items:center;">
+          <span style="font-size:13px;">$</span>
+          <input type="number" id="tip-${id}" value="${tip.toFixed(2)}" min="0" step="0.01" style="flex:1; padding:6px; border:1px solid #e0c0c0; border-radius:4px; font-size:13px;">
+          <button class="btn btn-counter" style="padding:6px 12px; font-size:12px;" onclick="updateTip('${id}')">Save</button>
+        </div>
+      </div>
+      <div class="icon-btn-row">
+        <button class="icon-btn blue" onclick="generateReceipt('${id}')" title="View Receipt">🧾</button>
+        <button class="icon-btn yellow" onclick="undoPaid('${id}')" title="Undo Paid">↩️</button>
+        <button class="icon-btn grey" onclick="hideRide('${id}')" title="Hide Ride">👁️</button>
+        <button class="icon-btn red" onclick="deleteRide('${id}')" title="Delete Ride">🗑️</button>
       </div>`;
   }
 
@@ -805,19 +937,16 @@ function createCompletedCard(id, data) {
         </div>
       </div>
       <div class="completed-card-body" id="comp-body-${id}">
-        <div class="detail-item" style="margin-bottom:12px;">
-          <div class="detail-label">Route</div>
-          <div class="detail-value">
-            <span class="address-link" data-address="${data.pickup_address.replace(/"/g, '&quot;')}" onclick="event.stopPropagation(); showMapMenu(this.dataset.address, event)" style="color:#6b1f1f; text-decoration:underline; cursor:pointer;">${data.pickup_address}</span>
-            →
-            <span class="address-link" data-address="${data.dropoff_address.replace(/"/g, '&quot;')}" onclick="event.stopPropagation(); showMapMenu(this.dataset.address, event)" style="color:#6b1f1f; text-decoration:underline; cursor:pointer;">${data.dropoff_address}</span>
-          </div>
+        <div style="font-size:12px; color:#666; margin-bottom:8px; line-height:1.4;">
+          <span class="address-link" data-address="${data.pickup_address.replace(/"/g, '&quot;')}" onclick="event.stopPropagation(); showMapMenu(this.dataset.address, event)" style="color:#6b1f1f; text-decoration:underline; cursor:pointer;">${data.pickup_address}</span>
+          <span style="color:#999;"> → </span>
+          <span class="address-link" data-address="${data.dropoff_address.replace(/"/g, '&quot;')}" onclick="event.stopPropagation(); showMapMenu(this.dataset.address, event)" style="color:#6b1f1f; text-decoration:underline; cursor:pointer;">${data.dropoff_address}</span>
         </div>
-        <div class="detail-grid" style="margin-bottom:12px;">
-          <div class="detail-item"><div class="detail-label">Phone</div><div class="detail-value">${createPhoneLink(data.client_phone)}</div></div>
-          <div class="detail-item"><div class="detail-label">Passengers</div><div class="detail-value">${data.passengers}</div></div>
+        <div class="compact-grid" style="margin-bottom:8px;">
+          <div class="compact-item"><div class="compact-label">Phone</div><div class="compact-value">${createPhoneLink(data.client_phone)}</div></div>
+          <div class="compact-item"><div class="compact-label">Passengers</div><div class="compact-value">${data.passengers}</div></div>
         </div>
-        ${data.notes ? `<div class="detail-item" style="margin-bottom:12px;"><div class="detail-label">Notes</div><div class="detail-value">${formatNotes(data.notes)}</div></div>` : ''}
+        ${data.notes ? `<div style="font-size:12px; color:#555; background:#f8f9fa; padding:6px 8px; border-radius:4px; margin-bottom:8px;">📝 ${formatNotes(data.notes)}</div>` : ''}
         ${actionButtons}
       </div>
     </div>`;
