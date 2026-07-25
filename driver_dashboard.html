@@ -1318,6 +1318,15 @@ function viewClientDetail(phone) {
         </div>
         ${(ride.tip !== undefined && ride.tip !== null && ride.tip > 0) ? `<div style="font-size:14px; color:#28a745; margin-top:4px;">Tip: $${ride.tip.toFixed(2)}</div>` : ''}
         ${editSection}
+        ${ride.status === 'completed' ? `
+          <div style="margin-top:12px; padding-top:12px; border-top:1px solid #e0e0e0; display:flex; gap:8px;">
+            <button class="btn btn-paid" onclick="markAsPaid('${ride.id}')" style="flex:1; padding:8px; font-size:13px;">Mark as Paid</button>
+            <button class="btn btn-counter" onclick="undoCompleteFromClient('${ride.id}', '${phone}')" style="flex:1; padding:8px; font-size:13px;">Undo Complete</button>
+          </div>` : ''}
+        ${ride.status === 'paid' ? `
+          <div style="margin-top:12px; padding-top:12px; border-top:1px solid #e0e0e0;">
+            <button class="btn btn-counter" onclick="undoPaidFromClient('${ride.id}', '${phone}')" style="width:100%; padding:8px; font-size:13px;">Undo Paid</button>
+          </div>` : ''}
       </div>`;
   });
   const balanceColor = client.balanceDue > 0 ? '#dc3545' : '#28a745';
@@ -1656,6 +1665,33 @@ async function undoPaid(id) {
   } catch (error) { alert('Error: ' + error.message); }
 }
 window.undoPaid = undoPaid;
+
+async function undoCompleteFromClient(rideId, clientPhone) {
+  if (!confirm('Move this ride back to Confirmed status?')) return;
+  try {
+    await window.updateDoc(window.doc(window.db, 'ride_requests', rideId), {
+      status: 'confirmed',
+      completed_at: null
+    });
+    alert('Ride moved back to Confirmed.');
+    await loadClientsAndViewDetail(clientPhone, rideId);
+  } catch (error) { alert('Error: ' + error.message); }
+}
+window.undoCompleteFromClient = undoCompleteFromClient;
+
+async function undoPaidFromClient(rideId, clientPhone) {
+  if (!confirm('Move this ride back to Completed (unpaid) status? This will clear the payment record.')) return;
+  try {
+    await window.updateDoc(window.doc(window.db, 'ride_requests', rideId), {
+      status: 'completed',
+      paid_at: null,
+      payment_method: null
+    });
+    alert('Ride moved back to Completed.');
+    await loadClientsAndViewDetail(clientPhone, rideId);
+  } catch (error) { alert('Error: ' + error.message); }
+}
+window.undoPaidFromClient = undoPaidFromClient;
 </script>
 
 </body>
