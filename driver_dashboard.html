@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -612,6 +613,7 @@ function createRequestCard(id, data) {
         <button class="btn btn-counter" onclick="updatePaymentMethod('${id}')">Update Payment</button>
         <button class="btn btn-counter" onclick="updateTip('${id}')">Save Tip</button>
         <button class="btn btn-receipt" onclick="generateReceipt('${id}')">View Receipt</button>
+        <button class="btn btn-counter" onclick="undoPaid('${id}')">Undo Paid</button>
         <button class="btn" style="background:#6c757d; color:white;" onclick="hideRide('${id}')">Hide</button>
         <button class="btn btn-deny" onclick="deleteRide('${id}')">Delete</button>
       </div>`;
@@ -751,6 +753,7 @@ function createCompletedCard(id, data) {
     actionButtons = `
       <div class="actions" style="margin-top:12px;">
         <button class="btn btn-paid" onclick="markAsPaid('${id}')">Mark as Paid</button>
+        <button class="btn btn-counter" onclick="undoComplete('${id}')">Undo Complete</button>
         <button class="btn btn-deny" onclick="cancelRide('${id}')">Cancel Ride</button>
       </div>`;
   } else if (data.status === 'paid') {
@@ -772,6 +775,7 @@ function createCompletedCard(id, data) {
         <button class="btn btn-counter" onclick="updatePaymentMethod('${id}')">Update Payment</button>
         <button class="btn btn-counter" onclick="updateTip('${id}')">Save Tip</button>
         <button class="btn btn-receipt" onclick="generateReceipt('${id}')">View Receipt</button>
+        <button class="btn btn-counter" onclick="undoPaid('${id}')">Undo Paid</button>
         <button class="btn" style="background:#6c757d; color:white;" onclick="hideRide('${id}')">Hide</button>
         <button class="btn btn-deny" onclick="deleteRide('${id}')">Delete</button>
       </div>`;
@@ -1602,6 +1606,31 @@ async function updateNotes(id) {
   } catch (error) { alert('Error saving notes: ' + error.message); }
 }
 window.updateNotes = updateNotes;
+
+async function undoComplete(id) {
+  if (!confirm('Move this ride back to Confirmed status?')) return;
+  try {
+    await window.updateDoc(window.doc(window.db, 'ride_requests', id), {
+      status: 'confirmed',
+      completed_at: null
+    });
+    alert('Ride moved back to Confirmed.');
+  } catch (error) { alert('Error: ' + error.message); }
+}
+window.undoComplete = undoComplete;
+
+async function undoPaid(id) {
+  if (!confirm('Move this ride back to Completed (unpaid) status? This will clear the payment record.')) return;
+  try {
+    await window.updateDoc(window.doc(window.db, 'ride_requests', id), {
+      status: 'completed',
+      paid_at: null,
+      payment_method: null
+    });
+    alert('Ride moved back to Completed.');
+  } catch (error) { alert('Error: ' + error.message); }
+}
+window.undoPaid = undoPaid;
 </script>
 
 </body>
