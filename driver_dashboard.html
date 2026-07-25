@@ -5,6 +5,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Driver Dashboard — Patriot Transportation</title>
+<link rel="manifest" href="manifest-driver.json">
+<meta name="theme-color" content="#6b1f1f">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="PT Driver">
+<link rel="apple-touch-icon" href="icon.png">
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body {
@@ -957,6 +963,13 @@ async function acceptQuote(id) {
   } catch (error) { alert('Error accepting bid: ' + error.message); }
 }
 window.acceptQuote = acceptQuote;
+
+// Register PWA service worker
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js').catch(err => console.log('SW registration failed:', err));
+  });
+}
 
 // Show a small Call/Text choice menu near the tapped phone number
 function showPhoneMenu(digits, event) {
