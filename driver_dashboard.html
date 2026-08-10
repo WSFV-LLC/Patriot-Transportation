@@ -1,48 +1,1926 @@
-const CACHE_NAME = 'patriot-v4';
-const STATIC_ASSETS = [
-  '/Patriot-Transportation/icon.png',
-  '/Patriot-Transportation/icon-192.png',
-  '/Patriot-Transportation/driver.png',
-  '/Patriot-Transportation/van.jpg',
-  '/Patriot-Transportation/telluride.jpg',
-  '/Patriot-Transportation/skyline.png'
-];
 
-self.addEventListener('install', event => {
-  event.waitUntil(
-    caches.open(CACHE_NAME).then(cache => cache.addAll(STATIC_ASSETS))
-  );
-  self.skipWaiting();
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Driver Dashboard — Patriot Transportation</title>
+<link rel="manifest" href="manifest-driver.json">
+<meta name="theme-color" content="#6b1f1f">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="PT Driver">
+<link rel="apple-touch-icon" href="icon.png">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: #f5f5f5;
+  padding: 20px;
+}
+.header {
+  background: linear-gradient(135deg, #6b1f1f, #4a1515);
+  color: white;
+  padding: 20px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.header h1 { 
+  font-size: 24px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+.tab {
+  padding: 12px 24px;
+  background: white;
+  border: 2px solid #e0e0e0;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.3s;
+}
+.tab.active {
+  background: #6b1f1f;
+  color: white;
+  border-color: #6b1f1f;
+}
+.request-card {
+  background: white;
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 16px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+.request-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 2px solid #f0f0f0;
+}
+.client-name {
+  font-size: 20px;
+  font-weight: 600;
+  color: #6b1f1f;
+}
+.status-badge {
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+.status-pending { background: #fff3cd; color: #856404; }
+.status-quoted { background: #d1ecf1; color: #0c5460; }
+.status-confirmed { background: #d4edda; color: #155724; }
+.status-completed { background: #cce5ff; color: #004085; }
+.status-declined { background: #f8d7da; color: #721c24; }
+.status-cancelled { background: #f8d7da; color: #721c24; }
+.status-paid { background: #c3e6cb; color: #1e7e34; }
+.detail-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin-bottom: 16px;
+}
+.detail-item {
+  padding: 8px;
+  background: #f8f9fa;
+  border-radius: 4px;
+}
+.detail-label {
+  font-size: 11px;
+  color: #666;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 4px;
+}
+.detail-value {
+  font-size: 14px;
+  font-weight: 600;
+  color: #333;
+}
+.bid-section {
+  background: #f8f9fa;
+  border: 2px solid #6b1f1f;
+  border-radius: 6px;
+  padding: 16px;
+  margin-bottom: 16px;
+}
+.bid-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+.bid-label { font-weight: 600; color: #666; }
+.bid-amount {
+  font-size: 24px;
+  font-weight: bold;
+  color: #6b1f1f;
+}
+.counter-input {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-top: 12px;
+}
+.counter-input input {
+  flex: 1;
+  padding: 10px;
+  border: 2px solid #6b1f1f;
+  border-radius: 4px;
+  font-size: 16px;
+  font-weight: 600;
+}
+.actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.btn {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+  font-size: 14px;
+}
+.btn-accept { background: #28a745; color: white; }
+.btn-accept:hover { background: #218838; }
+.btn-counter { background: #ffc107; color: #333; }
+.btn-counter:hover { background: #e0a800; }
+.btn-deny { background: #b71c1c; color: white; }
+.btn-deny:hover { background: #8b0000; }
+.btn-paid { background: #28a745; color: white; }
+.btn-paid:hover { background: #218838; }
+.btn-receipt { background: #6c757d; color: white; }
+.btn-receipt:hover { background: #5a6268; }
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+  color: #999;
+}
+.calendar-view {
+  background: white;
+  border-radius: 8px;
+  padding: 20px;
+}
+.loading {
+  text-align: center;
+  padding: 40px;
+  color: #666;
+}
+.client-card {
+  background: #f8f9fa;
+  padding: 16px;
+  border-radius: 6px;
+  margin-bottom: 12px;
+  border-left: 4px solid #6b1f1f;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+.client-card:hover {
+  background: #e9ecef;
+  transform: translateX(4px);
+}
+.balance-badge {
+  background: #dc3545;
+  color: white;
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: 600;
+}
+.balance-badge.paid {
+  background: #28a745;
+}
+.back-btn {
+  background: #6c757d;
+  color: white;
+  padding: 8px 16px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  margin-bottom: 16px;
+}
+.back-btn:hover { background: #5a6268; }
+/* ── COMPACT ICON BUTTONS ── */
+.icon-btn-row {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-start;
+  flex-wrap: wrap;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid #f0f0f0;
+}
+.icon-btn {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  background: #f0f0f0;
+  color: #333;
+}
+.icon-btn:hover { transform: scale(1.1); }
+.icon-btn.green { background: #d4edda; color: #155724; }
+.icon-btn.yellow { background: #fff3cd; color: #856404; }
+.icon-btn.red { background: #f8d7da; color: #721c24; }
+.icon-btn.blue { background: #cce5ff; color: #004085; }
+.icon-btn.grey { background: #e2e3e5; color: #383d41; }
+
+/* ── COMPACT DETAIL ROW ── */
+.compact-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+.compact-item {
+  padding: 6px 8px;
+  background: #f8f9fa;
+  border-radius: 4px;
+}
+.compact-label {
+  font-size: 10px;
+  color: #999;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 2px;
+}
+.compact-value {
+  font-size: 13px;
+  font-weight: 600;
+  color: #333;
+}
+
+/* ── INLINE EDIT SECTIONS ── */
+.edit-section {
+  display: none;
+  background: #fff9f9;
+  border: 1px solid #e0c0c0;
+  border-radius: 6px;
+  padding: 10px;
+  margin-top: 8px;
+}
+.edit-section.open { display: block; }
+.edit-toggle {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+  color: #6b1f1f;
+  padding: 2px 6px;
+  border-radius: 4px;
+  vertical-align: middle;
+}
+.edit-toggle:hover { background: rgba(107,31,31,0.08); }
+
+/* ── TRIP INFO BAR ── */
+.trip-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #f8f9fa;
+  border-left: 3px solid #6b1f1f;
+  padding: 6px 10px;
+  border-radius: 0 4px 4px 0;
+  margin-bottom: 10px;
+  font-size: 13px;
+}
+.trip-bar-price {
+  font-size: 18px;
+  font-weight: 700;
+  color: #6b1f1f;
+}
+
+/* ── ACCORDION COMPLETED CARDS ── */
+.completed-card {
+  background: white;
+  border-radius: 8px;
+  margin-bottom: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  overflow: hidden;
+}
+.completed-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  cursor: pointer;
+  user-select: none;
+  transition: background 0.2s;
+}
+.completed-card-header:hover { background: #f8f9fa; }
+.completed-card-header.open { background: #f0f5ff; border-bottom: 2px solid #004085; }
+.completed-card-name { font-size: 17px; font-weight: 700; color: #004085; margin-bottom: 3px; }
+.completed-card-meta { font-size: 13px; color: #555; margin-bottom: 2px; }
+.completed-card-address { font-size: 12px; color: #888; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 220px; }
+.completed-card-right { display: flex; align-items: center; gap: 10px; }
+.completed-card-amount { font-size: 16px; font-weight: 700; color: #28a745; }
+.completed-card-chevron { font-size: 18px; color: #004085; transition: transform 0.3s; }
+.completed-card-chevron.open { transform: rotate(180deg); }
+.completed-card-body { display: none; padding: 16px 20px; border-top: 1px solid #f0f0f0; }
+.completed-card-body.open { display: block; }
+
+/* ── CLIENTS TAB MOBILE ── */
+.client-stack-card {
+  background: white;
+  border-radius: 8px;
+  margin-bottom: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  overflow: hidden;
+}
+.client-stack-header {
+  padding: 16px;
+  border-left: 4px solid #6b1f1f;
+  cursor: pointer;
+}
+.client-stack-header:hover { background: #f8f9fa; }
+.client-stack-name { font-size: 17px; font-weight: 700; color: #6b1f1f; margin-bottom: 4px; }
+.client-stack-meta { font-size: 13px; color: #666; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 4px; }
+
+/* ── ACCORDION CONFIRMED CARDS ── */
+.confirmed-card {
+  background: white;
+  border-radius: 8px;
+  margin-bottom: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  overflow: hidden;
+}
+.confirmed-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  cursor: pointer;
+  user-select: none;
+  transition: background 0.2s;
+}
+.confirmed-card-header:hover { background: #f8f9fa; }
+.confirmed-card-header.open { background: #f0ebe8; border-bottom: 2px solid #6b1f1f; }
+.confirmed-card-left { flex: 1; }
+.confirmed-card-name { font-size: 17px; font-weight: 700; color: #6b1f1f; margin-bottom: 3px; }
+.confirmed-card-time { font-size: 13px; color: #555; margin-bottom: 2px; }
+.confirmed-card-address { font-size: 12px; color: #888; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 220px; }
+.confirmed-card-chevron { font-size: 18px; color: #6b1f1f; transition: transform 0.3s; margin-left: 12px; }
+.confirmed-card-chevron.open { transform: rotate(180deg); }
+.confirmed-card-body { display: none; padding: 16px 20px; border-top: 1px solid #f0f0f0; }
+.confirmed-card-body.open { display: block; }
+
+.qr-code-section {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 24px 0;
+  margin: 20px 0;
+  border-top: 2px solid #e0e0e0;
+  border-bottom: 2px solid #e0e0e0;
+  background: #f8f9fa;
+}
+.qr-code-container { text-align: center; }
+@media (max-width: 768px) {
+  body { padding: 10px; }
+  .header { flex-direction: column; align-items: center; gap: 8px; text-align: center; }
+  .header > div:first-child { text-align: center; }
+  .header h1 { font-size: 20px; }
+  #total-income { font-size: 14px !important; }
+  #total-tips { font-size: 14px !important; }
+  #total-miles { font-size: 14px !important; }
+  .header > div:last-child { display: flex !important; gap: 12px !important; justify-content: center !important; flex-wrap: nowrap !important; width: 100%; }
+  .tabs { overflow-x: auto; flex-wrap: nowrap; padding-bottom: 8px; }
+  .tab { padding: 10px 16px; font-size: 13px; white-space: nowrap; }
+  .request-card { padding: 16px; }
+  .client-name { font-size: 18px; }
+  .detail-grid { grid-template-columns: 1fr; }
+  .counter-input { flex-direction: column; align-items: stretch; }
+  .counter-input input { width: 100%; }
+  .actions { flex-direction: column; }
+  .btn { width: 100%; padding: 12px 20px; }
+  .bid-section { padding: 12px; }
+  .client-card { padding: 12px; }
+  .client-header { flex-direction: column; align-items: flex-start; gap: 8px; }
+  .qr-code-section { padding: 20px 10px; margin: 12px 0; }
+  .qr-code-container img { width: 180px !important; height: 180px !important; }
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div>
+    <h1>Driver Dashboard</h1>
+    <div style="font-size:14px;">Patriot Transportation</div>
+  </div>
+  <div style="display:flex; gap:12px; flex-wrap:nowrap; justify-content:flex-end; align-items:flex-end;">
+    <div style="text-align:right;">
+      <div style="font-size:11px; color:rgba(255,255,255,0.8); margin-bottom:4px;">YTD Income</div>
+      <div id="total-income" style="font-size:22px; font-weight:bold;">$0.00</div>
+    </div>
+    <div style="text-align:right;">
+      <div style="font-size:11px; color:rgba(255,255,255,0.8); margin-bottom:4px;">YTD Tips</div>
+      <div id="total-tips" style="font-size:22px; font-weight:bold; color:#90ee90;">$0.00</div>
+    </div>
+    <div style="text-align:right;">
+      <div style="font-size:11px; color:rgba(255,255,255,0.8); margin-bottom:4px;">YTD Miles</div>
+      <div id="total-miles" style="font-size:22px; font-weight:bold; color:#87ceeb;">0.0</div>
+    </div>
+  </div>
+</div>
+
+<div class="tabs">
+  <div class="tab active" onclick="showTab('pending')">Pending Requests</div>
+  <div class="tab" onclick="showTab('quoted')">Quoted</div>
+  <div class="tab" onclick="showTab('confirmed')">Confirmed</div>
+  <div class="tab" onclick="showTab('completed')">Completed</div>
+  <div class="tab" onclick="showTab('cancelled')">Cancelled</div>
+  <div class="tab" onclick="showTab('clients')">Clients</div>
+  <div class="tab" onclick="showTab('tithe')">Tithe</div>
+</div>
+
+<div class="qr-code-section">
+  <div class="qr-code-container">
+    <div style="font-size: 14px; color: #666; margin-bottom: 12px; font-weight: 600;">Client Booking Portal</div>
+    <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=https://wsfv-llc.github.io/Patriot-Transportation/" alt="Client Dashboard QR Code" style="width: 200px; height: 200px; border: 3px solid #6b1f1f; border-radius: 8px;">
+    <div style="font-size: 12px; color: #999; margin-top: 8px;">bit.ly/4aEUCwW</div>
+  </div>
+</div>
+
+<div id="pending-tab">
+  <div id="pending-requests" class="loading">Loading...</div>
+</div>
+
+<div id="quoted-tab" style="display:none;">
+  <div id="quoted-requests" class="loading">Loading...</div>
+</div>
+
+<div id="confirmed-tab" style="display:none;">
+  <div id="confirmed-requests" class="loading">Loading...</div>
+</div>
+
+<div id="completed-tab" style="display:none;">
+  <div id="completed-requests" class="loading">Loading...</div>
+</div>
+
+<div id="cancelled-tab" style="display:none;">
+  <div style="margin-bottom:12px; text-align:right;">
+    <button class="btn btn-deny" id="delete-all-btn" onclick="deleteAllCancelled()" style="width:auto; padding:10px 20px;">🗑 Delete All Cancelled</button>
+  </div>
+  <div id="cancelled-requests" class="loading">Loading...</div>
+</div>
+
+<div id="clients-tab" style="display:none;">
+  <div class="calendar-view">
+    <div id="clients-list-view">
+      <h2 style="margin-bottom:16px; color:#6b1f1f;">All Clients</h2>
+      <input type="text" id="client-search" placeholder="Search by name or phone..." style="width:100%; padding:12px; border:2px solid #e0e0e0; border-radius:6px; margin-bottom:16px; font-size:15px;">
+      <div id="clients-list" class="loading">Loading...</div>
+    </div>
+    <div id="client-detail-view" style="display:none;"></div>
+  </div>
+</div>
+
+<div id="tithe-tab" style="display:none;">
+  <div class="calendar-view">
+    <h2 style="margin-bottom:16px; color:#6b1f1f;">Weekly Tithe Tracker</h2>
+    <p style="color:#666; margin-bottom:20px; font-size:14px;">10% of weekly income (Sunday - Saturday)</p>
+    <div id="tithe-view" class="loading">Loading...</div>
+  </div>
+</div>
+
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+import { getFirestore, collection, query, where, orderBy, onSnapshot, doc, updateDoc, deleteDoc, getDoc, getDocs, getDocsFromServer } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+
+const firebaseConfig = {
+  apiKey: "AIzaSyCU5gio9iuDF1wkY8lRJVN0ULHQxgujluM",
+  authDomain: "patriot-transportation.firebaseapp.com",
+  projectId: "patriot-transportation",
+  storageBucket: "patriot-transportation.firebasestorage.app",
+  messagingSenderId: "296569517357",
+  appId: "1:296569517357:web:61b82f2d2310c3bf5bcfa4"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+window.db = db;
+window.updateDoc = updateDoc;
+window.doc = doc;
+window.deleteDoc = deleteDoc;
+window.getDoc = getDoc;
+window.getDocs = getDocs;
+window.getDocsFromServer = getDocsFromServer;
+window.query = query;
+window.collection = collection;
+window.where = where;
+window.orderBy = orderBy;
+window.onSnapshot = onSnapshot;
+
+// Load pending requests
+const pendingQuery = query(collection(db, 'ride_requests'), where('status', '==', 'pending'), orderBy('created_at', 'desc'));
+onSnapshot(pendingQuery, (snapshot) => { displayRequests(snapshot, 'pending-requests'); });
+
+// Load quoted requests
+const quotedQuery = query(collection(db, 'ride_requests'), where('status', '==', 'quoted'), orderBy('created_at', 'desc'));
+onSnapshot(quotedQuery, (snapshot) => { displayRequests(snapshot, 'quoted-requests'); });
+
+// Load confirmed requests
+const confirmedQuery = query(collection(db, 'ride_requests'), where('status', '==', 'confirmed'), orderBy('pickup_date', 'asc'));
+onSnapshot(confirmedQuery, (snapshot) => {
+  const rides = [];
+  snapshot.forEach(doc => rides.push({id: doc.id, data: doc.data()}));
+  rides.sort((a, b) => {
+    const dateTimeA = new Date(a.data.pickup_date + ' ' + a.data.pickup_time);
+    const dateTimeB = new Date(b.data.pickup_date + ' ' + b.data.pickup_time);
+    return dateTimeA - dateTimeB;
+  });
+  displayRequestsSorted(rides, 'confirmed-requests');
 });
 
-self.addEventListener('activate', event => {
-  event.waitUntil(
-    caches.keys().then(keys =>
-      Promise.all(keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k)))
-    )
-  );
-  self.clients.claim();
+// Get start of current week (Sunday) in local time
+function getCurrentWeekSunday() {
+  const now = new Date();
+  const sunday = new Date(now.getFullYear(), now.getMonth(), now.getDate() - now.getDay());
+  sunday.setHours(0, 0, 0, 0);
+  return sunday;
+}
+
+// Get end of current week (Saturday) in local time
+function getCurrentWeekSaturday() {
+  const sunday = getCurrentWeekSunday();
+  const saturday = new Date(sunday.getFullYear(), sunday.getMonth(), sunday.getDate() + 6);
+  saturday.setHours(23, 59, 59, 999);
+  return saturday;
+}
+
+// Load completed requests — current week only
+const completedQuery = query(collection(db, 'ride_requests'), where('status', 'in', ['completed', 'paid']), orderBy('pickup_date', 'desc'));
+onSnapshot(completedQuery, (snapshot) => {
+  const sunday = getCurrentWeekSunday();
+  const saturday = getCurrentWeekSaturday();
+  const visibleRides = [];
+  snapshot.forEach(doc => {
+    const data = doc.data();
+    if (data.hidden_from_completed) return;
+    // Parse pickup_date as local date to avoid UTC shift
+    const parts = (data.pickup_date || '').split('-').map(Number);
+    if (parts.length !== 3) return;
+    const rideDate = new Date(parts[0], parts[1] - 1, parts[2]);
+    if (rideDate >= sunday && rideDate <= saturday) {
+      visibleRides.push({id: doc.id, data: data});
+    }
+  });
+  displayFilteredRequests(visibleRides, 'completed-requests');
 });
 
-self.addEventListener('fetch', event => {
-  const url = new URL(event.request.url);
-  
-  // Always network-first for HTML files, Firebase, Google APIs, Make.com
-  if (
-    url.hostname.includes('firebase') ||
-    url.hostname.includes('googleapis') ||
-    url.hostname.includes('make.com') ||
-    event.request.destination === 'document' ||
-    url.pathname.endsWith('.html')
-  ) {
-    event.respondWith(
-      fetch(event.request).catch(() => caches.match(event.request))
-    );
+// Load cancelled requests
+const cancelledQuery = query(collection(db, 'ride_requests'), where('status', '==', 'cancelled'), orderBy('created_at', 'desc'));
+onSnapshot(cancelledQuery, (snapshot) => { displayRequests(snapshot, 'cancelled-requests'); });
+
+// Calculate total income from paid rides
+const paidQuery = query(collection(db, 'ride_requests'), where('status', '==', 'paid'));
+onSnapshot(paidQuery, (snapshot) => {
+  const currentYear = new Date().getFullYear();
+  let totalIncome = 0;
+  let totalTips = 0;
+  let totalMiles = 0;
+  snapshot.forEach((doc) => {
+    const data = doc.data();
+    if (data.final_price) totalIncome += data.final_price;
+    if (data.tip) totalTips += data.tip;
+    // Only count miles for current year based on paid_at
+    if (data.trip_miles && data.paid_at) {
+      const paidYear = new Date(data.paid_at.seconds * 1000).getFullYear();
+      if (paidYear === currentYear) totalMiles += data.trip_miles;
+    }
+  });
+  document.getElementById('total-income').textContent = '$' + totalIncome.toFixed(2);
+  document.getElementById('total-tips').textContent = '$' + totalTips.toFixed(2);
+  document.getElementById('total-miles').textContent = totalMiles.toFixed(1);
+});
+
+function displayRequests(snapshot, containerId) {
+  const container = document.getElementById(containerId);
+  if (snapshot.empty) { container.innerHTML = '<div class="empty-state">No requests yet</div>'; return; }
+  container.innerHTML = '';
+  snapshot.forEach((doc) => { container.innerHTML += createRequestCard(doc.id, doc.data()); });
+}
+
+function displayRequestsSorted(ridesArray, containerId) {
+  const container = document.getElementById(containerId);
+  if (ridesArray.length === 0) { container.innerHTML = '<div class="empty-state">No requests yet</div>'; return; }
+  container.innerHTML = '';
+  ridesArray.forEach((ride) => {
+    if (containerId === 'confirmed-requests') {
+      container.innerHTML += createConfirmedCard(ride.id, ride.data);
+    } else {
+      container.innerHTML += createRequestCard(ride.id, ride.data);
+    }
+  });
+}
+
+function displayFilteredRequests(ridesArray, containerId) {
+  const container = document.getElementById(containerId);
+  if (ridesArray.length === 0) { container.innerHTML = '<div class="empty-state">No rides this week</div>'; return; }
+  container.innerHTML = '';
+  ridesArray.forEach((ride) => {
+    if (containerId === 'completed-requests') {
+      container.innerHTML += createCompletedCard(ride.id, ride.data);
+    } else {
+      container.innerHTML += createRequestCard(ride.id, ride.data);
+    }
+  });
+}
+
+function createRequestCard(id, data) {
+  const statusClass = `status-${data.status}`;
+  const amount = (data.final_price !== undefined && data.final_price !== null) ? data.final_price : (data.client_bid || 0);
+  const tip = (data.tip !== undefined && data.tip !== null) ? data.tip : 0;
+
+  let actionButtons = '';
+
+  if (data.status === 'pending') {
+    actionButtons = `
+      <div class="counter-input" style="margin-bottom:12px;">
+        <span style="font-weight:600;">Adjust Amount: $</span>
+        <input type="number" id="edit-${id}" value="${amount.toFixed(2)}" min="0" step="0.01">
+      </div>
+      <div class="actions">
+        <button class="btn btn-accept" onclick="acceptQuote('${id}')">Accept &amp; Confirm</button>
+        <button class="btn btn-deny" onclick="denyRequest('${id}')">Deny Request</button>
+      </div>`;
+  } else if (data.status === 'quoted') {
+    actionButtons = `
+      <div class="actions">
+        <button class="btn btn-accept" onclick="acceptOnBehalf('${id}')">Accept on Client's Behalf</button>
+        <button class="btn btn-deny" onclick="cancelRide('${id}')">Cancel Quote</button>
+      </div>`;
+  } else if (data.status === 'confirmed') {
+    actionButtons = `
+      <div style="display:flex; gap:8px; margin-bottom:12px;">
+        <div style="flex:1;">
+          <span style="font-weight:600; font-size:13px; display:block; margin-bottom:4px;">Pickup Date:</span>
+          <input type="date" id="edit-date-${id}" value="${data.pickup_date}" style="width:100%; padding:8px; border:2px solid #6b1f1f; border-radius:4px; font-size:14px;">
+        </div>
+        <div style="flex:1;">
+          <span style="font-weight:600; font-size:13px; display:block; margin-bottom:4px;">Pickup Time:</span>
+          <input type="time" id="edit-time-${id}" value="${data.pickup_time}" style="width:100%; padding:8px; border:2px solid #6b1f1f; border-radius:4px; font-size:14px;">
+        </div>
+      </div>
+      <button class="btn btn-counter" style="margin-bottom:12px;" onclick="updateDateTime('${id}')">Update Date/Time</button>
+      <div style="margin-bottom:12px;">
+        <span style="font-weight:600; font-size:13px; display:block; margin-bottom:4px;">Notes:</span>
+        <textarea id="edit-notes-${id}" rows="2" style="width:100%; padding:8px; border:2px solid #6b1f1f; border-radius:4px; font-size:14px; font-family:inherit;">${data.notes || ''}</textarea>
+        <button class="btn btn-counter" style="margin-top:6px;" onclick="updateNotes('${id}')">Save Notes</button>
+      </div>
+      <div class="counter-input" style="margin-bottom:12px;">
+        <span style="font-weight:600;">Edit Amount: $</span>
+        <input type="number" id="edit-${id}" value="${amount.toFixed(2)}" min="0" step="0.01">
+      </div>
+      <div class="actions">
+        <button class="btn btn-counter" onclick="updatePaidAmount('${id}')">Update Amount</button>
+        <button class="btn btn-paid" onclick="markAsComplete('${id}')">Ride Complete</button>
+        <button class="btn btn-deny" onclick="cancelRide('${id}')">Cancel Ride</button>
+      </div>`;
+  } else if (data.status === 'completed') {
+    actionButtons = `
+      <div class="actions">
+        <button class="btn btn-paid" onclick="markAsPaid('${id}')">Mark as Paid</button>
+        <button class="btn btn-deny" onclick="cancelRide('${id}')">Cancel Ride</button>
+      </div>`;
+  } else if (data.status === 'paid') {
+    actionButtons = `
+      <div class="counter-input" style="margin-bottom:12px;">
+        <span style="font-weight:600;">Edit Amount: $</span>
+        <input type="number" id="edit-${id}" value="${amount.toFixed(2)}" min="0" step="0.01">
+      </div>
+      <div class="counter-input" style="margin-bottom:12px;">
+        <span style="font-weight:600; white-space:nowrap;">Payment Method:</span>
+        <input type="text" id="payment-method-${id}" value="${data.payment_method || ''}" placeholder="e.g. Credit Card ending in 1234" style="flex:1;">
+      </div>
+      <div class="counter-input" style="margin-bottom:12px;">
+        <span style="font-weight:600; white-space:nowrap;">Tip: $</span>
+        <input type="number" id="tip-${id}" value="${tip.toFixed(2)}" min="0" step="0.01" style="flex:1;">
+      </div>
+      <div class="actions">
+        <button class="btn btn-counter" onclick="updatePaidAmount('${id}')">Update Amount</button>
+        <button class="btn btn-counter" onclick="updatePaymentMethod('${id}')">Update Payment</button>
+        <button class="btn btn-counter" onclick="updateTip('${id}')">Save Tip</button>
+        <button class="btn btn-receipt" onclick="generateReceipt('${id}')">View Receipt</button>
+        <button class="btn btn-counter" onclick="undoPaid('${id}')">Undo Paid</button>
+        <button class="btn" style="background:#6c757d; color:white;" onclick="hideRide('${id}')">Hide</button>
+        <button class="btn btn-deny" onclick="deleteRide('${id}')">Delete</button>
+      </div>`;
+  } else if (data.status === 'cancelled') {
+    actionButtons = `
+      <div class="actions">
+        <button class="btn btn-accept" onclick="restoreRide('${id}')">Restore to Confirmed</button>
+        <button class="btn btn-deny" onclick="deleteRide('${id}')">Delete</button>
+      </div>`;
+  }
+
+  return `
+    <div class="request-card">
+      <div class="request-header">
+        <div class="client-name">${data.client_name}</div>
+        <div class="status-badge ${statusClass}">${data.status}</div>
+      </div>
+      <div class="detail-grid">
+        <div class="detail-item"><div class="detail-label">Phone</div><div class="detail-value">${createPhoneLink(data.client_phone)}</div></div>
+        <div class="detail-item"><div class="detail-label">Email</div><div class="detail-value">${data.client_email}</div></div>
+        <div class="detail-item"><div class="detail-label">Date & Time</div><div class="detail-value">${data.pickup_date} at ${data.pickup_time}</div></div>
+        <div class="detail-item"><div class="detail-label">Passengers</div><div class="detail-value">${data.passengers} passengers</div></div>
+      </div>
+      <div class="detail-item" style="margin-bottom:12px;">
+        <div class="detail-label">Route</div>
+        <div class="detail-value">
+          <span class="address-link" data-address="${data.pickup_address.replace(/"/g, '&quot;')}" onclick="event.stopPropagation(); showMapMenu(this.dataset.address, event)" style="color:#6b1f1f; text-decoration:underline; cursor:pointer;">${data.pickup_address}</span>
+          →
+          <span class="address-link" data-address="${data.dropoff_address.replace(/"/g, '&quot;')}" onclick="event.stopPropagation(); showMapMenu(this.dataset.address, event)" style="color:#6b1f1f; text-decoration:underline; cursor:pointer;">${data.dropoff_address}</span>
+        </div>
+      </div>
+      <div class="detail-item" style="margin-bottom:12px;">
+        <div class="detail-label">Luggage</div>
+        <div class="detail-value">${data.luggage_type}</div>
+      </div>
+      ${data.notes ? `<div class="detail-item" style="margin-bottom:12px;"><div class="detail-label">Notes</div><div class="detail-value">${formatNotes(data.notes)}</div></div>` : ''}
+      <div class="bid-section">
+        <div class="bid-row"><span class="bid-label">Trip Distance:</span><span style="font-size:18px; font-weight:600;">${data.trip_miles ? data.trip_miles.toFixed(1) + ' miles' : 'N/A'}</span></div>
+        <div class="bid-row"><span class="bid-label">Quoted Price:</span><span class="bid-amount">$${(data.final_price !== undefined && data.final_price !== null ? data.final_price : (data.quoted_price || 0)).toFixed(2)}</span></div>
+        ${(data.tip !== undefined && data.tip !== null && data.tip > 0) ? `<div class="bid-row"><span class="bid-label">Tip:</span><span style="font-size:18px; font-weight:600; color:#28a745;">$${data.tip.toFixed(2)}</span></div>` : ''}
+      </div>
+      ${actionButtons}
+    </div>`;
+}
+
+window.createRequestCard = createRequestCard;
+
+// ── ACCORDION CARD FOR CONFIRMED RIDES ────────────────────────────────────
+function createConfirmedCard(id, data) {
+  const amount = (data.final_price !== undefined && data.final_price !== null) ? data.final_price : (data.quoted_price || 0);
+
+  const fullBody = `
+    <div class="trip-bar">
+      <span style="color:#666;">${data.trip_miles ? data.trip_miles.toFixed(1) + ' miles' : 'N/A'}</span>
+      <span class="trip-bar-price">$${amount.toFixed(2)}</span>
+    </div>
+    <div class="compact-grid">
+      <div class="compact-item"><div class="compact-label">Phone</div><div class="compact-value">${createPhoneLink(data.client_phone)}</div></div>
+      <div class="compact-item"><div class="compact-label">Email</div><div class="compact-value" style="font-size:11px; word-break:break-all;">${data.client_email}</div></div>
+      <div class="compact-item"><div class="compact-label">Passengers</div><div class="compact-value">${data.passengers}</div></div>
+      <div class="compact-item"><div class="compact-label">Luggage</div><div class="compact-value" style="font-size:11px;">${data.luggage_type}</div></div>
+    </div>
+    <div style="font-size:12px; color:#666; margin-bottom:8px; line-height:1.4;">
+      <span class="address-link" data-address="${data.pickup_address.replace(/"/g, '&quot;')}" onclick="event.stopPropagation(); showMapMenu(this.dataset.address, event)" style="color:#6b1f1f; text-decoration:underline; cursor:pointer;">${data.pickup_address}</span>
+      <span style="color:#999;"> → </span>
+      <span class="address-link" data-address="${data.dropoff_address.replace(/"/g, '&quot;')}" onclick="event.stopPropagation(); showMapMenu(this.dataset.address, event)" style="color:#6b1f1f; text-decoration:underline; cursor:pointer;">${data.dropoff_address}</span>
+    </div>
+    ${data.notes ? `
+    <div style="font-size:12px; color:#555; background:#f8f9fa; padding:6px 8px; border-radius:4px; margin-bottom:8px;">
+      📝 ${formatNotes(data.notes)}
+      <button class="edit-toggle" onclick="toggleEditSection('notes-edit-${id}')" title="Edit notes">✏️</button>
+    </div>
+    <div class="edit-section" id="notes-edit-${id}">
+      <textarea id="edit-notes-${id}" rows="2" style="width:100%; padding:8px; border:1px solid #e0c0c0; border-radius:4px; font-size:13px; font-family:inherit;">${data.notes || ''}</textarea>
+      <button class="btn btn-counter" style="margin-top:6px; padding:6px 12px; font-size:12px;" onclick="updateNotes('${id}')">Save</button>
+    </div>` : `
+    <div style="font-size:12px; color:#999; margin-bottom:8px;">
+      No notes
+      <button class="edit-toggle" onclick="toggleEditSection('notes-edit-${id}')" title="Add notes">✏️</button>
+    </div>
+    <div class="edit-section" id="notes-edit-${id}">
+      <textarea id="edit-notes-${id}" rows="2" style="width:100%; padding:8px; border:1px solid #e0c0c0; border-radius:4px; font-size:13px; font-family:inherit;"></textarea>
+      <button class="btn btn-counter" style="margin-top:6px; padding:6px 12px; font-size:12px;" onclick="updateNotes('${id}')">Save</button>
+    </div>`}
+
+    <div style="font-size:12px; color:#666; margin-bottom:4px;">
+      📅 ${data.pickup_date} at ${data.pickup_time}
+      <button class="edit-toggle" onclick="toggleEditSection('dt-edit-${id}')" title="Edit date/time">✏️</button>
+    </div>
+    <div class="edit-section" id="dt-edit-${id}">
+      <div style="display:flex; gap:8px;">
+        <input type="date" id="edit-date-${id}" value="${data.pickup_date}" style="flex:1; padding:6px; border:1px solid #e0c0c0; border-radius:4px; font-size:13px;">
+        <input type="time" id="edit-time-${id}" value="${data.pickup_time}" style="flex:1; padding:6px; border:1px solid #e0c0c0; border-radius:4px; font-size:13px;">
+      </div>
+      <button class="btn btn-counter" style="margin-top:6px; padding:6px 12px; font-size:12px; width:100%;" onclick="updateDateTime('${id}')">Save Date/Time</button>
+    </div>
+
+    <div style="font-size:12px; color:#666; margin-bottom:4px;">
+      💵 $${amount.toFixed(2)}
+      <button class="edit-toggle" onclick="toggleEditSection('amt-edit-${id}')" title="Edit amount">✏️</button>
+    </div>
+    <div class="edit-section" id="amt-edit-${id}">
+      <div style="display:flex; gap:8px; align-items:center;">
+        <span style="font-size:13px;">$</span>
+        <input type="number" id="edit-${id}" value="${amount.toFixed(2)}" min="0" step="0.01" style="flex:1; padding:6px; border:1px solid #e0c0c0; border-radius:4px; font-size:13px;">
+        <button class="btn btn-counter" style="padding:6px 12px; font-size:12px;" onclick="updatePaidAmount('${id}')">Save</button>
+      </div>
+    </div>
+
+    <div class="edit-section" id="paid-now-${id}">
+      <div style="margin-bottom:8px;">
+        <label style="font-size:12px; font-weight:600; color:#6b1f1f; display:block; margin-bottom:4px;">Payment Method</label>
+        <select id="pay-method-${id}" style="width:100%; padding:8px; border:1px solid #e0c0c0; border-radius:4px; font-size:14px; background:white;">
+          <option value="CashApp">CashApp</option>
+          <option value="Venmo">Venmo</option>
+          <option value="PayPal">PayPal</option>
+          <option value="Square">Square</option>
+          <option value="Cash">Cash</option>
+          <option value="Other">Other</option>
+        </select>
+      </div>
+      <div style="margin-bottom:10px;">
+        <label style="font-size:12px; font-weight:600; color:#6b1f1f; display:block; margin-bottom:4px;">Tip Amount</label>
+        <div style="display:flex; align-items:center; gap:6px;">
+          <span style="font-size:14px;">$</span>
+          <input type="number" id="pay-tip-${id}" value="0.00" min="0" step="0.01" autocomplete="off" style="flex:1; padding:8px; border:1px solid #e0c0c0; border-radius:4px; font-size:14px;">
+        </div>
+      </div>
+      <button class="btn btn-paid" style="width:100%; padding:10px; font-size:14px;" onclick="confirmPayment('${id}')">✓ Confirm Payment</button>
+      <button class="edit-toggle" style="width:100%; text-align:center; margin-top:6px; font-size:12px; color:#999;" onclick="toggleEditSection('paid-now-${id}')">Cancel</button>
+    </div>
+    <div class="icon-btn-row">
+      <button class="btn btn-paid" style="flex:1; padding:10px; font-size:13px; border-radius:6px;" onclick="toggleEditSection('paid-now-${id}')">💳 Paid Now</button>
+      <button class="btn btn-counter" style="flex:1; padding:10px; font-size:13px; border-radius:6px;" onclick="markAsComplete('${id}')">✓ Unpaid</button>
+      <button class="icon-btn red" onclick="cancelRide('${id}')" title="Cancel Ride">🚫</button>
+    </div>`;
+
+  return `
+    <div class="confirmed-card" id="confirmed-card-${id}">
+      <div class="confirmed-card-header" onclick="toggleConfirmed('${id}')">
+        <div class="confirmed-card-left">
+          <div class="confirmed-card-name">${data.client_name}</div>
+          <div class="confirmed-card-time">${data.pickup_date} at ${data.pickup_time}</div>
+          <div class="confirmed-card-address">${data.pickup_address}</div>
+        </div>
+        <div class="confirmed-card-chevron" id="chevron-${id}">▼</div>
+      </div>
+      <div class="confirmed-card-body" id="body-${id}">
+        ${fullBody}
+      </div>
+    </div>`;
+}
+
+function toggleConfirmed(id) {
+  const body = document.getElementById('body-' + id);
+  const chevron = document.getElementById('chevron-' + id);
+  const header = chevron.parentElement;
+  const isOpen = body.classList.contains('open');
+  body.classList.toggle('open', !isOpen);
+  chevron.classList.toggle('open', !isOpen);
+  header.classList.toggle('open', !isOpen);
+}
+window.toggleConfirmed = toggleConfirmed;
+window.createConfirmedCard = createConfirmedCard;
+
+function toggleEditSection(sectionId) {
+  const section = document.getElementById(sectionId);
+  if (section) section.classList.toggle('open');
+}
+window.toggleEditSection = toggleEditSection;
+
+// ── ACCORDION CARD FOR COMPLETED RIDES ───────────────────────────────────
+function createCompletedCard(id, data) {
+  const amount = (data.final_price !== undefined && data.final_price !== null) ? data.final_price : (data.quoted_price || 0);
+  const tip = (data.tip !== undefined && data.tip !== null && data.tip > 0) ? data.tip : 0;
+  const statusClass = `status-${data.status}`;
+
+  let actionButtons = '';
+  if (data.status === 'completed') {
+    actionButtons = `
+      <div class="icon-btn-row">
+        <button class="icon-btn green" onclick="markAsPaid('${id}')" title="Mark as Paid">💳</button>
+        <button class="icon-btn yellow" onclick="undoComplete('${id}')" title="Undo Complete">↩️</button>
+        <button class="icon-btn red" onclick="cancelRide('${id}')" title="Cancel Ride">🚫</button>
+      </div>`;
+  } else if (data.status === 'paid') {
+    actionButtons = `
+      <div style="font-size:12px; color:#666; margin-bottom:4px;">
+        💵 $${amount.toFixed(2)}
+        <button class="edit-toggle" onclick="toggleEditSection('comp-amt-${id}')" title="Edit amount">✏️</button>
+      </div>
+      <div class="edit-section" id="comp-amt-${id}">
+        <div style="display:flex; gap:8px; align-items:center; margin-bottom:6px;">
+          <span style="font-size:13px;">$</span>
+          <input type="number" id="edit-${id}" value="${amount.toFixed(2)}" min="0" step="0.01" style="flex:1; padding:6px; border:1px solid #e0c0c0; border-radius:4px; font-size:13px;">
+          <button class="btn btn-counter" style="padding:6px 12px; font-size:12px;" onclick="updatePaidAmount('${id}')">Save</button>
+        </div>
+      </div>
+      <div style="font-size:12px; color:#666; margin-bottom:4px;">
+        💳 ${data.payment_method || 'No payment method'}
+        <button class="edit-toggle" onclick="toggleEditSection('comp-pay-${id}')" title="Edit payment method">✏️</button>
+      </div>
+      <div class="edit-section" id="comp-pay-${id}">
+        <div style="display:flex; gap:8px; align-items:center;">
+          <input type="text" id="payment-method-${id}" value="${data.payment_method || ''}" placeholder="e.g. Credit Card ending in 1234" style="flex:1; padding:6px; border:1px solid #e0c0c0; border-radius:4px; font-size:13px;">
+          <button class="btn btn-counter" style="padding:6px 12px; font-size:12px;" onclick="updatePaymentMethod('${id}')">Save</button>
+        </div>
+      </div>
+      <div style="font-size:12px; color:#666; margin-bottom:4px;">
+        💰 Tip: $${tip.toFixed(2)}
+        <button class="edit-toggle" onclick="toggleEditSection('comp-tip-${id}')" title="Edit tip">✏️</button>
+      </div>
+      <div class="edit-section" id="comp-tip-${id}">
+        <div style="display:flex; gap:8px; align-items:center;">
+          <span style="font-size:13px;">$</span>
+          <input type="number" id="tip-${id}" value="${tip.toFixed(2)}" min="0" step="0.01" style="flex:1; padding:6px; border:1px solid #e0c0c0; border-radius:4px; font-size:13px;">
+          <button class="btn btn-counter" style="padding:6px 12px; font-size:12px;" onclick="updateTip('${id}')">Save</button>
+        </div>
+      </div>
+      <div class="icon-btn-row">
+        <button class="icon-btn blue" onclick="generateReceipt('${id}')" title="View Receipt">🧾</button>
+        <button class="icon-btn yellow" onclick="undoPaid('${id}')" title="Undo Paid">↩️</button>
+        <button class="icon-btn grey" onclick="hideRide('${id}')" title="Hide Ride">👁️</button>
+        <button class="icon-btn red" onclick="deleteRide('${id}')" title="Delete Ride">🗑️</button>
+      </div>`;
+  }
+
+  return `
+    <div class="completed-card" id="completed-card-${id}">
+      <div class="completed-card-header" onclick="toggleCompleted('${id}')">
+        <div style="flex:1;">
+          <div class="completed-card-name">${data.client_name}</div>
+          <div class="completed-card-meta">${data.pickup_date} at ${data.pickup_time}</div>
+          <div class="completed-card-address">${data.pickup_address}</div>
+        </div>
+        <div class="completed-card-right">
+          <div>
+            <div class="completed-card-amount">$${amount.toFixed(2)}</div>
+            ${tip > 0 ? `<div style="font-size:11px; color:#28a745; text-align:right;">+$${tip.toFixed(2)} tip</div>` : ''}
+            <div><span class="status-badge ${statusClass}" style="font-size:10px;">${data.status}</span></div>
+          </div>
+          <div class="completed-card-chevron" id="comp-chevron-${id}">▼</div>
+        </div>
+      </div>
+      <div class="completed-card-body" id="comp-body-${id}">
+        <div style="font-size:12px; color:#666; margin-bottom:8px; line-height:1.4;">
+          <span class="address-link" data-address="${data.pickup_address.replace(/"/g, '&quot;')}" onclick="event.stopPropagation(); showMapMenu(this.dataset.address, event)" style="color:#6b1f1f; text-decoration:underline; cursor:pointer;">${data.pickup_address}</span>
+          <span style="color:#999;"> → </span>
+          <span class="address-link" data-address="${data.dropoff_address.replace(/"/g, '&quot;')}" onclick="event.stopPropagation(); showMapMenu(this.dataset.address, event)" style="color:#6b1f1f; text-decoration:underline; cursor:pointer;">${data.dropoff_address}</span>
+        </div>
+        <div class="compact-grid" style="margin-bottom:8px;">
+          <div class="compact-item"><div class="compact-label">Phone</div><div class="compact-value">${createPhoneLink(data.client_phone)}</div></div>
+          <div class="compact-item"><div class="compact-label">Passengers</div><div class="compact-value">${data.passengers}</div></div>
+        </div>
+        ${data.notes ? `<div style="font-size:12px; color:#555; background:#f8f9fa; padding:6px 8px; border-radius:4px; margin-bottom:8px;">📝 ${formatNotes(data.notes)}</div>` : ''}
+        ${actionButtons}
+      </div>
+    </div>`;
+}
+
+function toggleCompleted(id) {
+  const body = document.getElementById('comp-body-' + id);
+  const chevron = document.getElementById('comp-chevron-' + id);
+  const header = chevron.closest('.completed-card-header');
+  const isOpen = body.classList.contains('open');
+  body.classList.toggle('open', !isOpen);
+  chevron.classList.toggle('open', !isOpen);
+  header.classList.toggle('open', !isOpen);
+}
+window.createCompletedCard = createCompletedCard;
+window.toggleCompleted = toggleCompleted;
+
+// Build a clickable phone number that opens a Call/Text choice menu
+function createPhoneLink(phone) {
+  if (!phone) return '';
+  const digits = phone.replace(/\D/g, '');
+  return `<span class="phone-link" onclick="event.stopPropagation(); showPhoneMenu('${digits}', event)" style="color:#6b1f1f; text-decoration:underline; cursor:pointer;">${phone}</span>`;
+}
+window.createPhoneLink = createPhoneLink;
+</script>
+
+<script>
+let currentTab = 'pending';
+
+// ── FLIGHT DETECTION ──────────────────────────────────────────────────────
+const AIRLINE_MAP = {
+  // Delta
+  'delta': 'DAL', 'dl': 'DAL', 'delta air lines': 'DAL', 'delta airlines': 'DAL',
+  // United
+  'united': 'UAL', 'ua': 'UAL', 'united airlines': 'UAL', 'united air lines': 'UAL',
+  // American
+  'american': 'AAL', 'aa': 'AAL', 'american airlines': 'AAL', 'american air lines': 'AAL',
+  // Southwest
+  'southwest': 'SWA', 'wn': 'SWA', 'sw': 'SWA', 'swa': 'SWA', 'southwest airlines': 'SWA',
+  // Alaska
+  'alaska': 'ASA', 'as': 'ASA', 'ak': 'ASA', 'alaska airlines': 'ASA',
+  // JetBlue
+  'jetblue': 'JBU', 'b6': 'JBU', 'jb': 'JBU', 'jetblue airways': 'JBU', 'jetblue airlines': 'JBU',
+  // Spirit
+  'spirit': 'NKS', 'nk': 'NKS', 'spirit airlines': 'NKS',
+  // Frontier
+  'frontier': 'FFT', 'f9': 'FFT', 'frontier airlines': 'FFT',
+  // Allegiant
+  'allegiant': 'AAY', 'g4': 'AAY', 'allegiant air': 'AAY', 'allegiant airlines': 'AAY',
+  // Sun Country
+  'sun country': 'SCX', 'sy': 'SCX', 'sun country airlines': 'SCX'
+};
+
+function detectFlight(text) {
+  if (!text) return null;
+  // Normalize: lowercase, remove punctuation
+  let t = text.toLowerCase().trim();
+  // Strip leading words like 'flight', 'flt'
+  t = t.replace(/^(flight|flt)\s+/i, '');
+  // Strip trailing words like 'airlines', 'airways', 'air lines', 'air'
+  t = t.replace(/\s+(airlines|airways|air lines|air)\b/gi, '');
+  // Try to match airline name/code + optional 'flight'/'flt' + number
+  // Pattern: (airline)(optional space)(optional flight/flt)(optional space)(number)
+  const pattern = /^(.+?)\s*(?:flight|flt)?\s*(\d{1,4}[a-z]?)$/i;
+  const m = t.match(pattern);
+  if (!m) return null;
+  const airlineRaw = m[1].trim().toLowerCase();
+  const flightNum = m[2].trim().toUpperCase();
+  const code = AIRLINE_MAP[airlineRaw];
+  if (!code) return null;
+  return code + flightNum;
+}
+
+function formatNotes(notes) {
+  if (!notes) return '';
+  // Split into sentences/segments and look for flight numbers
+  const flightId = detectFlight(notes.trim());
+  if (flightId) {
+    const url = 'https://flightaware.com/live/flight/' + flightId;
+    return notes + ' <a href="' + url + '" target="_blank" style="color:#6b1f1f; font-weight:700; text-decoration:underline;">✈ Track ' + flightId + '</a>';
+  }
+  // Also check if a flight number appears anywhere within a longer note
+  const inlinePattern = /\b(delta|dl|united|ua|american|aa|southwest|wn|sw|swa|alaska|as|ak|jetblue|b6|jb|spirit|nk|frontier|f9|allegiant|g4|sun country|sy)\s*(?:airlines?|airways?|air lines?)?\s*(?:flight|flt)?\s*(\d{1,4}[a-z]?)\b/gi;
+  let matched = false;
+  const formatted = notes.replace(inlinePattern, (match, airline, num) => {
+    const code = AIRLINE_MAP[airline.toLowerCase().replace(/\s*(airlines?|airways?|air lines?|air)\s*/gi, '').trim()];
+    if (!code) return match;
+    const flightId = code + num.toUpperCase();
+    const url = 'https://flightaware.com/live/flight/' + flightId;
+    matched = true;
+    return match + ' <a href="' + url + '" target="_blank" style="color:#6b1f1f; font-weight:700; text-decoration:underline;">✈ Track ' + flightId + '</a>';
+  });
+  return matched ? formatted : notes;
+}
+let allClientsData = null;
+
+function showTab(tab) {
+  currentTab = tab;
+  document.getElementById('pending-tab').style.display = 'none';
+  document.getElementById('quoted-tab').style.display = 'none';
+  document.getElementById('confirmed-tab').style.display = 'none';
+  document.getElementById('completed-tab').style.display = 'none';
+  document.getElementById('cancelled-tab').style.display = 'none';
+  document.getElementById('clients-tab').style.display = 'none';
+  document.getElementById('tithe-tab').style.display = 'none';
+  document.getElementById(tab + '-tab').style.display = 'block';
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  event.target.classList.add('active');
+  if (tab === 'clients') loadClients();
+  if (tab === 'tithe') loadTitheData();
+}
+
+async function acceptQuote(id) {
+  const input = document.getElementById('edit-' + id);
+  const adjustedAmount = input ? parseFloat(input.value) : null;
+  if (input && (isNaN(adjustedAmount) || adjustedAmount < 0)) {
+    alert('Please enter a valid amount (minimum $0)');
     return;
   }
-  
-  // Cache-first for static assets (images, icons)
-  event.respondWith(
-    caches.match(event.request).then(cached => cached || fetch(event.request))
+  if (!confirm('Accept this booking and confirm the ride?')) return;
+  try {
+    await window.updateDoc(window.doc(window.db, 'ride_requests', id), {
+      status: 'confirmed', confirmed_at: new Date(), ...(adjustedAmount !== null ? { final_price: adjustedAmount } : {})
+    });
+    const rideDoc = await window.getDoc(window.doc(window.db, 'ride_requests', id));
+    const rideData = rideDoc.data();
+    try {
+      fetch('https://hook.us2.make.com/zlo5peda4fwlrz2nk7m1hakc4dxjblw1', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ...rideData, ride_id: id })
+      }).then(r => r.json()).then(data => {
+        if (data.event_id) window.updateDoc(window.doc(window.db, 'ride_requests', id), { calendar_event_id: data.event_id }).catch(err => console.log(err));
+      }).catch(err => console.log('Calendar webhook error:', err));
+    } catch(err) { console.log('Calendar webhook exception:', err); }
+    try {
+      fetch('https://hook.us2.make.com/mmahpsdtba3je2iomxuxyse6h7kv4awx', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'accepted', client_name: rideData.client_name, client_email: rideData.client_email, pickup_address: rideData.pickup_address, pickup_date: rideData.pickup_date, pickup_time: rideData.pickup_time, dropoff_address: rideData.dropoff_address, final_price: rideData.final_price })
+      }).catch(err => console.log(err));
+    } catch(err) { console.log(err); }
+    alert('Bid accepted and booking confirmed! Client will receive an email.');
+  } catch (error) { alert('Error accepting bid: ' + error.message); }
+}
+window.acceptQuote = acceptQuote;
+
+// Register PWA service worker
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js').catch(err => console.log('SW registration failed:', err));
+  });
+}
+
+// Show a small Call/Text choice menu near the tapped phone number
+function showPhoneMenu(digits, event) {
+  // Remove any existing menu first
+  const existing = document.getElementById('phone-menu-popup');
+  if (existing) existing.remove();
+
+  const menu = document.createElement('div');
+  menu.id = 'phone-menu-popup';
+  menu.style.position = 'fixed';
+  menu.style.zIndex = '9999';
+  menu.style.background = 'white';
+  menu.style.border = '2px solid #6b1f1f';
+  menu.style.borderRadius = '8px';
+  menu.style.boxShadow = '0 4px 16px rgba(0,0,0,0.3)';
+  menu.style.overflow = 'hidden';
+  menu.style.minWidth = '140px';
+
+  menu.innerHTML = `
+    <a href="tel:${digits}" style="display:block; padding:12px 16px; color:#6b1f1f; text-decoration:none; font-weight:600; border-bottom:1px solid #eee;">📞 Call</a>
+    <a href="sms:${digits}" style="display:block; padding:12px 16px; color:#6b1f1f; text-decoration:none; font-weight:600;">💬 Text</a>
+  `;
+
+  document.body.appendChild(menu);
+
+  // Position near the click, keeping it on screen
+  const rect = event.target.getBoundingClientRect();
+  let top = rect.bottom + 4;
+  let left = rect.left;
+  const menuWidth = menu.offsetWidth;
+  if (left + menuWidth > window.innerWidth) left = window.innerWidth - menuWidth - 10;
+  if (top + 100 > window.innerHeight) top = rect.top - 90;
+  menu.style.top = top + 'px';
+  menu.style.left = left + 'px';
+
+  // Close the menu when clicking elsewhere
+  setTimeout(() => {
+    document.addEventListener('click', closePhoneMenu);
+  }, 100);
+}
+
+function closePhoneMenu(e) {
+  const menu = document.getElementById('phone-menu-popup');
+  if (menu && !menu.contains(e.target)) {
+    menu.remove();
+    document.removeEventListener('click', closePhoneMenu);
+  }
+}
+window.showPhoneMenu = showPhoneMenu;
+
+// Show a small Google Maps/Apple Maps choice menu near the tapped address
+function showMapMenu(address, event) {
+  const existing = document.getElementById('map-menu-popup');
+  if (existing) existing.remove();
+
+  const encoded = encodeURIComponent(address);
+
+  const menu = document.createElement('div');
+  menu.id = 'map-menu-popup';
+  menu.style.position = 'fixed';
+  menu.style.zIndex = '9999';
+  menu.style.background = 'white';
+  menu.style.border = '2px solid #6b1f1f';
+  menu.style.borderRadius = '8px';
+  menu.style.boxShadow = '0 4px 16px rgba(0,0,0,0.3)';
+  menu.style.overflow = 'hidden';
+  menu.style.minWidth = '160px';
+
+  menu.innerHTML = `
+    <a href="https://www.google.com/maps/search/?api=1&query=${encoded}" target="_blank" style="display:block; padding:12px 16px; color:#6b1f1f; text-decoration:none; font-weight:600; border-bottom:1px solid #eee;">📍 Google Maps</a>
+    <a href="https://maps.apple.com/?q=${encoded}" target="_blank" style="display:block; padding:12px 16px; color:#6b1f1f; text-decoration:none; font-weight:600;">🗺️ Apple Maps</a>
+  `;
+
+  document.body.appendChild(menu);
+
+  const rect = event.target.getBoundingClientRect();
+  let top = rect.bottom + 4;
+  let left = rect.left;
+  const menuWidth = menu.offsetWidth;
+  if (left + menuWidth > window.innerWidth) left = window.innerWidth - menuWidth - 10;
+  if (top + 100 > window.innerHeight) top = rect.top - 90;
+  menu.style.top = top + 'px';
+  menu.style.left = left + 'px';
+
+  setTimeout(() => {
+    document.addEventListener('click', closeMapMenu);
+  }, 100);
+}
+
+function closeMapMenu(e) {
+  const menu = document.getElementById('map-menu-popup');
+  if (menu && !menu.contains(e.target)) {
+    menu.remove();
+    document.removeEventListener('click', closeMapMenu);
+  }
+}
+window.showMapMenu = showMapMenu;
+
+async function denyRequest(id) {
+  if (!confirm('Are you sure you want to deny this request?')) return;
+  try {
+    const rideDoc = await window.getDoc(window.doc(window.db, 'ride_requests', id));
+    const rideData = rideDoc.data();
+    await window.updateDoc(window.doc(window.db, 'ride_requests', id), { status: 'declined', declined_at: new Date() });
+    try {
+      fetch('https://hook.us2.make.com/mmahpsdtba3je2iomxuxyse6h7kv4awx', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'declined', client_name: rideData.client_name, client_email: rideData.client_email, pickup_date: rideData.pickup_date, pickup_time: rideData.pickup_time })
+      }).catch(err => console.log(err));
+    } catch(err) { console.log(err); }
+    alert('Request denied. Client will be notified via email.');
+  } catch (error) { alert('Error denying request: ' + error.message); }
+}
+
+async function markAsComplete(id) {
+  if (!confirm('Mark this ride as complete (not yet paid)?')) return;
+  try {
+    await window.updateDoc(window.doc(window.db, 'ride_requests', id), { status: 'completed', completed_at: new Date() });
+    alert('Marked as complete!');
+  } catch (error) { alert('Error: ' + error.message); }
+}
+
+async function markAsPaid(id) {
+  const last4 = prompt('Enter last 4 digits of card used (leave blank for cash or payment app):');
+  if (last4 === null) return;
+  if (last4 !== '' && (!/^\d{4}$/.test(last4))) { alert('Please enter exactly 4 digits, or leave blank.'); return; }
+  const paymentMethod = last4 === '' ? 'Cash / Payment App' : 'Credit Card ending in ' + last4;
+  if (!confirm('Mark as paid? Payment method: ' + paymentMethod)) return;
+  try {
+    await window.updateDoc(window.doc(window.db, 'ride_requests', id), {
+      status: 'paid', paid_at: new Date(), payment_method: paymentMethod
+    });
+    alert('Marked as paid!');
+  } catch (error) { alert('Error: ' + error.message); }
+}
+
+async function updatePaymentMethod(id) {
+  const input = document.getElementById('payment-method-' + id);
+  const method = input.value.trim();
+  if (!method) { alert('Please enter a payment method.'); return; }
+  if (!confirm('Update payment method to: ' + method + '?')) return;
+  try {
+    await window.updateDoc(window.doc(window.db, 'ride_requests', id), { payment_method: method });
+    alert('Payment method updated!');
+  } catch (error) { alert('Error updating payment method: ' + error.message); }
+}
+
+async function updatePaidAmount(id) {
+  const input = document.getElementById('edit-' + id);
+  const newAmount = parseFloat(input.value);
+  if (isNaN(newAmount) || newAmount < 0) { alert('Please enter a valid amount (minimum $0)'); return; }
+  if (!confirm(`Update ride amount to $${newAmount.toFixed(2)}?`)) return;
+  try {
+    await window.updateDoc(window.doc(window.db, 'ride_requests', id), { final_price: newAmount });
+    alert('Amount updated!');
+  } catch (error) { alert('Error updating amount: ' + error.message); }
+}
+
+async function updateTip(id) {
+  const input = document.getElementById('tip-' + id);
+  const tipAmount = parseFloat(input.value);
+  if (isNaN(tipAmount) || tipAmount < 0) { alert('Please enter a valid tip amount (minimum $0)'); return; }
+  if (!confirm(`Save tip of $${tipAmount.toFixed(2)}?`)) return;
+  try {
+    await window.updateDoc(window.doc(window.db, 'ride_requests', id), { tip: tipAmount });
+    alert('Tip saved!');
+  } catch (error) { alert('Error saving tip: ' + error.message); }
+}
+
+async function updateRideAmount(rideId, clientPhone) {
+  const input = document.getElementById('edit-client-' + rideId);
+  const newAmount = parseFloat(input.value);
+  if (isNaN(newAmount) || newAmount < 0) { alert('Please enter a valid amount (minimum $0)'); return; }
+  if (!confirm(`Update ride amount to $${newAmount.toFixed(2)}?`)) return;
+  try {
+    await window.updateDoc(window.doc(window.db, 'ride_requests', rideId), { final_price: newAmount });
+    alert('Amount updated! Refreshing...');
+    await new Promise(resolve => setTimeout(resolve, 1500));
+    await loadClientsAndViewDetail(clientPhone, rideId);
+  } catch (error) { alert('Error updating amount: ' + error.message); }
+}
+
+async function loadClientsAndViewDetail(phone, updatedRideId) {
+  const allRidesQuery = window.query(window.collection(window.db, 'ride_requests'), window.orderBy('created_at', 'desc'));
+  const snapshot = await window.getDocsFromServer(allRidesQuery);
+  const clientsMap = new Map();
+  snapshot.forEach((doc) => {
+    const data = doc.data();
+    const clientPhone = data.client_phone;
+    if (['declined', 'cancelled'].includes(data.status)) return;
+    if (!clientsMap.has(clientPhone)) {
+      clientsMap.set(clientPhone, { name: data.client_name, phone: clientPhone, email: data.client_email, totalRides: 0, balanceDue: 0, rides: [] });
+    }
+    const client = clientsMap.get(clientPhone);
+    client.totalRides++;
+    client.rides.push({id: doc.id, ...data});
+    if (data.status === 'completed' && data.final_price) client.balanceDue += data.final_price;
+  });
+  allClientsData = Array.from(clientsMap.values());
+  viewClientDetail(phone);
+}
+
+async function cancelRide(id) {
+  if (!confirm('Are you sure you want to cancel this ride?')) return;
+  try {
+    const rideDoc = await window.getDoc(window.doc(window.db, 'ride_requests', id));
+    const rideData = rideDoc.data();
+    await window.updateDoc(window.doc(window.db, 'ride_requests', id), {
+      status: 'cancelled', cancelled_at: new Date(), cancelled_by: 'driver'
+    });
+    if (rideData.calendar_event_id) {
+      fetch('https://hook.us2.make.com/zlo5peda4fwlrz2nk7m1hakc4dxjblw1', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'delete', event_id: rideData.calendar_event_id })
+      }).catch(err => console.log(err));
+    }
+    alert('Ride cancelled.');
+  } catch (error) { alert('Error: ' + error.message); }
+}
+
+async function hideRide(id) {
+  if (!confirm('Hide this ride from the Completed tab? (It will still appear in Clients tab)')) return;
+  try {
+    await window.updateDoc(window.doc(window.db, 'ride_requests', id), { hidden_from_completed: true });
+    alert('Ride hidden from Completed tab!');
+  } catch (error) { alert('Error hiding ride: ' + error.message); }
+}
+
+async function deleteRide(id) {
+  if (!confirm('Permanently delete this ride? This cannot be undone.')) return;
+  try {
+    await window.deleteDoc(window.doc(window.db, 'ride_requests', id));
+    alert('Ride deleted.');
+  } catch (error) { alert('Error deleting: ' + error.message); }
+}
+
+async function restoreRide(id) {
+  if (!confirm('Restore this ride to confirmed status?')) return;
+  try {
+    await window.updateDoc(window.doc(window.db, 'ride_requests', id), { status: 'confirmed', restored_at: new Date() });
+    alert('Ride restored to confirmed!');
+  } catch (error) { alert('Error restoring: ' + error.message); }
+}
+
+async function acceptOnBehalf(id) {
+  if (!confirm('Confirm this ride on behalf of the client?')) return;
+  try {
+    await window.updateDoc(window.doc(window.db, 'ride_requests', id), {
+      status: 'confirmed', confirmed_at: new Date(), confirmed_by: 'driver'
+    });
+    const rideDoc = await window.getDoc(window.doc(window.db, 'ride_requests', id));
+    const rideData = rideDoc.data();
+    try {
+      fetch('https://hook.us2.make.com/zlo5peda4fwlrz2nk7m1hakc4dxjblw1', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ...rideData, ride_id: id })
+      }).then(r => r.json()).then(data => {
+        if (data.event_id) window.updateDoc(window.doc(window.db, 'ride_requests', id), { calendar_event_id: data.event_id }).catch(err => console.log(err));
+      }).catch(err => console.log(err));
+    } catch(err) { console.log(err); }
+    try {
+      fetch('https://hook.us2.make.com/mmahpsdtba3je2iomxuxyse6h7kv4awx', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'accepted', client_name: rideData.client_name, client_email: rideData.client_email, pickup_address: rideData.pickup_address, pickup_date: rideData.pickup_date, pickup_time: rideData.pickup_time, dropoff_address: rideData.dropoff_address, final_price: rideData.final_price })
+      }).catch(err => console.log(err));
+    } catch(err) { console.log(err); }
+    alert('Ride confirmed! Client will receive an email.');
+  } catch (error) { alert('Error: ' + error.message); }
+}
+
+function loadClients() {
+  const allRidesQuery = window.query(window.collection(window.db, 'ride_requests'), window.orderBy('created_at', 'desc'));
+  window.onSnapshot(allRidesQuery, (snapshot) => {
+    const clientsMap = new Map();
+    snapshot.forEach((doc) => {
+      const data = doc.data();
+      const phone = data.client_phone;
+      if (['declined', 'cancelled'].includes(data.status)) return;
+      if (!clientsMap.has(phone)) {
+        clientsMap.set(phone, { name: data.client_name, phone: phone, email: data.client_email, totalRides: 0, balanceDue: 0, rides: [] });
+      }
+      const client = clientsMap.get(phone);
+      client.totalRides++;
+      client.rides.push({id: doc.id, ...data});
+      if (data.status === 'completed' && data.final_price) client.balanceDue += data.final_price;
+    });
+    allClientsData = Array.from(clientsMap.values());
+    displayClients(allClientsData);
+  });
+}
+
+function displayClients(clients) {
+  const container = document.getElementById('clients-list');
+  const searchTerm = document.getElementById('client-search').value.toLowerCase();
+  const filteredClients = clients.filter(client =>
+    client.name.toLowerCase().includes(searchTerm) || client.phone.includes(searchTerm)
   );
+  if (filteredClients.length === 0) { container.innerHTML = '<div class="empty-state">No clients found</div>'; return; }
+
+  // Sort by last name alphabetically
+  function sortByLastName(a, b) {
+    const getLastName = name => name.trim().split(' ').pop().toLowerCase();
+    return getLastName(a.name).localeCompare(getLastName(b.name));
+  }
+
+  const balanceDue = filteredClients.filter(c => c.balanceDue > 0).sort(sortByLastName);
+  const paidUp = filteredClients.filter(c => c.balanceDue <= 0).sort(sortByLastName);
+
+  function clientCard(client) {
+    const balanceText = client.balanceDue > 0 ? `Balance Due: $${client.balanceDue.toFixed(2)}` : '✓ Paid Up';
+    const balanceColor = client.balanceDue > 0 ? '#dc3545' : '#28a745';
+    return `
+      <div class="client-stack-card">
+        <div class="client-stack-header" onclick="viewClientDetail('${client.phone}')">
+          <div class="client-stack-name">${client.name}</div>
+          <div class="client-stack-meta">
+            <div onclick="event.stopPropagation()">${createPhoneLink(client.phone)}</div>
+            <div style="font-size:12px; color:#999;">${client.totalRides} ride${client.totalRides !== 1 ? 's' : ''}</div>
+          </div>
+          <div style="margin-top:6px; font-size:13px; font-weight:700; color:${balanceColor};">${balanceText}</div>
+        </div>
+      </div>`;
+  }
+
+  let html = '';
+
+  if (balanceDue.length > 0) {
+    html += `<div style="font-size:11px; font-weight:700; color:#dc3545; text-transform:uppercase; letter-spacing:1px; margin-bottom:8px; padding-left:4px;">⚠ Balance Due (${balanceDue.length})</div>`;
+    balanceDue.forEach(client => { html += clientCard(client); });
+  }
+
+  if (paidUp.length > 0) {
+    html += `<div style="font-size:11px; font-weight:700; color:#28a745; text-transform:uppercase; letter-spacing:1px; margin:${balanceDue.length > 0 ? '16px' : '0px'} 0 8px; padding-left:4px;">✓ Paid Up (${paidUp.length})</div>`;
+    paidUp.forEach(client => { html += clientCard(client); });
+  }
+
+  container.innerHTML = html;
+}
+
+function viewClientDetail(phone) {
+  const client = allClientsData.find(c => c.phone === phone);
+  if (!client) return;
+  document.getElementById('clients-list-view').style.display = 'none';
+  document.getElementById('client-detail-view').style.display = 'block';
+  const sortedRides = client.rides.sort((a, b) => new Date(b.pickup_date || 0) - new Date(a.pickup_date || 0));
+  let ridesHtml = '';
+  sortedRides.forEach(ride => {
+    const statusClass = `status-${ride.status}`;
+    const price = (ride.final_price !== undefined && ride.final_price !== null) ? ride.final_price : (ride.client_bid || 0);
+    const isPending = ride.status === 'completed';
+    const isPaid = ride.status === 'paid';
+    const isConfirmed = ride.status === 'confirmed';
+    const clientTip = (ride.tip !== undefined && ride.tip !== null) ? ride.tip : 0;
+    const editSection = (isConfirmed || isPending || isPaid) ? `
+      <div style="margin-top:12px; padding-top:12px; border-top:1px solid #e0e0e0;">
+        <div style="display:flex; gap:8px; align-items:center; margin-bottom:8px;">
+          <span style="font-size:13px; font-weight:600;">Amount: $</span>
+          <input type="number" id="edit-client-${ride.id}" value="${price.toFixed(2)}" min="0" step="0.01" style="flex:1; padding:8px; border:2px solid #6b1f1f; border-radius:4px; font-size:14px;">
+          <button class="btn btn-counter" onclick="updateRideAmount('${ride.id}', '${phone}')" style="padding:8px 16px; font-size:13px;">Update</button>
+        </div>
+        <div style="display:flex; gap:8px; align-items:center;">
+          <span style="font-size:13px; font-weight:600;">Tip: $</span>
+          <input type="number" id="tip-client-${ride.id}" value="${clientTip.toFixed(2)}" min="0" step="0.01" style="flex:1; padding:8px; border:2px solid #6b1f1f; border-radius:4px; font-size:14px;">
+          <button class="btn btn-counter" onclick="updateClientTip('${ride.id}', '${phone}')" style="padding:8px 16px; font-size:13px;">Save Tip</button>
+        </div>
+      </div>` : '';
+    ridesHtml += `
+      <div class="request-card" style="margin-bottom:12px;">
+        <div class="request-header">
+          <div style="font-weight:600; color:#6b1f1f;">${ride.pickup_date} at ${ride.pickup_time}</div>
+          <div class="status-badge ${statusClass}">${ride.status}</div>
+        </div>
+        <div style="font-size:14px; color:#666; margin-top:8px;">
+          <span class="address-link" data-address="${ride.pickup_address.replace(/"/g, '&quot;')}" onclick="event.stopPropagation(); showMapMenu(this.dataset.address, event)" style="color:#6b1f1f; text-decoration:underline; cursor:pointer;">${ride.pickup_address}</span>
+          →
+          <span class="address-link" data-address="${ride.dropoff_address.replace(/"/g, '&quot;')}" onclick="event.stopPropagation(); showMapMenu(this.dataset.address, event)" style="color:#6b1f1f; text-decoration:underline; cursor:pointer;">${ride.dropoff_address}</span>
+        </div>
+        <div style="font-size:18px; font-weight:600; color:${isPending ? '#dc3545' : '#28a745'}; margin-top:8px;">
+          $${price.toFixed(2)} ${isPending ? '(Unpaid)' : ''}
+        </div>
+        ${(ride.tip !== undefined && ride.tip !== null && ride.tip > 0) ? `<div style="font-size:14px; color:#28a745; margin-top:4px;">Tip: $${ride.tip.toFixed(2)}</div>` : ''}
+        ${editSection}
+        ${ride.status === 'completed' ? `
+          <div style="margin-top:12px; padding-top:12px; border-top:1px solid #e0e0e0; display:flex; gap:8px;">
+            <button class="btn btn-paid" onclick="markAsPaid('${ride.id}')" style="flex:1; padding:8px; font-size:13px;">Mark as Paid</button>
+            <button class="btn btn-counter" onclick="undoCompleteFromClient('${ride.id}', '${phone}')" style="flex:1; padding:8px; font-size:13px;">Undo Complete</button>
+          </div>` : ''}
+        ${ride.status === 'paid' ? `
+          <div style="margin-top:12px; padding-top:12px; border-top:1px solid #e0e0e0;">
+            <button class="btn btn-counter" onclick="undoPaidFromClient('${ride.id}', '${phone}')" style="width:100%; padding:8px; font-size:13px;">Undo Paid</button>
+          </div>` : ''}
+      </div>`;
+  });
+  const balanceColor = client.balanceDue > 0 ? '#dc3545' : '#28a745';
+  const balanceText = client.balanceDue > 0 ? `Balance Due: $${client.balanceDue.toFixed(2)}` : 'All Paid Up!';
+  const unpaidRideIds = client.rides.filter(ride => ride.status === 'completed').map(ride => ride.id);
+  const markAllButton = unpaidRideIds.length > 0 ?
+    `<button class="btn btn-paid" style="margin-top:12px;" onclick="markAllAsPaid('${client.phone}', ${JSON.stringify(unpaidRideIds).replace(/"/g, '&quot;')})">Mark All ${unpaidRideIds.length} Rides as Paid ($${client.balanceDue.toFixed(2)})</button>` : '';
+  document.getElementById('client-detail-view').innerHTML = `
+    <button class="back-btn" onclick="backToClientsList()">← Back to Clients</button>
+    <div style="background:#f8f9fa; padding:20px; border-radius:8px; margin-bottom:20px;">
+      <h2 style="color:#6b1f1f; margin-bottom:8px;">${client.name}</h2>
+      <div style="color:#666; margin-bottom:16px;">${createPhoneLink(client.phone)} • ${client.email}</div>
+      <div style="display:flex; gap:20px; flex-wrap:wrap; margin-bottom:16px;">
+        <div><div style="font-size:12px; color:#666;">Total Rides</div><div style="font-size:24px; font-weight:600; color:#6b1f1f;">${client.totalRides}</div></div>
+        <div><div style="font-size:12px; color:#666;">Balance</div><div style="font-size:24px; font-weight:600; color:${balanceColor};">${balanceText}</div></div>
+      </div>
+      ${markAllButton}
+      <div id="edit-client-info-form" style="display:none; margin-top:16px; padding-top:16px; border-top:1px solid #e0e0e0;">
+        <div style="font-weight:600; color:#6b1f1f; margin-bottom:12px;">Edit Client Information</div>
+        <div style="margin-bottom:10px;">
+          <label style="font-size:12px; color:#666; display:block; margin-bottom:4px;">Full Name</label>
+          <input type="text" id="edit-client-name" value="${client.name}" style="width:100%; padding:8px; border:2px solid #6b1f1f; border-radius:4px; font-size:14px;">
+        </div>
+        <div style="margin-bottom:10px;">
+          <label style="font-size:12px; color:#666; display:block; margin-bottom:4px;">Phone Number</label>
+          <input type="tel" id="edit-client-phone" value="${client.phone}" style="width:100%; padding:8px; border:2px solid #6b1f1f; border-radius:4px; font-size:14px;">
+        </div>
+        <div style="margin-bottom:12px;">
+          <label style="font-size:12px; color:#666; display:block; margin-bottom:4px;">Email</label>
+          <input type="email" id="edit-client-email" value="${client.email}" style="width:100%; padding:8px; border:2px solid #6b1f1f; border-radius:4px; font-size:14px;">
+        </div>
+        <div style="display:flex; gap:8px;">
+          <button class="btn btn-accept" onclick="saveClientInfo(this.dataset.phone)" data-phone="${client.phone}" style="flex:1;">Save Changes</button>
+          <button class="btn" style="background:#6c757d; color:white; flex:1;" onclick="document.getElementById('edit-client-info-form').style.display='none'">Cancel</button>
+        </div>
+      </div>
+      <button class="btn btn-counter" onclick="document.getElementById('edit-client-info-form').style.display='block'" style="margin-top:12px; width:100%;">✏️ Edit Client Info</button>
+    </div>
+    <h3 style="margin-bottom:12px; color:#6b1f1f;">Ride History</h3>
+    ${ridesHtml}`;
+}
+
+async function markAllAsPaid(clientPhone, rideIds) {
+  const rideCount = rideIds.length;
+  if (!confirm(`Mark all ${rideCount} completed rides as paid?`)) return;
+  try {
+    await Promise.all(rideIds.map(id => window.updateDoc(window.doc(window.db, 'ride_requests', id), { status: 'paid', paid_at: new Date() })));
+    alert(`All ${rideCount} rides marked as paid!`);
+    setTimeout(() => viewClientDetail(clientPhone), 500);
+  } catch (error) { alert('Error marking rides as paid: ' + error.message); }
+}
+
+function backToClientsList() {
+  document.getElementById('clients-list-view').style.display = 'block';
+  document.getElementById('client-detail-view').style.display = 'none';
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  const searchInput = document.getElementById('client-search');
+  if (searchInput) {
+    searchInput.addEventListener('input', function() {
+      if (currentTab === 'clients' && allClientsData) displayClients(allClientsData);
+    });
+  }
 });
+
+function generateReceipt(id) {
+  window.open(`receipt.html?id=${id}`, '_blank');
+}
+
+// Tithe tracking with localStorage
+let tithesPaid = JSON.parse(localStorage.getItem('tithesPaid') || '{}');
+
+function getWeekKey(date) {
+  const d = new Date(date);
+  const day = d.getDay();
+  d.setDate(d.getDate() - day);
+  const yyyy = d.getFullYear();
+  const mm = String(d.getMonth() + 1).padStart(2, '0');
+  const dd = String(d.getDate()).padStart(2, '0');
+  return `${yyyy}-${mm}-${dd}`;
+}
+
+function loadTitheData() {
+  const allRidesQuery = window.query(window.collection(window.db, 'ride_requests'), window.where('status', '==', 'paid'), window.orderBy('paid_at', 'desc'));
+  window.onSnapshot(allRidesQuery, (snapshot) => {
+    const weeklyTotals = new Map();
+    snapshot.forEach((doc) => {
+      const data = doc.data();
+      if (data.paid_at && data.final_price) {
+        const paidDate = new Date(data.paid_at.seconds * 1000);
+        const weekKey = getWeekKey(paidDate);
+        if (!weeklyTotals.has(weekKey)) weeklyTotals.set(weekKey, { startDate: weekKey, total: 0, rides: [] });
+        const week = weeklyTotals.get(weekKey);
+        const tip = (data.tip !== undefined && data.tip !== null) ? data.tip : 0;
+        week.total += data.final_price + tip;
+        week.rides.push(data);
+      }
+    });
+    displayTitheData(weeklyTotals);
+  });
+}
+
+function displayTitheData(weeklyTotals) {
+  const container = document.getElementById('tithe-view');
+  if (weeklyTotals.size === 0) { container.innerHTML = '<div class="empty-state">No paid rides yet</div>'; return; }
+  const sortedWeeks = Array.from(weeklyTotals.values()).sort((a, b) => new Date(b.startDate) - new Date(a.startDate));
+  let html = '';
+  sortedWeeks.forEach(week => {
+    const [sy, sm, sd] = week.startDate.split('-').map(Number);
+    const sunday = new Date(sy, sm - 1, sd);
+    const saturday = new Date(sy, sm - 1, sd + 6);
+    const weekLabel = `${sunday.toLocaleDateString('en-US', {month: 'short', day: 'numeric'})} - ${saturday.toLocaleDateString('en-US', {month: 'short', day: 'numeric', year: 'numeric'})}`;
+    const titheAmount = week.total * 0.10;
+    const isPaid = tithesPaid[week.startDate] || false;
+    html += `
+      <div class="request-card" style="margin-bottom:16px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+          <div>
+            <div style="font-weight:600; font-size:16px; color:#6b1f1f;">${weekLabel}</div>
+            <div style="font-size:13px; color:#666; margin-top:4px;">${week.rides.length} paid rides</div>
+          </div>
+          <div style="text-align:right;">
+            <div style="font-size:12px; color:#666;">Income</div>
+            <div style="font-size:20px; font-weight:600; color:#6b1f1f;">$${week.total.toFixed(2)}</div>
+          </div>
+        </div>
+        <div style="background:#f8f9fa; padding:12px; border-radius:6px; display:flex; justify-content:space-between; align-items:center;">
+          <div>
+            <div style="font-size:12px; color:#666;">Tithe (10%)</div>
+            <div style="font-size:18px; font-weight:600; color:#6b1f1f;">$${titheAmount.toFixed(2)}</div>
+          </div>
+          <button class="btn ${isPaid ? 'btn-paid' : 'btn-counter'}" onclick="toggleTithePaid('${week.startDate}')" style="padding:8px 16px; font-size:13px;">
+            ${isPaid ? '✓ Tithe Paid' : 'Mark as Paid'}
+          </button>
+        </div>
+      </div>`;
+  });
+  container.innerHTML = html;
+}
+
+function toggleTithePaid(weekKey) {
+  tithesPaid[weekKey] = !tithesPaid[weekKey];
+  localStorage.setItem('tithesPaid', JSON.stringify(tithesPaid));
+  loadTitheData();
+}
+
+window.toggleTithePaid = toggleTithePaid;
+
+async function saveClientInfo(oldPhone) {
+  const newName = document.getElementById('edit-client-name').value.trim();
+  const newPhone = document.getElementById('edit-client-phone').value.trim();
+  const newEmail = document.getElementById('edit-client-email').value.trim();
+
+  if (!newName || !newPhone || !newEmail) {
+    alert('Please fill in all fields.');
+    return;
+  }
+
+  if (!confirm('Update client info across all their rides?')) return;
+
+  try {
+    // Get all rides for this client using the old phone number
+    const q = window.query(window.collection(window.db, 'ride_requests'), window.where('client_phone', '==', oldPhone));
+    const snapshot = await window.getDocsFromServer(q);
+
+    if (snapshot.empty) {
+      alert('No rides found for this client.');
+      return;
+    }
+
+    // Update name, phone, and email on every ride
+    const updatePromises = [];
+    snapshot.forEach(d => {
+      updatePromises.push(window.updateDoc(window.doc(window.db, 'ride_requests', d.id), {
+        client_name: newName,
+        client_phone: newPhone,
+        client_email: newEmail
+      }));
+    });
+
+    await Promise.all(updatePromises);
+    alert('Client information updated across ' + snapshot.size + ' ride(s)!');
+
+    // Reload clients and go back to the updated client detail
+    await loadClientsAndViewDetail(newPhone, null);
+  } catch (error) {
+    alert('Error updating client info: ' + error.message);
+  }
+}
+window.saveClientInfo = saveClientInfo;
+
+async function deleteAllCancelled() {
+  const cards = document.querySelectorAll('#cancelled-requests .request-card');
+  const count = cards.length;
+  if (count === 0) { alert('No cancelled rides to delete.'); return; }
+  if (!confirm('Permanently delete all ' + count + ' cancelled rides? This cannot be undone.')) return;
+
+  const btn = document.getElementById('delete-all-btn');
+  btn.textContent = 'Deleting...';
+  btn.disabled = true;
+
+  try {
+    const q = window.query(window.collection(window.db, 'ride_requests'), window.where('status', '==', 'cancelled'));
+    const snapshot = await window.getDocsFromServer(q);
+    const deletePromises = [];
+    snapshot.forEach(doc => deletePromises.push(window.deleteDoc(window.doc(window.db, 'ride_requests', doc.id))));
+    await Promise.all(deletePromises);
+    alert('All cancelled rides deleted.');
+  } catch (error) {
+    alert('Error deleting: ' + error.message);
+  } finally {
+    btn.innerHTML = '🗑 Delete All Cancelled';
+    btn.disabled = false;
+  }
+}
+window.deleteAllCancelled = deleteAllCancelled;
+window.updateTip = updateTip;
+
+async function updateClientTip(rideId, clientPhone) {
+  const input = document.getElementById('tip-client-' + rideId);
+  const tipAmount = parseFloat(input.value);
+  if (isNaN(tipAmount) || tipAmount < 0) { alert('Please enter a valid tip amount (minimum $0)'); return; }
+  if (!confirm('Save tip of $' + tipAmount.toFixed(2) + '?')) return;
+  try {
+    await window.updateDoc(window.doc(window.db, 'ride_requests', rideId), { tip: tipAmount });
+    alert('Tip saved! Refreshing...');
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    await loadClientsAndViewDetail(clientPhone, rideId);
+  } catch (error) { alert('Error saving tip: ' + error.message); }
+}
+window.updateClientTip = updateClientTip;
+
+async function updateDateTime(id) {
+  const dateInput = document.getElementById('edit-date-' + id);
+  const timeInput = document.getElementById('edit-time-' + id);
+  const newDate = dateInput.value;
+  const newTime = timeInput.value;
+
+  if (!newDate || !newTime) {
+    alert('Please select both a date and a time.');
+    return;
+  }
+
+  if (!confirm(`Update pickup to ${newDate} at ${newTime}?`)) return;
+
+  try {
+    await window.updateDoc(window.doc(window.db, 'ride_requests', id), {
+      pickup_date: newDate,
+      pickup_time: newTime
+    });
+
+    // Notify client of the reschedule via existing webhook
+    const rideDoc = await window.getDoc(window.doc(window.db, 'ride_requests', id));
+    const rideData = rideDoc.data();
+    // Fire calendar webhook to delete old event and create new one
+    try {
+      fetch('https://hook.us2.make.com/zlo5peda4fwlrz2nk7m1hakc4dxjblw1', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'rescheduled',
+          calendar_event_id: rideData.calendar_event_id || null,
+          client_name: rideData.client_name,
+          client_email: rideData.client_email,
+          pickup_address: rideData.pickup_address,
+          dropoff_address: rideData.dropoff_address,
+          pickup_date: newDate,
+          pickup_time: newTime,
+          trip_duration_minutes: rideData.trip_duration_minutes || 30,
+          final_price: rideData.final_price
+        })
+      }).then(r => r.json()).then(data => {
+        // Handle both Create Event (event_id) and Update Event (id) response formats
+        const newEventId = data.event_id || data.id || null;
+        if (newEventId) {
+          window.updateDoc(window.doc(window.db, 'ride_requests', id), {
+            calendar_event_id: newEventId
+          }).catch(err => console.log('Error saving new event ID:', err));
+        }
+      }).catch(err => console.log('Reschedule calendar webhook error:', err));
+    } catch (err) { console.log(err); }
+
+    // Also notify client of the time change via email webhook
+    try {
+      fetch('https://hook.us2.make.com/mmahpsdtba3je2iomxuxyse6h7kv4awx', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'rescheduled',
+          client_name: rideData.client_name,
+          client_email: rideData.client_email,
+          pickup_address: rideData.pickup_address,
+          dropoff_address: rideData.dropoff_address,
+          pickup_date: newDate,
+          pickup_time: newTime,
+          final_price: rideData.final_price
+        })
+      }).catch(err => console.log('Reschedule email notification error:', err));
+    } catch (err) { console.log(err); }
+
+    alert('Pickup date/time updated!');
+  } catch (error) {
+    alert('Error updating date/time: ' + error.message);
+  }
+}
+window.updateDateTime = updateDateTime;
+
+async function confirmPayment(id) {
+  const method = document.getElementById('pay-method-' + id).value;
+  const tipInput = document.getElementById('pay-tip-' + id);
+  const tip = parseFloat(tipInput.value) || 0;
+
+  if (!confirm(`Mark as paid via ${method}${tip > 0 ? ' with $' + tip.toFixed(2) + ' tip' : ''}?`)) return;
+
+  try {
+    const updateData = {
+      status: 'paid',
+      paid_at: new Date(),
+      payment_method: method
+    };
+    if (tip > 0) updateData.tip = tip;
+
+    await window.updateDoc(window.doc(window.db, 'ride_requests', id), updateData);
+    // Close the payment panel
+    const panel = document.getElementById('paid-now-' + id);
+    if (panel) panel.classList.remove('open');
+    alert('Payment confirmed!');
+  } catch (error) {
+    alert('Error confirming payment: ' + error.message);
+  }
+}
+window.confirmPayment = confirmPayment;
+
+async function updateNotes(id) {
+  const input = document.getElementById('edit-notes-' + id);
+  const newNotes = input.value.trim();
+  if (!confirm('Save updated notes?')) return;
+  try {
+    await window.updateDoc(window.doc(window.db, 'ride_requests', id), { notes: newNotes });
+    alert('Notes saved!');
+  } catch (error) { alert('Error saving notes: ' + error.message); }
+}
+window.updateNotes = updateNotes;
+
+async function undoComplete(id) {
+  if (!confirm('Move this ride back to Confirmed status?')) return;
+  try {
+    await window.updateDoc(window.doc(window.db, 'ride_requests', id), {
+      status: 'confirmed',
+      completed_at: null
+    });
+    alert('Ride moved back to Confirmed.');
+  } catch (error) { alert('Error: ' + error.message); }
+}
+window.undoComplete = undoComplete;
+
+async function undoPaid(id) {
+  if (!confirm('Move this ride back to Completed (unpaid) status? This will clear the payment record.')) return;
+  try {
+    await window.updateDoc(window.doc(window.db, 'ride_requests', id), {
+      status: 'completed',
+      paid_at: null,
+      payment_method: null
+    });
+    alert('Ride moved back to Completed.');
+  } catch (error) { alert('Error: ' + error.message); }
+}
+window.undoPaid = undoPaid;
+
+async function undoCompleteFromClient(rideId, clientPhone) {
+  if (!confirm('Move this ride back to Confirmed status?')) return;
+  try {
+    await window.updateDoc(window.doc(window.db, 'ride_requests', rideId), {
+      status: 'confirmed',
+      completed_at: null
+    });
+    alert('Ride moved back to Confirmed.');
+    await loadClientsAndViewDetail(clientPhone, rideId);
+  } catch (error) { alert('Error: ' + error.message); }
+}
+window.undoCompleteFromClient = undoCompleteFromClient;
+
+async function undoPaidFromClient(rideId, clientPhone) {
+  if (!confirm('Move this ride back to Completed (unpaid) status? This will clear the payment record.')) return;
+  try {
+    await window.updateDoc(window.doc(window.db, 'ride_requests', rideId), {
+      status: 'completed',
+      paid_at: null,
+      payment_method: null
+    });
+    alert('Ride moved back to Completed.');
+    await loadClientsAndViewDetail(clientPhone, rideId);
+  } catch (error) { alert('Error: ' + error.message); }
+}
+window.undoPaidFromClient = undoPaidFromClient;
+</script>
+
+</body>
+</html>
