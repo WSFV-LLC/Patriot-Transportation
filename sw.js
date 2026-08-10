@@ -1,9 +1,5 @@
-const CACHE_NAME = 'patriot-v3';
-const ASSETS = [
-  '/Patriot-Transportation/',
-  '/Patriot-Transportation/index.html',
-  '/Patriot-Transportation/driver_dashboard.html',
-  '/Patriot-Transportation/receipt.html',
+const CACHE_NAME = 'patriot-v4';
+const STATIC_ASSETS = [
   '/Patriot-Transportation/icon.png',
   '/Patriot-Transportation/icon-192.png',
   '/Patriot-Transportation/driver.png',
@@ -14,7 +10,7 @@ const ASSETS = [
 
 self.addEventListener('install', event => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then(cache => cache.addAll(ASSETS))
+    caches.open(CACHE_NAME).then(cache => cache.addAll(STATIC_ASSETS))
   );
   self.skipWaiting();
 });
@@ -29,12 +25,23 @@ self.addEventListener('activate', event => {
 });
 
 self.addEventListener('fetch', event => {
-  // Network first for Firebase and Google APIs, cache first for static assets
   const url = new URL(event.request.url);
-  if (url.hostname.includes('firebase') || url.hostname.includes('googleapis') || url.hostname.includes('make.com')) {
-    event.respondWith(fetch(event.request));
+  
+  // Always network-first for HTML files, Firebase, Google APIs, Make.com
+  if (
+    url.hostname.includes('firebase') ||
+    url.hostname.includes('googleapis') ||
+    url.hostname.includes('make.com') ||
+    event.request.destination === 'document' ||
+    url.pathname.endsWith('.html')
+  ) {
+    event.respondWith(
+      fetch(event.request).catch(() => caches.match(event.request))
+    );
     return;
   }
+  
+  // Cache-first for static assets (images, icons)
   event.respondWith(
     caches.match(event.request).then(cached => cached || fetch(event.request))
   );
