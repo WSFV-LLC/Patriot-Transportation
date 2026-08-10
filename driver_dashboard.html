@@ -1433,12 +1433,20 @@ function displayClients(clients) {
     client.name.toLowerCase().includes(searchTerm) || client.phone.includes(searchTerm)
   );
   if (filteredClients.length === 0) { container.innerHTML = '<div class="empty-state">No clients found</div>'; return; }
-  let html = '';
-  filteredClients.forEach(client => {
-    const balanceClass = client.balanceDue > 0 ? '' : 'paid';
+
+  // Sort by last name alphabetically
+  function sortByLastName(a, b) {
+    const getLastName = name => name.trim().split(' ').pop().toLowerCase();
+    return getLastName(a.name).localeCompare(getLastName(b.name));
+  }
+
+  const balanceDue = filteredClients.filter(c => c.balanceDue > 0).sort(sortByLastName);
+  const paidUp = filteredClients.filter(c => c.balanceDue <= 0).sort(sortByLastName);
+
+  function clientCard(client) {
     const balanceText = client.balanceDue > 0 ? `Balance Due: $${client.balanceDue.toFixed(2)}` : '✓ Paid Up';
     const balanceColor = client.balanceDue > 0 ? '#dc3545' : '#28a745';
-    html += `
+    return `
       <div class="client-stack-card">
         <div class="client-stack-header" onclick="viewClientDetail('${client.phone}')">
           <div class="client-stack-name">${client.name}</div>
@@ -1449,7 +1457,20 @@ function displayClients(clients) {
           <div style="margin-top:6px; font-size:13px; font-weight:700; color:${balanceColor};">${balanceText}</div>
         </div>
       </div>`;
-  });
+  }
+
+  let html = '';
+
+  if (balanceDue.length > 0) {
+    html += `<div style="font-size:11px; font-weight:700; color:#dc3545; text-transform:uppercase; letter-spacing:1px; margin-bottom:8px; padding-left:4px;">⚠ Balance Due (${balanceDue.length})</div>`;
+    balanceDue.forEach(client => { html += clientCard(client); });
+  }
+
+  if (paidUp.length > 0) {
+    html += `<div style="font-size:11px; font-weight:700; color:#28a745; text-transform:uppercase; letter-spacing:1px; margin:${balanceDue.length > 0 ? '16px' : '0px'} 0 8px; padding-left:4px;">✓ Paid Up (${paidUp.length})</div>`;
+    paidUp.forEach(client => { html += clientCard(client); });
+  }
+
   container.innerHTML = html;
 }
 
