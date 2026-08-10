@@ -892,6 +892,7 @@ function toggleConfirmed(id) {
   chevron.classList.toggle('open', !isOpen);
   header.classList.toggle('open', !isOpen);
 }
+window.toggleConfirmed = toggleConfirmed;
 window.createConfirmedCard = createConfirmedCard;
 
 function toggleEditSection(sectionId) {
