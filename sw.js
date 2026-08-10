@@ -1,4 +1,4 @@
-const CACHE_NAME = 'patriot-v1';
+const CACHE_NAME = 'patriot-v2';
 const ASSETS = [
   '/Patriot-Transportation/',
   '/Patriot-Transportation/index.html',
