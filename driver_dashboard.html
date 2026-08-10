@@ -404,9 +404,10 @@ body {
   .header { flex-direction: column; gap: 12px; text-align: center; }
   .header > div { text-align: center !important; }
   .header h1 { font-size: 20px; }
-  #total-income { font-size: 22px !important; }
-  #total-tips { font-size: 22px !important; }
-  .header > div[style*="display:flex"] { gap: 16px !important; justify-content: center !important; }
+  #total-income { font-size: 18px !important; }
+  #total-tips { font-size: 18px !important; }
+  #total-miles { font-size: 18px !important; }
+  .header > div[style*="display:flex"] { gap: 10px !important; justify-content: center !important; }
   .tabs { overflow-x: auto; flex-wrap: nowrap; padding-bottom: 8px; }
   .tab { padding: 10px 16px; font-size: 13px; white-space: nowrap; }
   .request-card { padding: 16px; }
@@ -431,14 +432,18 @@ body {
     <h1>Driver Dashboard</h1>
     <div style="font-size:14px;">Patriot Transportation</div>
   </div>
-  <div style="display:flex; gap:24px;">
+  <div style="display:flex; gap:16px; flex-wrap:wrap; justify-content:flex-end;">
     <div style="text-align:right;">
-      <div style="font-size:12px; color:rgba(255,255,255,0.8); margin-bottom:4px;">Total Income</div>
-      <div id="total-income" style="font-size:28px; font-weight:bold;">$0.00</div>
+      <div style="font-size:11px; color:rgba(255,255,255,0.8); margin-bottom:4px;">YTD Income</div>
+      <div id="total-income" style="font-size:22px; font-weight:bold;">$0.00</div>
     </div>
     <div style="text-align:right;">
-      <div style="font-size:12px; color:rgba(255,255,255,0.8); margin-bottom:4px;">Total Tips</div>
-      <div id="total-tips" style="font-size:28px; font-weight:bold; color:#90ee90;">$0.00</div>
+      <div style="font-size:11px; color:rgba(255,255,255,0.8); margin-bottom:4px;">YTD Tips</div>
+      <div id="total-tips" style="font-size:22px; font-weight:bold; color:#90ee90;">$0.00</div>
+    </div>
+    <div style="text-align:right;">
+      <div style="font-size:11px; color:rgba(255,255,255,0.8); margin-bottom:4px;">YTD Miles</div>
+      <div id="total-miles" style="font-size:22px; font-weight:bold; color:#87ceeb;">0.0</div>
     </div>
   </div>
 </div>
@@ -596,15 +601,23 @@ onSnapshot(cancelledQuery, (snapshot) => { displayRequests(snapshot, 'cancelled-
 // Calculate total income from paid rides
 const paidQuery = query(collection(db, 'ride_requests'), where('status', '==', 'paid'));
 onSnapshot(paidQuery, (snapshot) => {
+  const currentYear = new Date().getFullYear();
   let totalIncome = 0;
   let totalTips = 0;
+  let totalMiles = 0;
   snapshot.forEach((doc) => {
     const data = doc.data();
     if (data.final_price) totalIncome += data.final_price;
     if (data.tip) totalTips += data.tip;
+    // Only count miles for current year based on paid_at
+    if (data.trip_miles && data.paid_at) {
+      const paidYear = new Date(data.paid_at.seconds * 1000).getFullYear();
+      if (paidYear === currentYear) totalMiles += data.trip_miles;
+    }
   });
   document.getElementById('total-income').textContent = '$' + totalIncome.toFixed(2);
   document.getElementById('total-tips').textContent = '$' + totalTips.toFixed(2);
+  document.getElementById('total-miles').textContent = totalMiles.toFixed(1);
 });
 
 function displayRequests(snapshot, containerId) {
