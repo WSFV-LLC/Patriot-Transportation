@@ -401,14 +401,13 @@ body {
 .qr-code-container { text-align: center; }
 @media (max-width: 768px) {
   body { padding: 10px; }
-  .header { flex-direction: column; gap: 12px; text-align: center; }
-  .header > div { text-align: center !important; }
+  .header { flex-direction: column; align-items: center; gap: 8px; text-align: center; }
+  .header > div:first-child { text-align: center; }
   .header h1 { font-size: 20px; }
-  #total-income { font-size: 16px !important; }
-  #total-tips { font-size: 16px !important; }
-  #total-miles { font-size: 16px !important; }
-  .header { flex-direction: column; align-items: center; gap: 10px; }
-  .header > div:last-child { display: flex !important; gap: 16px !important; justify-content: center !important; flex-wrap: nowrap !important; width: 100%; }
+  #total-income { font-size: 14px !important; }
+  #total-tips { font-size: 14px !important; }
+  #total-miles { font-size: 14px !important; }
+  .header > div:last-child { display: flex !important; gap: 12px !important; justify-content: center !important; flex-wrap: nowrap !important; width: 100%; }
   .tabs { overflow-x: auto; flex-wrap: nowrap; padding-bottom: 8px; }
   .tab { padding: 10px 16px; font-size: 13px; white-space: nowrap; }
   .request-card { padding: 16px; }
@@ -433,7 +432,7 @@ body {
     <h1>Driver Dashboard</h1>
     <div style="font-size:14px;">Patriot Transportation</div>
   </div>
-  <div style="display:flex; gap:16px; flex-wrap:wrap; justify-content:flex-end;">
+  <div style="display:flex; gap:12px; flex-wrap:nowrap; justify-content:flex-end; align-items:flex-end;">
     <div style="text-align:right;">
       <div style="font-size:11px; color:rgba(255,255,255,0.8); margin-bottom:4px;">YTD Income</div>
       <div id="total-income" style="font-size:22px; font-weight:bold;">$0.00</div>
