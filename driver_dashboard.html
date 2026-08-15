@@ -1847,7 +1847,7 @@ async function confirmPayment(id) {
     const last4Input = document.getElementById('card-last4-' + id);
     const last4 = last4Input ? last4Input.value.trim() : '';
     if (last4 && /^\d{4}$/.test(last4)) {
-      paymentMethod = `Square ending in ${last4}`;
+      paymentMethod = `Card ending in ${last4}`;
     } else if (last4) {
       alert('Please enter exactly 4 digits for the card number.');
       return;
