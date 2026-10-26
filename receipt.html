@@ -335,19 +335,32 @@ async function savePDF() {
   try {
     if (!window.html2pdf) throw new Error('PDF tool did not load');
 
-    // Copy of the receipt without the "Back to Dashboard" button
+    // Scroll to top first (a scrolled page causes blank/cut-off PDFs)
+    window.scrollTo(0, 0);
+
+    // Compact copy of the receipt without the "Back to Dashboard" button
     const clone = document.getElementById('receipt').cloneNode(true);
     clone.querySelectorAll('.back-btn').forEach(el => el.remove());
-    clone.style.boxShadow = 'none';
-    clone.style.borderRadius = '0';
-    clone.style.margin = '0';
+    clone.style.cssText = 'width:700px; max-width:700px; margin:0; padding:8px 20px; box-shadow:none; border-radius:0; background:#fff;';
+    clone.querySelectorAll('.header').forEach(el => { el.style.padding = '12px'; el.style.marginBottom = '14px'; });
+    clone.querySelectorAll('.header h1').forEach(el => { el.style.fontSize = '26px'; });
+    clone.querySelectorAll('.section').forEach(el => { el.style.marginBottom = '12px'; });
+    clone.querySelectorAll('.info-row').forEach(el => { el.style.padding = '4px 0'; });
+    clone.querySelectorAll('.info-label, .info-value').forEach(el => { el.style.fontSize = '12px'; });
+    clone.querySelectorAll('.route').forEach(el => { el.style.padding = '10px'; el.style.margin = '10px 0'; });
+    clone.querySelectorAll('.route-point').forEach(el => { el.style.marginBottom = '8px'; });
+    clone.querySelectorAll('.route-address').forEach(el => { el.style.fontSize = '13px'; });
+    clone.querySelectorAll('.total').forEach(el => { el.style.padding = '12px'; el.style.marginTop = '14px'; });
+    clone.querySelectorAll('.total-amount').forEach(el => { el.style.fontSize = '28px'; });
+    clone.querySelectorAll('.footer').forEach(el => { el.style.marginTop = '16px'; el.style.paddingTop = '10px'; });
 
     const blob = await window.html2pdf().set({
-      margin: 8,
+      margin: [6, 6, 6, 6],
       filename: 'Patriot-Transportation-Receipt.pdf',
       image: { type: 'jpeg', quality: 0.98 },
-      html2canvas: { scale: 2, useCORS: true, backgroundColor: '#ffffff' },
-      jsPDF: { unit: 'mm', format: 'letter', orientation: 'portrait' }
+      html2canvas: { scale: 2, useCORS: true, backgroundColor: '#ffffff', scrollX: 0, scrollY: 0, windowWidth: 760 },
+      jsPDF: { unit: 'mm', format: 'letter', orientation: 'portrait' },
+      pagebreak: { mode: ['avoid-all', 'css'] }
     }).from(clone).outputPdf('blob');
 
     const file = new File([blob], 'Patriot-Transportation-Receipt.pdf', { type: 'application/pdf' });
