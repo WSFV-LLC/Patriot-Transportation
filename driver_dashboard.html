@@ -512,6 +512,9 @@ body {
 </div>
 
 <div id="confirmed-tab" style="display:none;">
+  <div style="margin-bottom:12px; text-align:right;">
+    <button class="btn btn-counter" id="export-scout-btn" onclick="exportForScout()" style="width:auto; padding:10px 20px;">📋 Copy next 7 days for Scout</button>
+  </div>
   <div id="confirmed-requests" class="loading">Loading...</div>
 </div>
 
@@ -588,6 +591,7 @@ onSnapshot(confirmedQuery, (snapshot) => {
     const dateTimeB = new Date(b.data.pickup_date + ' ' + b.data.pickup_time);
     return dateTimeA - dateTimeB;
   });
+  window.confirmedRidesCache = rides;
   displayRequestsSorted(rides, 'confirmed-requests');
 });
 
@@ -1419,6 +1423,103 @@ async function runMileageEngine() {
     });
   }, 300);
 })();
+
+
+// ── EXPORT CONFIRMED RIDES (next 7 days) AS TEXT FOR SCOUT ─────────────────
+function fmtClock(hhmm) {
+  const parts = (hhmm || '').split(':').map(Number);
+  if (parts.length < 2 || isNaN(parts[0])) return hhmm || '';
+  const h = parts[0], m = parts[1];
+  return ((h % 12) || 12) + ':' + String(m).padStart(2, '0') + ' ' + (h >= 12 ? 'PM' : 'AM');
+}
+function addMinutesClock(hhmm, mins) {
+  const parts = (hhmm || '').split(':').map(Number);
+  const total = parts[0] * 60 + parts[1] + Math.round(mins);
+  const day = Math.floor(total / 1440);
+  const t = ((total % 1440) + 1440) % 1440;
+  return fmtClock(String(Math.floor(t / 60)).padStart(2, '0') + ':' + String(t % 60).padStart(2, '0')) + (day > 0 ? ' (next day)' : '');
+}
+
+function buildScoutText() {
+  const rides = window.confirmedRidesCache || [];
+  const pad = n => String(n).padStart(2, '0');
+  const fmt = d => d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate());
+  const now = new Date();
+  const startStr = fmt(now);
+  const endStr = fmt(new Date(now.getFullYear(), now.getMonth(), now.getDate() + 6));
+  const inRange = rides.filter(r => r.data.pickup_date >= startStr && r.data.pickup_date <= endStr);
+
+  const byDate = new Map();
+  inRange.forEach(r => {
+    if (!byDate.has(r.data.pickup_date)) byDate.set(r.data.pickup_date, []);
+    byDate.get(r.data.pickup_date).push(r);
+  });
+
+  const rangeLabel = d => { const p = d.split('-').map(Number); return new Date(p[0], p[1] - 1, p[2]).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' }); };
+  const dayLabel = d => { const p = d.split('-').map(Number); return new Date(p[0], p[1] - 1, p[2]).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' }); };
+
+  let out = 'PATRIOT TRANSPORTATION — CONFIRMED RIDES\n';
+  out += 'Covers: ' + rangeLabel(startStr) + ' through ' + rangeLabel(endStr) + ' (all times Central)\n';
+  out += 'Home base (start and end of each day): ' + HOME_ADDRESS + '\n';
+  out += 'Each ride is a fixed appointment: I must be at the pickup address at the pickup time. Please plan my other work (Amazon Flex, Uber) around these.\n';
+
+  if (inRange.length === 0) {
+    out += '\nNo confirmed rides in this period.\n';
+    return { text: out, count: 0 };
+  }
+
+  let n = 0;
+  Array.from(byDate.keys()).sort().forEach(d => {
+    out += '\n' + dayLabel(d).toUpperCase() + '\n';
+    byDate.get(d).sort((a, b) => (a.data.pickup_time || '').localeCompare(b.data.pickup_time || '')).forEach(r => {
+      n++;
+      const x = r.data;
+      const amt = (x.final_price !== undefined && x.final_price !== null) ? x.final_price : (x.quoted_price || 0);
+      out += '\nRide ' + n + ': pickup at ' + fmtClock(x.pickup_time) + ' — ' + (x.client_name || 'Client') + '\n';
+      out += '  Pickup address: ' + x.pickup_address + '\n';
+      out += '  Drop-off address: ' + x.dropoff_address + '\n';
+      let trip = '';
+      if (x.trip_miles) trip += x.trip_miles.toFixed(1) + ' miles';
+      if (x.trip_duration_minutes) trip += (trip ? ', ' : '') + 'about ' + Math.round(x.trip_duration_minutes) + ' min drive';
+      if (trip) out += '  Trip: ' + trip + '\n';
+      if (x.trip_duration_minutes) out += '  Estimated drop-off time: ' + addMinutesClock(x.pickup_time, x.trip_duration_minutes) + '\n';
+      out += '  Fare: $' + amt.toFixed(2) + '\n';
+      if (x.notes) out += '  Notes: ' + x.notes.replace(/\s+/g, ' ').trim() + '\n';
+    });
+  });
+  return { text: out, count: n };
+}
+
+async function exportForScout() {
+  const btn = document.getElementById('export-scout-btn');
+  const original = btn.innerHTML;
+  const { text, count } = buildScoutText();
+  let copied = false;
+  try {
+    await navigator.clipboard.writeText(text);
+    copied = true;
+  } catch (e) {
+    try {
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      ta.style.position = 'fixed';
+      ta.style.top = '0';
+      ta.style.opacity = '0';
+      document.body.appendChild(ta);
+      ta.focus();
+      ta.select();
+      copied = document.execCommand('copy');
+      ta.remove();
+    } catch (e2) { copied = false; }
+  }
+  if (copied) {
+    btn.innerHTML = '✓ Copied ' + count + ' ride' + (count !== 1 ? 's' : '') + ' — paste into Scout';
+    setTimeout(() => { btn.innerHTML = original; }, 3500);
+  } else {
+    window.prompt('Copy this text and paste it into Scout:', text);
+  }
+}
+window.exportForScout = exportForScout;
 
 // Register PWA service worker
 if ('serviceWorker' in navigator) {
