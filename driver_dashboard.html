@@ -1215,7 +1215,6 @@ window.acceptQuote = acceptQuote;
 
 // ── MILEAGE: trip-mile backfill + dead-head miles ──────────────────────────
 const HOME_ADDRESS = '448 Westmont, Cibolo, TX 78108';
-const SAME_TRIP_GAP_MIN = 120;     // longer gap between rides = drove home in between
 const LATE_CANCEL_MIN = 15;        // cancelled this close to pickup (or later) = we made the trip
 
 function pickupMs(d) {
@@ -1367,36 +1366,26 @@ async function runMileageEngine() {
     for (const [date, items] of byDate) {
       if (!items.some(countsForDeadhead)) continue;   // nothing finished that day yet
       items.sort((a, b) => pickupMs(a) - pickupMs(b));
-      const sig = items.map(r => [r.id, r.pickup_time, r.pickup_address, r.dropoff_address,
+      const sig = 'v2:' + items.map(r => [r.id, r.pickup_time, r.pickup_address, r.dropoff_address,
         r.status === 'cancelled' ? 'LC' : 'ok', r.trip_duration_minutes || 0].join('|')).join(';');
       const needs = items.some(r => !r.deadhead_manual && (r.deadhead_sig !== sig || typeof r.deadhead_miles !== 'number'));
       if (!needs) continue;
 
+      // Dead-head = only two drives per day: home -> first pickup, and last stop -> home.
+      // (A late-cancelled ride counts as a stop at its pickup address.)
       const endLoc = r => r.status === 'cancelled' ? r.pickup_address : r.dropoff_address;
-      const endMs = r => pickupMs(r) + (r.status === 'cancelled' ? 0 : (r.trip_duration_minutes || 0)) * 60000;
-      const result = [];
+      const result = items.map(() => 0);
       let failed = false;
-      for (let i = 0; i < items.length && !failed; i++) {
-        const r = items[i];
-        let origin = HOME_ADDRESS;
-        if (i > 0) {
-          const gapMin = (pickupMs(r) - endMs(items[i - 1])) / 60000;
-          if (gapMin <= SAME_TRIP_GAP_MIN) origin = endLoc(items[i - 1]);
-        }
-        const inLeg = await legInfo(origin, r.pickup_address);
-        if (!inLeg) { failed = true; break; }
-        let total = inLeg.miles;
-        let goesHome = (i === items.length - 1);
-        if (!goesHome) {
-          const nextGap = (pickupMs(items[i + 1]) - endMs(r)) / 60000;
-          goesHome = nextGap > SAME_TRIP_GAP_MIN;
-        }
-        if (goesHome) {
-          const outLeg = await legInfo(endLoc(r), HOME_ADDRESS);
-          if (!outLeg) { failed = true; break; }
-          total += outLeg.miles;
-        }
-        result.push(Math.round(total * 10) / 10);
+      const first = items[0];
+      const last = items[items.length - 1];
+      const toFirst = await legInfo(HOME_ADDRESS, first.pickup_address);
+      const fromLast = toFirst ? await legInfo(endLoc(last), HOME_ADDRESS) : null;
+      if (!toFirst || !fromLast) {
+        failed = true;
+      } else {
+        result[0] += toFirst.miles;
+        result[items.length - 1] += fromLast.miles;
+        for (let i = 0; i < result.length; i++) result[i] = Math.round(result[i] * 10) / 10;
       }
       if (failed) continue;
       for (let i = 0; i < items.length; i++) {
