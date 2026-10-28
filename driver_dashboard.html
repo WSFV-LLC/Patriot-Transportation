@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -423,6 +422,45 @@ body {
   .qr-code-section { padding: 20px 10px; margin: 12px 0; }
   .qr-code-container img { width: 180px !important; height: 180px !important; }
 }
+
+/* ── UPDATE: tile stats, day headers, QR, clients ── */
+.tile-stats { font-size: 13px; font-weight: 600; color: #6b1f1f; }
+.confirmed-card-left, .completed-card-left { flex: 1; min-width: 0; }
+.confirmed-card-name, .completed-card-name { overflow-wrap: anywhere; }
+.completed-card-header { gap: 10px; }
+.completed-card-right { flex-shrink: 0; }
+.day-header {
+  font-size: 15px; font-weight: 700; color: #6b1f1f; text-align: left;
+  margin: 18px 0 8px; padding: 6px 4px;
+  border-bottom: 2px solid #6b1f1f;
+}
+.day-header:first-child { margin-top: 4px; }
+.day-header-earlier { color: #a15c00; border-bottom-color: #a15c00; }
+.day-tag { font-size: 11px; font-weight: 700; background: #6b1f1f; color: white; padding: 2px 8px; border-radius: 10px; }
+.day-count { font-size: 12px; font-weight: 500; color: #888; }
+.qr-details { background: #f8f9fa; border: 1px solid #e0e0e0; border-radius: 8px; margin: 0 0 14px; }
+.qr-details summary { padding: 12px 16px; font-size: 14px; font-weight: 600; color: #6b1f1f; cursor: pointer; list-style: none; }
+.qr-details summary::-webkit-details-marker { display: none; }
+.qr-details[open] summary { border-bottom: 1px solid #e0e0e0; }
+.client-summary { display: flex; gap: 8px; margin-bottom: 14px; }
+.client-summary > div { flex: 1; background: white; border-radius: 8px; padding: 10px 8px; text-align: center; box-shadow: 0 1px 4px rgba(0,0,0,0.1); }
+.client-summary .cs-num { font-size: 18px; font-weight: 700; color: #6b1f1f; }
+.client-summary .cs-num.owed { color: #dc3545; }
+.client-summary .cs-label { font-size: 11px; color: #888; margin-top: 2px; }
+.client-section-title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin: 4px 0 6px; padding-left: 4px; }
+.client-list-box { background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,0.1); margin-bottom: 14px; }
+.client-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 12px 14px; border-bottom: 1px solid #f0f0f0; cursor: pointer; }
+.client-row:last-child { border-bottom: none; }
+.client-row:hover { background: #f8f9fa; }
+.client-row-name { font-size: 15px; font-weight: 600; color: #333; min-width: 0; overflow-wrap: anywhere; }
+.client-row-bal { font-size: 14px; font-weight: 700; white-space: nowrap; }
+.client-row-bal.owed { color: #dc3545; }
+.client-row-bal.ok { color: #28a745; font-weight: 600; }
+.paid-up-details summary { cursor: pointer; list-style: none; }
+.paid-up-details summary::-webkit-details-marker { display: none; }
+@media (max-width: 768px) {
+  #total-deadhead { font-size: 14px !important; }
+}
 </style>
 </head>
 <body>
@@ -445,12 +483,15 @@ body {
       <div style="font-size:11px; color:rgba(255,255,255,0.8); margin-bottom:4px;">YTD Miles</div>
       <div id="total-miles" style="font-size:22px; font-weight:bold; color:#87ceeb;">0.0</div>
     </div>
+    <div style="text-align:right;">
+      <div style="font-size:11px; color:rgba(255,255,255,0.8); margin-bottom:4px;">YTD Dead-head</div>
+      <div id="total-deadhead" style="font-size:22px; font-weight:bold; color:#ffd28a;">0.0</div>
+    </div>
   </div>
 </div>
 
 <div class="tabs">
   <div class="tab active" onclick="showTab('pending')">Pending Requests</div>
-  <div class="tab" onclick="showTab('quoted')">Quoted</div>
   <div class="tab" onclick="showTab('confirmed')">Confirmed</div>
   <div class="tab" onclick="showTab('completed')">Completed</div>
   <div class="tab" onclick="showTab('cancelled')">Cancelled</div>
@@ -458,20 +499,16 @@ body {
   <div class="tab" onclick="showTab('tithe')">Tithe</div>
 </div>
 
-<div class="qr-code-section">
-  <div class="qr-code-container">
-    <div style="font-size: 14px; color: #666; margin-bottom: 12px; font-weight: 600;">Client Booking Portal</div>
-    <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=https://wsfv-llc.github.io/Patriot-Transportation/" alt="Client Dashboard QR Code" style="width: 200px; height: 200px; border: 3px solid #6b1f1f; border-radius: 8px;">
-    <div style="font-size: 12px; color: #999; margin-top: 8px;">bit.ly/4aEUCwW</div>
-  </div>
-</div>
-
 <div id="pending-tab">
+  <details class="qr-details">
+    <summary>📱 Show Client Booking QR Code</summary>
+    <div class="qr-code-container" style="padding:16px 0 12px;">
+      <div style="font-size: 14px; color: #666; margin-bottom: 12px; font-weight: 600;">Client Booking Portal</div>
+      <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=https://wsfv-llc.github.io/Patriot-Transportation/" alt="Client Dashboard QR Code" style="width: 200px; height: 200px; border: 3px solid #6b1f1f; border-radius: 8px;">
+      <div style="font-size: 12px; color: #999; margin-top: 8px;">bit.ly/4aEUCwW</div>
+    </div>
+  </details>
   <div id="pending-requests" class="loading">Loading...</div>
-</div>
-
-<div id="quoted-tab" style="display:none;">
-  <div id="quoted-requests" class="loading">Loading...</div>
 </div>
 
 <div id="confirmed-tab" style="display:none;">
@@ -540,10 +577,6 @@ window.onSnapshot = onSnapshot;
 // Load pending requests
 const pendingQuery = query(collection(db, 'ride_requests'), where('status', '==', 'pending'), orderBy('created_at', 'desc'));
 onSnapshot(pendingQuery, (snapshot) => { displayRequests(snapshot, 'pending-requests'); });
-
-// Load quoted requests
-const quotedQuery = query(collection(db, 'ride_requests'), where('status', '==', 'quoted'), orderBy('created_at', 'desc'));
-onSnapshot(quotedQuery, (snapshot) => { displayRequests(snapshot, 'quoted-requests'); });
 
 // Load confirmed requests
 const confirmedQuery = query(collection(db, 'ride_requests'), where('status', '==', 'confirmed'), orderBy('pickup_date', 'asc'));
@@ -622,13 +655,57 @@ onSnapshot(paidQuery, (snapshot) => {
 
 function displayRequests(snapshot, containerId) {
   const container = document.getElementById(containerId);
+  container.classList.remove('loading');
   if (snapshot.empty) { container.innerHTML = '<div class="empty-state">No requests yet</div>'; return; }
   container.innerHTML = '';
   snapshot.forEach((doc) => { container.innerHTML += createRequestCard(doc.id, doc.data()); });
 }
 
+function renderConfirmedGrouped(rides) {
+  const pad = n => String(n).padStart(2, '0');
+  const fmt = d => d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate());
+  const now = new Date();
+  const todayStr = fmt(now);
+  const tomorrowStr = fmt(new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1));
+  const earlier = [];
+  const groups = new Map();
+  rides.forEach(r => {
+    const d = r.data.pickup_date || '';
+    if (d < todayStr) earlier.push(r);
+    else { if (!groups.has(d)) groups.set(d, []); groups.get(d).push(r); }
+  });
+  let html = '';
+  if (earlier.length) {
+    html += '<div class="day-header day-header-earlier">⚠ Earlier — still confirmed, not completed <span class="day-count">(' + earlier.length + ')</span></div>';
+    earlier.forEach(r => { html += createConfirmedCard(r.id, r.data); });
+  }
+  Array.from(groups.keys()).sort().forEach(d => {
+    const parts = d.split('-').map(Number);
+    const label = parts.length === 3
+      ? new Date(parts[0], parts[1] - 1, parts[2]).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })
+      : d;
+    const tag = d === todayStr ? ' <span class="day-tag">Today</span>' : (d === tomorrowStr ? ' <span class="day-tag">Tomorrow</span>' : '');
+    const list = groups.get(d);
+    html += '<div class="day-header">' + label + tag + ' <span class="day-count">(' + list.length + ' ride' + (list.length !== 1 ? 's' : '') + ')</span></div>';
+    list.forEach(r => { html += createConfirmedCard(r.id, r.data); });
+  });
+  return html;
+}
+
+function tileStats(data, amount) {
+  const mi = data.trip_miles ? data.trip_miles.toFixed(1) + ' mi' : '';
+  const amt = '$' + amount.toFixed(2);
+  return mi ? mi + ' · ' + amt : amt;
+}
+
 function displayRequestsSorted(ridesArray, containerId) {
   const container = document.getElementById(containerId);
+  container.classList.remove('loading');
+  if (containerId === 'confirmed-requests') {
+    if (ridesArray.length === 0) { container.innerHTML = '<div class="empty-state">No confirmed rides</div>'; return; }
+    container.innerHTML = renderConfirmedGrouped(ridesArray);
+    return;
+  }
   if (ridesArray.length === 0) { container.innerHTML = '<div class="empty-state">No requests yet</div>'; return; }
   container.innerHTML = '';
   ridesArray.forEach((ride) => {
@@ -642,6 +719,7 @@ function displayRequestsSorted(ridesArray, containerId) {
 
 function displayFilteredRequests(ridesArray, containerId) {
   const container = document.getElementById(containerId);
+  container.classList.remove('loading');
   if (ridesArray.length === 0) { container.innerHTML = '<div class="empty-state">No rides this week</div>'; return; }
   container.innerHTML = '';
   ridesArray.forEach((ride) => {
@@ -733,7 +811,7 @@ function createRequestCard(id, data) {
         <button class="btn btn-deny" onclick="deleteRide('${id}')">Delete</button>
       </div>`;
   } else if (data.status === 'cancelled') {
-    actionButtons = `
+    actionButtons = deadheadRowHtml(id, data) + `
       <div class="actions">
         <button class="btn btn-accept" onclick="restoreRide('${id}')">Restore to Confirmed</button>
         <button class="btn btn-deny" onclick="deleteRide('${id}')">Delete</button>
@@ -876,7 +954,7 @@ function createConfirmedCard(id, data) {
         <div class="confirmed-card-left">
           <div class="confirmed-card-name">${data.client_name}</div>
           <div class="confirmed-card-time">${data.pickup_date} at ${data.pickup_time}</div>
-          <div class="confirmed-card-address">${data.pickup_address}</div>
+          <div class="tile-stats">${tileStats(data, amount)}</div>
         </div>
         <div class="confirmed-card-chevron" id="chevron-${id}">▼</div>
       </div>
@@ -960,13 +1038,15 @@ function createCompletedCard(id, data) {
       </div>`;
   }
 
+  actionButtons = deadheadRowHtml(id, data) + actionButtons;
+
   return `
     <div class="completed-card" id="completed-card-${id}">
       <div class="completed-card-header" onclick="toggleCompleted('${id}')">
-        <div style="flex:1;">
+        <div class="completed-card-left">
           <div class="completed-card-name">${data.client_name}</div>
           <div class="completed-card-meta">${data.pickup_date} at ${data.pickup_time}</div>
-          <div class="completed-card-address">${data.pickup_address}</div>
+          ${data.trip_miles ? `<div class="tile-stats">${data.trip_miles.toFixed(1)} mi</div>` : ''}
         </div>
         <div class="completed-card-right">
           <div>
@@ -1087,7 +1167,6 @@ let allClientsData = null;
 function showTab(tab) {
   currentTab = tab;
   document.getElementById('pending-tab').style.display = 'none';
-  document.getElementById('quoted-tab').style.display = 'none';
   document.getElementById('confirmed-tab').style.display = 'none';
   document.getElementById('completed-tab').style.display = 'none';
   document.getElementById('cancelled-tab').style.display = 'none';
@@ -1133,10 +1212,241 @@ async function acceptQuote(id) {
 }
 window.acceptQuote = acceptQuote;
 
+
+// ── MILEAGE: trip-mile backfill + dead-head miles ──────────────────────────
+const HOME_ADDRESS = '448 Westmont, Cibolo, TX 78108';
+const SAME_TRIP_GAP_MIN = 120;     // longer gap between rides = drove home in between
+const LATE_CANCEL_MIN = 15;        // cancelled this close to pickup (or later) = we made the trip
+
+function pickupMs(d) {
+  const dp = (d.pickup_date || '').split('-').map(Number);
+  const tp = (d.pickup_time || '0:0').split(':').map(Number);
+  if (dp.length !== 3) return NaN;
+  return new Date(dp[0], dp[1] - 1, dp[2], tp[0] || 0, tp[1] || 0).getTime();
+}
+function cancelledMs(d) {
+  const c = d.cancelled_at;
+  if (!c) return null;
+  if (typeof c.toMillis === 'function') return c.toMillis();
+  if (c.seconds) return c.seconds * 1000;
+  const t = new Date(c).getTime();
+  return isNaN(t) ? null : t;
+}
+function isLateCancel(d) {
+  if (d.status !== 'cancelled') return false;
+  const c = cancelledMs(d);
+  const pu = pickupMs(d);
+  if (c === null || isNaN(pu)) return false;
+  return c >= pu - LATE_CANCEL_MIN * 60000;
+}
+function countsForDeadhead(d) {
+  return d.status === 'completed' || d.status === 'paid' || isLateCancel(d);
+}
+
+function deadheadRowHtml(id, d) {
+  if (!countsForDeadhead(d)) return '';
+  const has = typeof d.deadhead_miles === 'number';
+  const label = has ? d.deadhead_miles.toFixed(1) + ' mi' + (d.deadhead_manual ? ' (manual)' : '') : 'calculating…';
+  return `
+    <div style="font-size:12px; color:#666; margin-bottom:4px;">
+      🚗 Dead-head: ${label}${d.status === 'cancelled' ? ' · late cancel' : ''}
+      <button class="edit-toggle" onclick="toggleEditSection('dh-edit-${id}')" title="Edit dead-head miles">✏️</button>
+    </div>
+    <div class="edit-section" id="dh-edit-${id}">
+      <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap; margin-bottom:6px;">
+        <input type="number" id="dh-${id}" value="${has ? d.deadhead_miles.toFixed(1) : ''}" min="0" step="0.1" placeholder="miles" style="flex:1; min-width:90px; padding:6px; border:1px solid #e0c0c0; border-radius:4px; font-size:13px;">
+        <button class="btn btn-counter" style="padding:6px 12px; font-size:12px; width:auto;" onclick="saveDeadhead('${id}')">Save</button>
+        ${d.deadhead_manual ? `<button class="btn" style="padding:6px 12px; font-size:12px; width:auto; background:#6c757d; color:white;" onclick="resetDeadhead('${id}')">Reset to automatic</button>` : ''}
+      </div>
+    </div>`;
+}
+
+async function saveDeadhead(id) {
+  const input = document.getElementById('dh-' + id);
+  const v = parseFloat(input ? input.value : '');
+  if (isNaN(v) || v < 0) { alert('Please enter a valid number of miles.'); return; }
+  try {
+    await window.updateDoc(window.doc(window.db, 'ride_requests', id), { deadhead_miles: Math.round(v * 10) / 10, deadhead_manual: true });
+  } catch (e) { alert('Error saving dead-head miles: ' + e.message); }
+}
+async function resetDeadhead(id) {
+  try {
+    await window.updateDoc(window.doc(window.db, 'ride_requests', id), { deadhead_manual: false, deadhead_sig: '' });
+  } catch (e) { alert('Error resetting dead-head miles: ' + e.message); }
+}
+window.saveDeadhead = saveDeadhead;
+window.resetDeadhead = resetDeadhead;
+
+let dashDM = null;
+let mapsReady = false;
+let latestMileRides = null;
+let engineRunning = false;
+let engineDirty = false;
+let engineTimer = null;
+const legCache = new Map();
+
+window.initDashMaps = function () {
+  try {
+    dashDM = new google.maps.DistanceMatrixService();
+    mapsReady = true;
+    scheduleEngine();
+  } catch (e) { console.log('Maps init failed', e); }
+};
+
+function legInfo(origin, dest) {
+  const key = origin + '|' + dest;
+  if (legCache.has(key)) return Promise.resolve(legCache.get(key));
+  return new Promise(resolve => {
+    setTimeout(() => {
+      dashDM.getDistanceMatrix({
+        origins: [origin], destinations: [dest],
+        travelMode: 'DRIVING', unitSystem: google.maps.UnitSystem.IMPERIAL
+      }, (response, status) => {
+        try {
+          if (status === 'OK') {
+            const el = response.rows[0].elements[0];
+            if (el.status === 'OK') {
+              const out = { miles: el.distance.value / 1609.34, minutes: el.duration.value / 60 };
+              legCache.set(key, out);
+              resolve(out);
+              return;
+            }
+          }
+        } catch (e) {}
+        resolve(null);
+      });
+    }, 250);
+  });
+}
+
+function scheduleEngine() {
+  clearTimeout(engineTimer);
+  engineTimer = setTimeout(runMileageEngine, 1500);
+}
+
+function updateDeadheadTotal() {
+  const el = document.getElementById('total-deadhead');
+  if (!el || !latestMileRides) return;
+  const yr = String(new Date().getFullYear());
+  let total = 0;
+  latestMileRides.forEach(r => {
+    if ((r.pickup_date || '').startsWith(yr) && countsForDeadhead(r) && typeof r.deadhead_miles === 'number') total += r.deadhead_miles;
+  });
+  el.textContent = total.toFixed(1);
+}
+
+async function runMileageEngine() {
+  if (!mapsReady || !latestMileRides) return;
+  if (engineRunning) { engineDirty = true; return; }
+  engineRunning = true;
+  const yr = String(new Date().getFullYear());
+  try {
+    // 1. Fill in missing trip miles (current year, finished rides)
+    for (const r of latestMileRides) {
+      if (!(r.status === 'completed' || r.status === 'paid')) continue;
+      if (!(r.pickup_date || '').startsWith(yr)) continue;
+      if (r.trip_miles || !r.pickup_address || !r.dropoff_address) continue;
+      const leg = await legInfo(r.pickup_address, r.dropoff_address);
+      if (!leg) continue;
+      const upd = { trip_miles: Math.round(leg.miles * 10) / 10 };
+      if (!r.trip_duration_minutes) upd.trip_duration_minutes = Math.round(leg.minutes);
+      await window.updateDoc(window.doc(window.db, 'ride_requests', r.id), upd);
+      r.trip_miles = upd.trip_miles;
+      if (upd.trip_duration_minutes) r.trip_duration_minutes = upd.trip_duration_minutes;
+    }
+
+    // 2. Dead-head miles, day by day
+    const byDate = new Map();
+    latestMileRides.forEach(r => {
+      if (!(r.pickup_date || '').startsWith(yr)) return;
+      if (!(r.status === 'confirmed' || countsForDeadhead(r))) return;
+      if (!byDate.has(r.pickup_date)) byDate.set(r.pickup_date, []);
+      byDate.get(r.pickup_date).push(r);
+    });
+
+    for (const [date, items] of byDate) {
+      if (!items.some(countsForDeadhead)) continue;   // nothing finished that day yet
+      items.sort((a, b) => pickupMs(a) - pickupMs(b));
+      const sig = items.map(r => [r.id, r.pickup_time, r.pickup_address, r.dropoff_address,
+        r.status === 'cancelled' ? 'LC' : 'ok', r.trip_duration_minutes || 0].join('|')).join(';');
+      const needs = items.some(r => !r.deadhead_manual && (r.deadhead_sig !== sig || typeof r.deadhead_miles !== 'number'));
+      if (!needs) continue;
+
+      const endLoc = r => r.status === 'cancelled' ? r.pickup_address : r.dropoff_address;
+      const endMs = r => pickupMs(r) + (r.status === 'cancelled' ? 0 : (r.trip_duration_minutes || 0)) * 60000;
+      const result = [];
+      let failed = false;
+      for (let i = 0; i < items.length && !failed; i++) {
+        const r = items[i];
+        let origin = HOME_ADDRESS;
+        if (i > 0) {
+          const gapMin = (pickupMs(r) - endMs(items[i - 1])) / 60000;
+          if (gapMin <= SAME_TRIP_GAP_MIN) origin = endLoc(items[i - 1]);
+        }
+        const inLeg = await legInfo(origin, r.pickup_address);
+        if (!inLeg) { failed = true; break; }
+        let total = inLeg.miles;
+        let goesHome = (i === items.length - 1);
+        if (!goesHome) {
+          const nextGap = (pickupMs(items[i + 1]) - endMs(r)) / 60000;
+          goesHome = nextGap > SAME_TRIP_GAP_MIN;
+        }
+        if (goesHome) {
+          const outLeg = await legInfo(endLoc(r), HOME_ADDRESS);
+          if (!outLeg) { failed = true; break; }
+          total += outLeg.miles;
+        }
+        result.push(Math.round(total * 10) / 10);
+      }
+      if (failed) continue;
+      for (let i = 0; i < items.length; i++) {
+        const r = items[i];
+        if (r.deadhead_manual) continue;
+        await window.updateDoc(window.doc(window.db, 'ride_requests', r.id), { deadhead_miles: result[i], deadhead_sig: sig });
+        r.deadhead_miles = result[i];
+        r.deadhead_sig = sig;
+      }
+    }
+  } catch (e) {
+    console.log('Mileage engine error:', e);
+  } finally {
+    engineRunning = false;
+    updateDeadheadTotal();
+    if (engineDirty) { engineDirty = false; scheduleEngine(); }
+  }
+}
+
+(function attachMileageListener() {
+  const wait = setInterval(() => {
+    if (!(window.db && window.onSnapshot && window.where && window.query && window.collection)) return;
+    clearInterval(wait);
+    const q = window.query(window.collection(window.db, 'ride_requests'),
+      window.where('status', 'in', ['confirmed', 'completed', 'paid', 'cancelled']));
+    window.onSnapshot(q, snap => {
+      latestMileRides = [];
+      snap.forEach(d => latestMileRides.push({ id: d.id, ...d.data() }));
+      updateDeadheadTotal();
+      scheduleEngine();
+    });
+  }, 300);
+})();
+
 // Register PWA service worker
 if ('serviceWorker' in navigator) {
+  const hadController = !!navigator.serviceWorker.controller;
+  let reloadedForUpdate = false;
+  // When a new version of the app takes over, reload once so the new code is used
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    if (hadController && !reloadedForUpdate) { reloadedForUpdate = true; window.location.reload(); }
+  });
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('sw.js').catch(err => console.log('SW registration failed:', err));
+    navigator.serviceWorker.register('sw.js', { updateViaCache: 'none' }).then(reg => {
+      // Check for a new version whenever the app is opened or brought back to the front
+      document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'visible') reg.update().catch(() => {});
+      });
+      reg.update().catch(() => {});
+    }).catch(err => console.log('SW registration failed:', err));
   });
 }
 
@@ -1410,6 +1720,8 @@ async function acceptOnBehalf(id) {
 }
 
 function loadClients() {
+  if (window._clientsListener) { if (allClientsData) displayClients(allClientsData); return; }
+  window._clientsListener = true;
   const allRidesQuery = window.query(window.collection(window.db, 'ride_requests'), window.orderBy('created_at', 'desc'));
   window.onSnapshot(allRidesQuery, (snapshot) => {
     const clientsMap = new Map();
@@ -1432,6 +1744,7 @@ function loadClients() {
 
 function displayClients(clients) {
   const container = document.getElementById('clients-list');
+  container.classList.remove('loading');
   const searchTerm = document.getElementById('client-search').value.toLowerCase();
   const filteredClients = clients.filter(client =>
     client.name.toLowerCase().includes(searchTerm) || client.phone.includes(searchTerm)
@@ -1447,32 +1760,37 @@ function displayClients(clients) {
   const balanceDue = filteredClients.filter(c => c.balanceDue > 0).sort(sortByLastName);
   const paidUp = filteredClients.filter(c => c.balanceDue <= 0).sort(sortByLastName);
 
-  function clientCard(client) {
-    const balanceText = client.balanceDue > 0 ? `Balance Due: $${client.balanceDue.toFixed(2)}` : '✓ Paid Up';
-    const balanceColor = client.balanceDue > 0 ? '#dc3545' : '#28a745';
+  function clientRow(client) {
+    const owes = client.balanceDue > 0;
     return `
-      <div class="client-stack-card">
-        <div class="client-stack-header" onclick="viewClientDetail('${client.phone}')">
-          <div class="client-stack-name">${client.name}</div>
-          <div class="client-stack-meta">
-            <div onclick="event.stopPropagation()">${createPhoneLink(client.phone)}</div>
-            <div style="font-size:12px; color:#999;">${client.totalRides} ride${client.totalRides !== 1 ? 's' : ''}</div>
-          </div>
-          <div style="margin-top:6px; font-size:13px; font-weight:700; color:${balanceColor};">${balanceText}</div>
-        </div>
+      <div class="client-row" onclick="viewClientDetail('${client.phone}')">
+        <div class="client-row-name">${client.name}</div>
+        <div class="client-row-bal ${owes ? 'owed' : 'ok'}">${owes ? '$' + client.balanceDue.toFixed(2) : '✓'} ›</div>
       </div>`;
   }
 
-  let html = '';
+  // Summary strip uses ALL clients, not just search matches
+  const allBalanceDue = clients.filter(c => c.balanceDue > 0);
+  const totalOwed = allBalanceDue.reduce((sum, c) => sum + c.balanceDue, 0);
+  let html = `
+    <div class="client-summary">
+      <div><div class="cs-num owed">$${totalOwed.toFixed(2)}</div><div class="cs-label">Total owed</div></div>
+      <div><div class="cs-num ${allBalanceDue.length ? 'owed' : ''}">${allBalanceDue.length}</div><div class="cs-label">With balance</div></div>
+      <div><div class="cs-num">${clients.length}</div><div class="cs-label">Total clients</div></div>
+    </div>`;
 
   if (balanceDue.length > 0) {
-    html += `<div style="font-size:11px; font-weight:700; color:#dc3545; text-transform:uppercase; letter-spacing:1px; margin-bottom:8px; padding-left:4px;">⚠ Balance Due (${balanceDue.length})</div>`;
-    balanceDue.forEach(client => { html += clientCard(client); });
+    html += `<div class="client-section-title" style="color:#dc3545;">⚠ Balance Due (${balanceDue.length})</div>`;
+    html += `<div class="client-list-box">${balanceDue.map(clientRow).join('')}</div>`;
   }
 
   if (paidUp.length > 0) {
-    html += `<div style="font-size:11px; font-weight:700; color:#28a745; text-transform:uppercase; letter-spacing:1px; margin:${balanceDue.length > 0 ? '16px' : '0px'} 0 8px; padding-left:4px;">✓ Paid Up (${paidUp.length})</div>`;
-    paidUp.forEach(client => { html += clientCard(client); });
+    const open = (searchTerm.length > 0 || window._paidUpOpen) ? ' open' : '';
+    html += `
+      <details class="paid-up-details"${open} ontoggle="window._paidUpOpen = this.open">
+        <summary class="client-section-title" style="color:#28a745;">✓ Paid Up (${paidUp.length}) — tap to show / hide</summary>
+        <div class="client-list-box">${paidUp.map(clientRow).join('')}</div>
+      </details>`;
   }
 
   container.innerHTML = html;
@@ -1946,5 +2264,6 @@ async function undoPaidFromClient(rideId, clientPhone) {
 window.undoPaidFromClient = undoPaidFromClient;
 </script>
 
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCiU4H9v1LWki-x5rjO0CMPUtAO35GW1Tc&callback=initDashMaps" async defer></script>
 </body>
 </html>

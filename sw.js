@@ -1,4 +1,4 @@
-const CACHE_NAME = 'patriot-v4';
+const CACHE_NAME = 'patriot-v5';
 const STATIC_ASSETS = [
   '/Patriot-Transportation/icon.png',
   '/Patriot-Transportation/icon-192.png',
@@ -36,7 +36,7 @@ self.addEventListener('fetch', event => {
     url.pathname.endsWith('.html')
   ) {
     event.respondWith(
-      fetch(event.request).catch(() => caches.match(event.request))
+      fetch(event.request, { cache: 'no-store' }).catch(() => caches.match(event.request))
     );
     return;
   }
