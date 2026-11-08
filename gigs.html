@@ -1,0 +1,910 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Road Ledger</title>
+<link rel="manifest" href="manifest-gigs.json">
+<meta name="theme-color" content="#0E6B45">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Road Ledger">
+<link rel="apple-touch-icon" href="icon-gigs.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Overpass:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --asphalt: #1E2227;
+  --bg: #E9ECEE;
+  --card: #FFFFFF;
+  --ink: #1E2227;
+  --ink-2: #5A6470;
+  --line: #D9DEE2;
+  --green: #0E6B45;
+  --green-deep: #0A5535;
+  --lane: #F4B400;
+  --danger: #C8382E;
+  --c-patriot: #8E2A3A;
+  --c-flex: #E8871E;
+  --c-uber: #3D5AD6;
+  --c-other: #2A9D8F;
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-top: env(safe-area-inset-top, 0px);
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #12151A;
+    --card: #1B2027;
+    --ink: #EDEFF1;
+    --ink-2: #9AA4AF;
+    --line: #2A313A;
+    --green: #127A50;
+    --green-deep: #0D6040;
+    --c-uber: #6F88F0;
+    --c-patriot: #C2485B;
+  }
+}
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+html { background: var(--bg); }
+body {
+  font-family: 'Overpass', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  background: var(--bg);
+  color: var(--ink);
+  font-size: 16px;
+  line-height: 1.4;
+  min-height: 100vh;
+  font-variant-numeric: tabular-nums;
+}
+button, input, select, textarea { font: inherit; color: inherit; }
+button { cursor: pointer; border: none; background: none; }
+:focus-visible { outline: 3px solid var(--lane); outline-offset: 2px; border-radius: 6px; }
+.hidden { display: none !important; }
+
+/* ── Sign in ───────────────────────────────────────── */
+.auth { min-height: 100vh; display: flex; flex-direction: column; justify-content: center; padding: 32px 24px; max-width: 420px; margin: 0 auto; }
+.auth .mark { width: 64px; height: 64px; border-radius: 16px; background: var(--green); outline: 2px solid rgba(255,255,255,.85); outline-offset: -6px; margin-bottom: 24px; display: flex; align-items: center; justify-content: center; }
+.auth .mark i { display: block; width: 6px; height: 34px; background: repeating-linear-gradient(to bottom, var(--lane) 0 9px, transparent 9px 15px); }
+.auth h1 { font-size: 34px; font-weight: 800; letter-spacing: -0.5px; }
+.auth p.sub { color: var(--ink-2); margin: 6px 0 28px; }
+.field { display: block; margin-bottom: 14px; }
+.field > span { display: block; font-size: 14px; font-weight: 600; color: var(--ink-2); margin-bottom: 6px; }
+.field input, .field select, .field textarea {
+  width: 100%; padding: 13px 14px; font-size: 16px; background: var(--card);
+  border: 1.5px solid var(--line); border-radius: 12px; appearance: none; -webkit-appearance: none;
+}
+.field input:focus, .field select:focus, .field textarea:focus { outline: none; border-color: var(--green); }
+.btn-primary { width: 100%; padding: 14px; border-radius: 12px; background: var(--green); color: #fff; font-weight: 700; font-size: 17px; }
+.btn-primary:active { background: var(--green-deep); }
+.btn-link { color: var(--green); font-weight: 600; padding: 10px 4px; }
+@media (prefers-color-scheme: dark) { .btn-link { color: #5FD3A0; } }
+.msg-error { color: var(--danger); font-size: 14px; font-weight: 600; margin: 4px 0 12px; min-height: 18px; }
+
+/* ── App frame ─────────────────────────────────────── */
+.app { max-width: 520px; margin: 0 auto; padding: calc(12px + var(--safe-top)) 16px calc(150px + var(--safe-bottom)); }
+.top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+.brand { font-weight: 800; font-size: 20px; letter-spacing: -0.3px; }
+.weeknav { display: flex; align-items: center; gap: 2px; background: var(--card); border: 1px solid var(--line); border-radius: 999px; padding: 3px; }
+.weeknav button { width: 34px; height: 34px; border-radius: 50%; font-size: 20px; line-height: 1; color: var(--ink-2); }
+.weeknav button:active { background: var(--bg); }
+.weeknav span { font-weight: 700; font-size: 14px; min-width: 104px; text-align: center; }
+
+/* ── Hero: the week as a stretch of road ───────────── */
+.hero {
+  background: var(--green); color: #fff; border-radius: 20px; padding: 22px 22px 20px;
+  outline: 2px solid rgba(255,255,255,.8); outline-offset: -9px; margin-bottom: 18px;
+}
+.hero .label { font-size: 15px; font-weight: 600; opacity: .9; }
+.hero .big { font-size: 56px; font-weight: 800; letter-spacing: -1.5px; line-height: 1.05; margin-top: 2px; }
+.hero .big small { font-size: 18px; font-weight: 600; letter-spacing: 0; opacity: .85; margin-left: 6px; }
+.road { position: relative; height: 26px; background: var(--asphalt); border-radius: 8px; margin: 22px 0 8px; overflow: visible; }
+.road .dash { position: absolute; left: 10px; right: 10px; top: 50%; height: 4px; transform: translateY(-50%); background: repeating-linear-gradient(to right, rgba(255,255,255,.4) 0 12px, transparent 12px 22px); border-radius: 2px; }
+.road .paint { position: absolute; left: 10px; top: 50%; height: 6px; transform: translateY(-50%); background: var(--lane); border-radius: 3px; width: 0; transition: width .9s cubic-bezier(.2,.7,.2,1); }
+.road .booked { position: absolute; top: 50%; height: 6px; transform: translateY(-50%); background: repeating-linear-gradient(to right, var(--lane) 0 7px, transparent 7px 12px); opacity: .75; }
+.road .pace { position: absolute; top: -9px; width: 0; height: 0; border-left: 7px solid transparent; border-right: 7px solid transparent; border-top: 9px solid #fff; transform: translateX(-7px); }
+.hero .roadkey { display: flex; justify-content: space-between; font-size: 13px; opacity: .9; }
+.hero .status { margin-top: 14px; font-size: 17px; font-weight: 700; }
+.hero .status small { display: block; font-weight: 400; font-size: 14px; opacity: .9; margin-top: 2px; }
+
+/* ── Tabs ──────────────────────────────────────────── */
+.tabbar {
+  position: fixed; left: 0; right: 0; bottom: 0; background: var(--card); border-top: 1px solid var(--line);
+  display: flex; justify-content: center; padding: 6px 12px calc(6px + var(--safe-bottom)); z-index: 20;
+}
+.tabbar .inner { display: flex; width: 100%; max-width: 520px; }
+.tabbar button { flex: 1; padding: 10px 6px; font-weight: 700; font-size: 15px; color: var(--ink-2); border-radius: 12px; }
+.tabbar button[aria-selected="true"] { color: var(--green); background: color-mix(in srgb, var(--green) 10%, transparent); }
+@media (prefers-color-scheme: dark) { .tabbar button[aria-selected="true"] { color: #5FD3A0; } }
+.fab {
+  position: fixed; right: max(16px, calc(50% - 244px)); bottom: calc(76px + var(--safe-bottom));
+  background: var(--asphalt); color: #fff; border-radius: 999px; padding: 14px 20px; font-weight: 700; font-size: 16px; z-index: 21;
+  box-shadow: 0 6px 18px rgba(0,0,0,.25);
+}
+@media (prefers-color-scheme: dark) { .fab { background: var(--lane); color: #1E2227; } }
+.fab:active { transform: scale(.97); }
+
+/* ── Today ─────────────────────────────────────────── */
+.daynav { display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px; }
+.daynav h2 { font-size: 22px; font-weight: 800; letter-spacing: -0.3px; }
+.daynav .arrows button { width: 38px; height: 38px; border-radius: 50%; font-size: 20px; color: var(--ink-2); border: 1px solid var(--line); background: var(--card); margin-left: 6px; }
+.daysum { color: var(--ink-2); font-size: 15px; margin-bottom: 14px; }
+.daysum b { color: var(--ink); }
+.slot { display: flex; gap: 12px; margin-bottom: 10px; }
+.slot-time { width: 54px; flex-shrink: 0; text-align: right; font-weight: 700; font-size: 15px; padding-top: 12px; line-height: 1.1; }
+.slot-time small { display: block; font-weight: 600; font-size: 12px; color: var(--ink-2); }
+.slot-card {
+  flex: 1; min-width: 0; background: var(--card); border: 1px solid var(--line); border-left: 6px solid var(--c);
+  border-radius: 8px 14px 14px 8px; padding: 11px 14px; text-align: left; width: 100%;
+}
+button.slot-card:active { background: var(--bg); }
+.slot-main { display: flex; justify-content: space-between; gap: 10px; align-items: baseline; }
+.slot-main b { font-size: 17px; overflow-wrap: anywhere; }
+.slot-pay { font-weight: 800; font-size: 18px; white-space: nowrap; }
+.slot-sub { color: var(--ink-2); font-size: 14px; margin-top: 2px; }
+.slot-rate { margin-top: 6px; font-size: 14px; font-weight: 600; }
+.slot-rate span { color: var(--ink-2); font-weight: 400; }
+.badge { display: inline-block; font-size: 12px; font-weight: 700; padding: 2px 8px; border-radius: 999px; margin-left: 6px; vertical-align: 2px; }
+.badge.booked { background: color-mix(in srgb, var(--lane) 30%, transparent); color: var(--ink); }
+.badge.done { background: color-mix(in srgb, var(--green) 18%, transparent); color: var(--green); }
+@media (prefers-color-scheme: dark) { .badge.done { color: #5FD3A0; } }
+.gap { display: flex; gap: 12px; margin: 2px 0 10px; }
+.gap > i { width: 54px; flex-shrink: 0; }
+.gap > div { flex: 1; border-left: 2px dashed var(--line); margin-left: 3px; padding: 4px 0 4px 16px; color: var(--ink-2); font-size: 14px; }
+.empty { text-align: center; padding: 34px 20px; color: var(--ink-2); background: var(--card); border: 1.5px dashed var(--line); border-radius: 16px; }
+.empty b { display: block; color: var(--ink); font-size: 18px; margin-bottom: 4px; }
+.textbtn { color: var(--green); font-weight: 700; padding: 8px 2px; }
+@media (prefers-color-scheme: dark) { .textbtn { color: #5FD3A0; } }
+
+/* ── Week ──────────────────────────────────────────── */
+.panel { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 16px; margin-bottom: 16px; }
+.panel h3 { font-size: 18px; font-weight: 800; margin-bottom: 10px; }
+.seg { display: flex; background: var(--bg); border-radius: 10px; padding: 3px; margin-bottom: 12px; }
+.seg button { flex: 1; padding: 8px 4px; border-radius: 8px; font-weight: 700; font-size: 14px; color: var(--ink-2); }
+.seg button[aria-selected="true"] { background: var(--card); color: var(--ink); box-shadow: 0 1px 3px rgba(0,0,0,.12); }
+.chart svg { width: 100%; height: auto; display: block; }
+.chart text { font-family: inherit; fill: var(--ink-2); font-size: 11px; }
+.chart .val { fill: var(--ink); font-weight: 700; }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 14px; margin-top: 10px; font-size: 13px; color: var(--ink-2); }
+.legend i { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 5px; background: var(--c); vertical-align: -1px; }
+.plat { display: grid; grid-template-columns: 1fr auto; gap: 2px 12px; padding: 12px 0; border-top: 1px solid var(--line); }
+.plat:first-of-type { border-top: none; }
+.plat b { font-size: 16px; }
+.plat b::before { content: ''; display: inline-block; width: 10px; height: 10px; border-radius: 3px; background: var(--c); margin-right: 8px; }
+.plat .amt { font-weight: 800; text-align: right; }
+.plat .meta { color: var(--ink-2); font-size: 14px; grid-column: 1 / -1; }
+.totals { display: flex; justify-content: space-between; padding-top: 12px; border-top: 2px solid var(--ink); font-weight: 800; font-size: 17px; margin-top: 4px; }
+.copybtn { width: 100%; padding: 13px; border-radius: 12px; border: 1.5px solid var(--line); background: var(--card); font-weight: 700; margin-bottom: 10px; }
+.copybtn.done { border-color: var(--green); color: var(--green); }
+
+/* ── Settings ──────────────────────────────────────── */
+.row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.hint { color: var(--ink-2); font-size: 14px; margin: -6px 0 14px; }
+.signout { color: var(--danger); font-weight: 700; padding: 12px 0; }
+
+/* ── Sheet (log a job) ─────────────────────────────── */
+.scrim { position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 40; opacity: 0; pointer-events: none; transition: opacity .2s; }
+.scrim.open { opacity: 1; pointer-events: auto; }
+.sheet {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 41; background: var(--bg);
+  border-radius: 24px 24px 0 0; max-height: 92vh; overflow-y: auto; transform: translateY(105%); transition: transform .25s ease;
+  padding: 18px 18px calc(24px + var(--safe-bottom)); max-width: 520px; margin: 0 auto;
+}
+.sheet.open { transform: translateY(0); }
+.sheet h2 { font-size: 22px; font-weight: 800; margin-bottom: 14px; display: flex; justify-content: space-between; align-items: center; }
+.sheet h2 button { font-size: 28px; line-height: 1; color: var(--ink-2); padding: 0 6px; }
+.chips { display: flex; gap: 8px; margin-bottom: 14px; flex-wrap: wrap; }
+.chips button { padding: 9px 16px; border-radius: 999px; border: 1.5px solid var(--line); background: var(--card); font-weight: 700; font-size: 15px; }
+.chips button[aria-pressed="true"] { background: var(--c); border-color: var(--c); color: #fff; }
+.preview { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; margin: 4px 0 14px; font-size: 15px; }
+.preview b { font-size: 20px; }
+.preview span { display: block; color: var(--ink-2); font-size: 14px; margin-top: 2px; }
+.sheet .actions { display: flex; gap: 10px; margin-top: 6px; }
+.btn-danger { padding: 14px 18px; border-radius: 12px; border: 1.5px solid var(--danger); color: var(--danger); font-weight: 700; }
+.toast { position: fixed; left: 50%; bottom: calc(140px + var(--safe-bottom)); transform: translateX(-50%); background: var(--asphalt); color: #fff; padding: 10px 18px; border-radius: 999px; font-weight: 600; font-size: 15px; z-index: 60; }
+@media (prefers-reduced-motion: reduce) { .road .paint, .sheet, .scrim { transition: none; } }
+</style>
+</head>
+<body>
+
+<!-- ── Sign in ── -->
+<div id="auth" class="auth hidden">
+  <div class="mark"><i></i></div>
+  <h1>Road Ledger</h1>
+  <p class="sub">Every job, every mile, one week at a time.</p>
+  <form id="auth-form" novalidate>
+    <label class="field"><span>Email</span><input id="auth-email" type="email" autocomplete="email" inputmode="email" required></label>
+    <label class="field"><span>Password</span><input id="auth-pass" type="password" autocomplete="current-password" required></label>
+    <div class="msg-error" id="auth-error" role="alert"></div>
+    <button class="btn-primary" id="auth-submit" type="submit">Sign in</button>
+  </form>
+  <div style="display:flex; justify-content:space-between; margin-top:8px;">
+    <button class="btn-link" id="auth-toggle" type="button">Create an account</button>
+    <button class="btn-link" id="auth-reset" type="button">Forgot password?</button>
+  </div>
+</div>
+
+<!-- ── App ── -->
+<div id="app" class="app hidden">
+  <header class="top">
+    <div class="brand">Road Ledger</div>
+    <div class="weeknav" role="group" aria-label="Choose week">
+      <button id="wk-prev" aria-label="Previous week">‹</button>
+      <span id="wk-label"></span>
+      <button id="wk-next" aria-label="Next week">›</button>
+    </div>
+  </header>
+
+  <section class="hero" id="hero" aria-live="polite"></section>
+
+  <section id="view-today">
+    <div class="daynav">
+      <h2 id="day-title"></h2>
+      <div class="arrows"><button id="day-prev" aria-label="Previous day">‹</button><button id="day-next" aria-label="Next day">›</button></div>
+    </div>
+    <div class="daysum" id="day-sum"></div>
+    <div id="timeline"></div>
+    <button class="copybtn" id="copy-day" style="margin-top:14px;">Copy today's plan for Scout</button>
+  </section>
+
+  <section id="view-week" class="hidden">
+    <div class="panel">
+      <h3>Week at a glance</h3>
+      <div class="seg" role="tablist" id="chart-seg">
+        <button role="tab" data-chart="daily" aria-selected="true">Daily</button>
+        <button role="tab" data-chart="running" aria-selected="false">Running total</button>
+        <button role="tab" data-chart="rate" aria-selected="false">Per hour</button>
+      </div>
+      <div class="chart" id="chart"></div>
+      <div class="legend" id="legend"></div>
+    </div>
+    <div class="panel">
+      <h3>By platform</h3>
+      <div id="platforms"></div>
+    </div>
+    <button class="copybtn" id="copy-week">Copy this week for Scout</button>
+  </section>
+
+  <section id="view-settings" class="hidden">
+    <div class="panel">
+      <h3>Weekly goal</h3>
+      <label class="field"><span>Goal for the week, before expenses ($)</span><input id="set-goal" type="number" inputmode="decimal" min="0" step="1"></label>
+      <div class="row2">
+        <label class="field"><span>Miles per gallon</span><input id="set-mpg" type="number" inputmode="decimal" min="1" step="0.1"></label>
+        <label class="field"><span>Gas price ($/gal)</span><input id="set-gas" type="number" inputmode="decimal" min="0" step="0.01"></label>
+      </div>
+      <p class="hint">Gas figures are used for the after-gas hourly rate on each job.</p>
+      <button class="btn-primary" id="set-save">Save settings</button>
+    </div>
+    <div class="panel">
+      <h3>Account</h3>
+      <p class="hint" id="acct-email" style="margin:0 0 6px;"></p>
+      <button class="signout" id="signout">Sign out</button>
+    </div>
+  </section>
+</div>
+
+<button class="fab hidden" id="fab">+ Log a job</button>
+<nav class="tabbar hidden" id="tabbar" aria-label="Sections">
+  <div class="inner" role="tablist">
+    <button role="tab" data-tab="today" aria-selected="true">Today</button>
+    <button role="tab" data-tab="week" aria-selected="false">Week</button>
+    <button role="tab" data-tab="settings" aria-selected="false">Settings</button>
+  </div>
+</nav>
+
+<!-- ── Log a job ── -->
+<div class="scrim" id="scrim"></div>
+<div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="sheet-title" aria-hidden="true">
+  <h2><span id="sheet-title">Log a job</span><button id="sheet-close" aria-label="Close">×</button></h2>
+  <div class="chips" id="plat-chips">
+    <button type="button" data-p="Amazon Flex" style="--c:var(--c-flex)" aria-pressed="true">Amazon Flex</button>
+    <button type="button" data-p="Uber" style="--c:var(--c-uber)" aria-pressed="false">Uber</button>
+    <button type="button" data-p="Other" style="--c:var(--c-other)" aria-pressed="false">Other</button>
+  </div>
+  <label class="field hidden" id="other-wrap"><span>Platform name</span><input id="f-other" type="text" autocomplete="off" placeholder="DoorDash, Lyft, Instacart…"></label>
+  <div class="row2">
+    <label class="field"><span>Date</span><input id="f-date" type="date"></label>
+    <label class="field"><span>Pay ($)</span><input id="f-pay" type="number" inputmode="decimal" min="0" step="0.01" autocomplete="off"></label>
+  </div>
+  <div class="row2">
+    <label class="field"><span>Start</span><input id="f-start" type="time"></label>
+    <label class="field"><span>End</span><input id="f-end" type="time"></label>
+  </div>
+  <div class="row2">
+    <label class="field"><span>Tips ($)</span><input id="f-tip" type="number" inputmode="decimal" min="0" step="0.01" autocomplete="off"></label>
+    <label class="field"><span>Miles during the job</span><input id="f-miles" type="number" inputmode="decimal" min="0" step="0.1" autocomplete="off"></label>
+  </div>
+  <div class="row2">
+    <label class="field"><span>Drive to start (miles)</span><input id="f-dmiles" type="number" inputmode="decimal" min="0" step="0.1" autocomplete="off"></label>
+    <label class="field"><span>Drive to start (minutes)</span><input id="f-dmin" type="number" inputmode="numeric" min="0" step="1" autocomplete="off"></label>
+  </div>
+  <label class="field"><span>Notes</span><input id="f-notes" type="text" autocomplete="off" placeholder="Warehouse, route, anything useful"></label>
+  <div class="preview" id="preview"></div>
+  <div class="msg-error" id="sheet-error" role="alert"></div>
+  <div class="actions">
+    <button class="btn-danger hidden" id="f-delete" type="button">Delete</button>
+    <button class="btn-primary" id="f-save" type="button">Save job</button>
+  </div>
+</div>
+
+<div class="toast hidden" id="toast" role="status"></div>
+
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, sendPasswordResetEmail, signOut }
+  from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+import { getFirestore, collection, doc, addDoc, setDoc, updateDoc, deleteDoc, onSnapshot, query, where }
+  from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+
+const firebaseConfig = {
+  apiKey: "AIzaSyCU5gio9iuDF1wkY8lRJVN0ULHQxgujluM",
+  authDomain: "patriot-transportation.firebaseapp.com",
+  projectId: "patriot-transportation",
+  storageBucket: "patriot-transportation.firebasestorage.app",
+  messagingSenderId: "296569517357",
+  appId: "1:296569517357:web:61b82f2d2310c3bf5bcfa4"
+};
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+// ── State ──────────────────────────────────────────────
+const DEFAULTS = { goal: 1000, mpg: 35, gas: 3.59 };
+let user = null;
+let settings = { ...DEFAULTS };
+let viewDate = new Date();            // the day being looked at
+let jobs = [];                        // jobs in the viewed week
+let rides = [];                       // Patriot rides in the viewed week
+let tab = 'today';
+let chartKind = 'daily';
+let editingId = null;
+let unsubJobs = null, unsubRides = null, unsubSettings = null;
+let signUpMode = false;
+
+const $ = id => document.getElementById(id);
+const PLATFORM_COLORS = { 'Patriot': 'var(--c-patriot)', 'Amazon Flex': 'var(--c-flex)', 'Uber': 'var(--c-uber)' };
+const colorFor = p => PLATFORM_COLORS[p] || 'var(--c-other)';
+
+// ── Helpers ────────────────────────────────────────────
+const pad = n => String(n).padStart(2, '0');
+const dstr = d => d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate());
+const parseD = s => { const p = s.split('-').map(Number); return new Date(p[0], p[1] - 1, p[2]); };
+const addDays = (d, n) => new Date(d.getFullYear(), d.getMonth(), d.getDate() + n);
+const mondayOf = d => addDays(d, -((d.getDay() + 6) % 7));
+const mins = hhmm => { const p = (hhmm || '').split(':').map(Number); return isNaN(p[0]) ? null : p[0] * 60 + (p[1] || 0); };
+const clock = m => { m = ((m % 1440) + 1440) % 1440; const h = Math.floor(m / 60); return { t: ((h % 12) || 12) + ':' + pad(m % 60), ap: h >= 12 ? 'PM' : 'AM' }; };
+const clockStr = m => { const c = clock(m); return c.t + ' ' + c.ap; };
+const money = (n, cents = true) => '$' + (n || 0).toLocaleString('en-US', { minimumFractionDigits: cents ? 2 : 0, maximumFractionDigits: cents ? 2 : 0 });
+const num = v => { const n = parseFloat(v); return isNaN(n) ? 0 : n; };
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const dur = m => { m = Math.round(m); const h = Math.floor(m / 60), r = m % 60; return h ? (r ? h + ' hr ' + r + ' min' : h + ' hr') : r + ' min'; };
+const weekRange = () => { const s = mondayOf(viewDate); return { start: s, end: addDays(s, 6), startStr: dstr(s), endStr: dstr(addDays(s, 6)) }; };
+
+function jobMinutes(j) {
+  const s = mins(j.start), e = mins(j.end);
+  if (s === null || e === null) return 0;
+  return e >= s ? e - s : e + 1440 - s;
+}
+function jobCalc(j) {
+  const total = num(j.pay) + num(j.tip);
+  const work = jobMinutes(j);
+  const allMin = work + num(j.driveMin);
+  const fuel = ((num(j.miles) + num(j.driveMiles)) / (settings.mpg || 35)) * (settings.gas || 3.59);
+  return {
+    total, work, allMin, fuel,
+    grossHr: allMin > 0 ? total / (allMin / 60) : null,
+    netHr: allMin > 0 ? (total - fuel) / (allMin / 60) : null
+  };
+}
+function rideDurMin(r) { return r.trip_duration_minutes ? Number(r.trip_duration_minutes) : 0; }
+function rideFare(r) { const f = (r.final_price !== undefined && r.final_price !== null) ? r.final_price : (r.client_bid || 0); return num(f); }
+function rideTip(r) { return r.tip > 0 ? num(r.tip) : 0; }
+const rideCounts = r => r.status === 'completed' || r.status === 'paid';
+
+// Everything for a given day as one sorted list
+function dayItems(dateStr) {
+  const items = [];
+  jobs.filter(j => j.date === dateStr).forEach(j => {
+    const s = mins(j.start) ?? 0;
+    items.push({ kind: 'job', id: j.id, platform: j.platform, start: s, end: s + jobMinutes(j), job: j, earned: num(j.pay) + num(j.tip), counts: true });
+  });
+  rides.filter(r => r.pickup_date === dateStr && (r.status === 'confirmed' || rideCounts(r))).forEach(r => {
+    const s = mins(r.pickup_time) ?? 0;
+    const d = rideDurMin(r) || 60;
+    items.push({ kind: 'patriot', id: r.id, platform: 'Patriot', start: s, end: s + d, ride: r, earned: rideFare(r) + rideTip(r), counts: rideCounts(r) });
+  });
+  return items.sort((a, b) => a.start - b.start);
+}
+
+// Week numbers
+function weekStats() {
+  const wr = weekRange();
+  const byDay = {}; // date -> { platform: amount }
+  const plat = {};  // platform -> {earned, hours(min), miles, rateEarn, rateMin, count}
+  let earned = 0, booked = 0, miles = 0;
+  const bump = (p) => (plat[p] = plat[p] || { earned: 0, min: 0, miles: 0, rateEarn: 0, rateMin: 0, count: 0 });
+  jobs.forEach(j => {
+    const c = jobCalc(j);
+    earned += c.total;
+    byDay[j.date] = byDay[j.date] || {}; byDay[j.date][j.platform] = (byDay[j.date][j.platform] || 0) + c.total;
+    const p = bump(j.platform); p.earned += c.total; p.min += c.allMin; p.miles += num(j.miles) + num(j.driveMiles); p.count++;
+    if (c.allMin > 0) { p.rateEarn += c.total; p.rateMin += c.allMin; }
+    miles += num(j.miles) + num(j.driveMiles);
+  });
+  rides.forEach(r => {
+    if (r.status === 'confirmed') { booked += rideFare(r); return; }
+    if (!rideCounts(r)) return;
+    const t = rideFare(r) + rideTip(r);
+    earned += t;
+    byDay[r.pickup_date] = byDay[r.pickup_date] || {}; byDay[r.pickup_date]['Patriot'] = (byDay[r.pickup_date]['Patriot'] || 0) + t;
+    const p = bump('Patriot'); p.earned += t; p.miles += num(r.trip_miles); p.count++;
+    const dm = rideDurMin(r); p.min += dm;
+    if (dm > 0) { p.rateEarn += t; p.rateMin += dm; }
+    miles += num(r.trip_miles);
+  });
+  const days = [];
+  for (let i = 0; i < 7; i++) {
+    const d = addDays(wr.start, i), k = dstr(d);
+    const parts = byDay[k] || {};
+    days.push({ date: d, key: k, parts, total: Object.values(parts).reduce((a, b) => a + b, 0) });
+  }
+  return { earned, booked, miles, plat, days, wr };
+}
+
+// How many days of this week have started (0 to 7)
+function daysElapsed(wr) {
+  const today = new Date(); const t0 = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+  if (t0 < wr.start) return 0;
+  if (t0 > wr.end) return 7;
+  return Math.round((t0 - wr.start) / 86400000) + 1;
+}
+
+// ── Rendering ──────────────────────────────────────────
+function renderAll() {
+  if (!user) return;
+  const wr = weekRange();
+  $('wk-label').textContent = wr.start.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) + ' – ' +
+    wr.end.toLocaleDateString('en-US', wr.start.getMonth() === wr.end.getMonth() ? { day: 'numeric' } : { month: 'short', day: 'numeric' });
+  renderHero();
+  if (tab === 'today') renderToday();
+  if (tab === 'week') renderWeek();
+}
+
+let heroAnimated = false;
+function renderHero() {
+  const st = weekStats();
+  const goal = settings.goal || DEFAULTS.goal;
+  const el = daysElapsed(st.wr);
+  const pct = Math.min(1, st.earned / goal);
+  const bookedPct = Math.min(1 - pct, st.booked / goal);
+  const pacePct = el === 0 ? 0 : Math.min(1, el / 7);
+  const left = Math.max(0, goal - st.earned);
+  const daysLeft = 7 - el + (el > 0 && el < 7 ? 1 : 0); // today still counts
+  const isPast = el === 7 && dstr(new Date()) > st.wr.endStr;
+  let status, sub;
+  if (st.earned >= goal) {
+    status = 'Goal reached';
+    sub = money(st.earned - goal) + ' over the ' + money(goal, false) + ' target.';
+  } else if (el === 0) {
+    status = 'Week not started';
+    sub = 'About ' + money(goal / 7, false) + ' a day gets there.';
+  } else if (isPast) {
+    status = money(left) + ' short of the goal';
+    sub = 'This week is finished.';
+  } else {
+    const perDay = left / Math.max(1, daysLeft);
+    status = money(left) + ' to go';
+    sub = money(perDay, false) + ' a day for the ' + daysLeft + (daysLeft === 1 ? ' day' : ' days') + ' left.' +
+      (st.booked > 0 ? ' ' + money(st.booked, false) + ' already booked with Patriot.' : '');
+  }
+  const trackW = 'calc(100% - 20px)';
+  $('hero').innerHTML = `
+    <div class="label">${st.wr.start.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} to ${st.wr.end.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</div>
+    <div class="big">${money(st.earned)}<small>of ${money(goal, false)}</small></div>
+    <div class="road" role="img" aria-label="${money(st.earned)} earned of ${money(goal, false)} this week">
+      <div class="dash"></div>
+      <div class="paint" id="road-paint" data-w="${pct}"></div>
+      <div class="booked" style="left:calc(10px + (100% - 20px) * ${pct}); width:calc((100% - 20px) * ${bookedPct});"></div>
+      ${el > 0 ? `<div class="pace" title="Where you'd be on pace" style="left:calc(10px + (100% - 20px) * ${pacePct});"></div>` : ''}
+    </div>
+    <div class="roadkey"><span>$0</span><span>${el > 0 ? 'Marker shows today\'s pace' : ''}</span><span>${money(goal, false)}</span></div>
+    <div class="status">${status}<small>${sub}</small></div>`;
+  const paint = $('road-paint');
+  const w = `calc((100% - 20px) * ${pct})`;
+  if (!heroAnimated && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    requestAnimationFrame(() => requestAnimationFrame(() => { paint.style.width = w; }));
+    heroAnimated = true;
+  } else { paint.style.transition = 'none'; paint.style.width = w; }
+}
+
+function renderToday() {
+  const k = dstr(viewDate);
+  const isToday = k === dstr(new Date());
+  $('day-title').textContent = isToday ? 'Today' : viewDate.toLocaleDateString('en-US', { weekday: 'long' });
+  const items = dayItems(k);
+  const earned = items.filter(i => i.counts).reduce((a, i) => a + i.earned, 0);
+  const booked = items.filter(i => !i.counts).reduce((a, i) => a + i.earned, 0);
+  const dateLine = viewDate.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+  $('day-sum').innerHTML = `${esc(dateLine)}. <b>${money(earned)}</b> earned${booked > 0 ? ', ' + money(booked) + ' booked' : ''}.`;
+  const tl = $('timeline');
+  if (items.length === 0) {
+    tl.innerHTML = `<div class="empty"><b>Nothing on the schedule</b>Log a Flex block or Uber stretch to start the day. Patriot rides show up here by themselves.<br><button class="textbtn" id="empty-log">Log a job</button></div>`;
+    const b = $('empty-log'); if (b) b.onclick = () => openSheet();
+    return;
+  }
+  let html = '';
+  items.forEach((it, i) => {
+    const c = clock(it.start);
+    const col = colorFor(it.platform);
+    if (it.kind === 'job') {
+      const j = it.job, calc = jobCalc(j);
+      const bits = [];
+      bits.push(clockStr(it.start) + ' to ' + clockStr(it.end) + ', ' + dur(calc.work));
+      html += `<div class="slot"><div class="slot-time">${c.t}<small>${c.ap}</small></div>
+        <button class="slot-card" style="--c:${col}" data-edit="${it.id}">
+          <div class="slot-main"><b>${esc(j.platform)}</b><span class="slot-pay">${money(it.earned)}</span></div>
+          <div class="slot-sub">${bits.join('')}${num(j.miles) ? ', ' + num(j.miles).toFixed(1) + ' mi' : ''}</div>
+          ${calc.grossHr !== null ? `<div class="slot-rate">${money(calc.grossHr)} an hour <span>${num(j.driveMin) ? 'with the drive' : ''}${calc.fuel > 0 ? (num(j.driveMin) ? ', ' : '') + money(calc.netHr) + ' after gas' : ''}</span></div>` : ''}
+          ${j.notes ? `<div class="slot-sub">${esc(j.notes)}</div>` : ''}
+        </button></div>`;
+    } else {
+      const r = it.ride;
+      html += `<div class="slot"><div class="slot-time">${c.t}<small>${c.ap}</small></div>
+        <div class="slot-card" style="--c:${col}">
+          <div class="slot-main"><b>Patriot${rideCounts(r) ? '<span class="badge done">Done</span>' : '<span class="badge booked">Booked</span>'}</b><span class="slot-pay">${money(it.earned)}</span></div>
+          <div class="slot-sub">${esc(r.client_name || 'Client')}, ${clockStr(it.start)} to ${clockStr(it.end)}${r.trip_miles ? ', ' + Number(r.trip_miles).toFixed(1) + ' mi' : ''}</div>
+          <div class="slot-sub">${esc(r.pickup_address || '')}</div>
+        </div></div>`;
+    }
+    const next = items[i + 1];
+    if (next && next.start - it.end >= 30) {
+      html += `<div class="gap"><i></i><div>${dur(next.start - it.end)} open, ${clockStr(it.end)} to ${clockStr(next.start)}</div></div>`;
+    }
+  });
+  tl.innerHTML = html;
+  tl.querySelectorAll('[data-edit]').forEach(b => b.onclick = () => openSheet(b.dataset.edit));
+}
+
+// ── Charts (plain SVG) ────────────────────────────────
+function niceMax(v) { if (v <= 0) return 100; const steps = [100, 150, 200, 250, 300, 400, 500, 750, 1000, 1500, 2000]; return steps.find(s => s >= v) || Math.ceil(v / 500) * 500; }
+function renderWeek() {
+  const st = weekStats();
+  const goal = settings.goal || DEFAULTS.goal;
+  document.querySelectorAll('#chart-seg button').forEach(b => b.setAttribute('aria-selected', String(b.dataset.chart === chartKind)));
+  const W = 340, H = 210, L = 38, R = 8, T = 14, B = 26;
+  const iw = W - L - R, ih = H - T - B;
+  let svg = '', legendPlats = new Set();
+  const dayLabel = d => d.toLocaleDateString('en-US', { weekday: 'short' }).slice(0, 3);
+
+  if (chartKind === 'daily') {
+    const maxV = niceMax(Math.max(goal / 7, ...st.days.map(d => d.total)) * 1.05);
+    const bw = iw / 7 * 0.58;
+    svg += grid(maxV, L, T, iw, ih, W, R);
+    st.days.forEach((d, i) => {
+      const x = L + (iw / 7) * i + (iw / 7 - bw) / 2;
+      let y = T + ih;
+      Object.entries(d.parts).forEach(([p, amt]) => {
+        const h = (amt / maxV) * ih; y -= h; legendPlats.add(p);
+        svg += `<rect x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${bw.toFixed(1)}" height="${Math.max(0, h).toFixed(1)}" rx="3" fill="${colorFor(p)}"/>`;
+      });
+      if (d.total > 0) svg += `<text class="val" x="${(x + bw / 2).toFixed(1)}" y="${(y - 4).toFixed(1)}" text-anchor="middle">${Math.round(d.total)}</text>`;
+      svg += `<text x="${(x + bw / 2).toFixed(1)}" y="${H - 8}" text-anchor="middle">${dayLabel(d.date)}</text>`;
+    });
+    const gy = T + ih - ((goal / 7) / maxV) * ih;
+    svg += `<line x1="${L}" x2="${W - R}" y1="${gy.toFixed(1)}" y2="${gy.toFixed(1)}" stroke="var(--lane)" stroke-width="2" stroke-dasharray="5 4"/>`;
+    svg += `<text x="${W - R}" y="${(gy - 5).toFixed(1)}" text-anchor="end" style="fill:var(--ink)">${money(goal / 7, false)} a day to hit goal</text>`;
+  } else if (chartKind === 'running') {
+    const cum = []; let run = 0;
+    st.days.forEach(d => { run += d.total; cum.push(run); });
+    const el = daysElapsed(st.wr);
+    const maxV = niceMax(Math.max(goal, run) * 1.05);
+    svg += grid(maxV, L, T, iw, ih, W, R);
+    const px = i => L + (iw / 6) * i;
+    const py = v => T + ih - (v / maxV) * ih;
+    svg += `<line x1="${px(0)}" y1="${py(0)}" x2="${px(6)}" y2="${py(goal)}" stroke="var(--lane)" stroke-width="2" stroke-dasharray="5 4"/>`;
+    svg += `<text x="${px(6)}" y="${(py(goal) - 6).toFixed(1)}" text-anchor="end" style="fill:var(--ink)">Goal pace</text>`;
+    const upto = el === 0 ? -1 : Math.min(6, el - 1);
+    if (upto >= 0) {
+      let path = `M ${px(0).toFixed(1)} ${py(cum[0]).toFixed(1)}`;
+      for (let i = 1; i <= upto; i++) path += ` L ${px(i).toFixed(1)} ${py(cum[i]).toFixed(1)}`;
+      svg += `<path d="${path}" fill="none" stroke="var(--green)" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>`;
+      for (let i = 0; i <= upto; i++) svg += `<circle cx="${px(i).toFixed(1)}" cy="${py(cum[i]).toFixed(1)}" r="4" fill="var(--green)"/>`;
+      svg += `<text class="val" x="${px(upto).toFixed(1)}" y="${(py(cum[upto]) - 9).toFixed(1)}" text-anchor="${upto > 4 ? 'end' : 'middle'}">${money(cum[upto], false)}</text>`;
+    }
+    st.days.forEach((d, i) => { svg += `<text x="${px(i).toFixed(1)}" y="${H - 8}" text-anchor="middle">${dayLabel(d.date)}</text>`; });
+  } else {
+    const rows = Object.entries(st.plat).map(([p, v]) => ({ p, rate: v.rateMin > 0 ? v.rateEarn / (v.rateMin / 60) : null })).filter(r => r.rate !== null).sort((a, b) => b.rate - a.rate);
+    if (rows.length === 0) {
+      svg = `<text x="${W / 2}" y="${H / 2}" text-anchor="middle">Log a job with start and end times to see hourly rates.</text>`;
+    } else {
+      const maxV = niceMax(Math.max(...rows.map(r => r.rate)) * 1.1);
+      const rowH = Math.min(46, ih / rows.length);
+      rows.forEach((r, i) => {
+        const y = T + i * rowH + 4; const w = (r.rate / maxV) * (iw - 20);
+        legendPlats.add(r.p);
+        svg += `<text x="0" y="${(y + rowH * 0.42).toFixed(1)}" style="fill:var(--ink);font-weight:700">${esc(r.p)}</text>`;
+        svg += `<rect x="${L + 52}" y="${y.toFixed(1)}" width="${Math.max(2, w - 40).toFixed(1)}" height="${(rowH * 0.56).toFixed(1)}" rx="4" fill="${colorFor(r.p)}"/>`;
+        svg += `<text class="val" x="${(L + 52 + Math.max(2, w - 40) + 6).toFixed(1)}" y="${(y + rowH * 0.4).toFixed(1)}">${money(r.rate)}/hr</text>`;
+      });
+    }
+  }
+  $('chart').innerHTML = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Chart of this week's earnings">${svg}</svg>`;
+  $('legend').innerHTML = [...legendPlats].map(p => `<span style="--c:${colorFor(p)}"><i></i>${esc(p)}</span>`).join('');
+
+  // platform list
+  const entries = Object.entries(st.plat).sort((a, b) => b[1].earned - a[1].earned);
+  let html = '';
+  if (entries.length === 0) html = '<p class="hint" style="margin:0;">No jobs this week yet.</p>';
+  entries.forEach(([p, v]) => {
+    const rate = v.rateMin > 0 ? v.rateEarn / (v.rateMin / 60) : null;
+    html += `<div class="plat" style="--c:${colorFor(p)}"><b>${esc(p)}</b><span class="amt">${money(v.earned)}</span>
+      <span class="meta">${v.count} ${v.count === 1 ? 'job' : 'jobs'}${v.min ? ', ' + dur(v.min) : ''}${v.miles ? ', ' + v.miles.toFixed(1) + ' mi' : ''}${rate !== null ? ', ' + money(rate) + ' an hour' : ''}</span></div>`;
+  });
+  if (entries.length) html += `<div class="totals"><span>Total</span><span>${money(st.earned)}</span></div>`;
+  $('platforms').innerHTML = html;
+}
+function grid(maxV, L, T, iw, ih, W, R) {
+  let s = '';
+  for (let i = 0; i <= 4; i++) {
+    const v = (maxV / 4) * i, y = T + ih - (ih / 4) * i;
+    s += `<line x1="${L}" x2="${W - R}" y1="${y.toFixed(1)}" y2="${y.toFixed(1)}" stroke="var(--line)" stroke-width="1"/>`;
+    s += `<text x="${L - 6}" y="${(y + 4).toFixed(1)}" text-anchor="end">${Math.round(v)}</text>`;
+  }
+  return s;
+}
+
+// ── Tabs & navigation ─────────────────────────────────
+function setTab(t) {
+  tab = t;
+  ['today', 'week', 'settings'].forEach(n => $('view-' + n).classList.toggle('hidden', n !== t));
+  document.querySelectorAll('#tabbar [data-tab]').forEach(b => b.setAttribute('aria-selected', String(b.dataset.tab === t)));
+  $('hero').classList.toggle('hidden', t === 'settings');
+  $('fab').classList.toggle('hidden', t === 'settings');
+  if (t === 'settings') fillSettings();
+  renderAll();
+  window.scrollTo(0, 0);
+}
+document.querySelectorAll('#tabbar [data-tab]').forEach(b => b.onclick = () => setTab(b.dataset.tab));
+document.querySelectorAll('#chart-seg button').forEach(b => b.onclick = () => { chartKind = b.dataset.chart; renderWeek(); });
+
+function subscribeWeek() {
+  if (unsubJobs) unsubJobs();
+  if (unsubRides) unsubRides();
+  const wr = weekRange();
+  unsubJobs = onSnapshot(
+    query(collection(db, 'gig_users', user.uid, 'jobs'), where('date', '>=', wr.startStr), where('date', '<=', wr.endStr)),
+    snap => { jobs = []; snap.forEach(d => jobs.push({ id: d.id, ...d.data() })); renderAll(); },
+    err => console.log('jobs listener', err)
+  );
+  unsubRides = onSnapshot(
+    query(collection(db, 'ride_requests'), where('pickup_date', '>=', wr.startStr), where('pickup_date', '<=', wr.endStr)),
+    snap => { rides = []; snap.forEach(d => rides.push({ id: d.id, ...d.data() })); renderAll(); },
+    err => console.log('rides listener', err)
+  );
+}
+function goto(dateObj) {
+  const oldWeek = weekRange().startStr;
+  viewDate = dateObj;
+  if (weekRange().startStr !== oldWeek) { jobs = []; rides = []; subscribeWeek(); }
+  renderAll();
+}
+$('wk-prev').onclick = () => goto(addDays(viewDate, -7));
+$('wk-next').onclick = () => goto(addDays(viewDate, 7));
+$('day-prev').onclick = () => goto(addDays(viewDate, -1));
+$('day-next').onclick = () => goto(addDays(viewDate, 1));
+
+// ── Settings ──────────────────────────────────────────
+function fillSettings() {
+  $('set-goal').value = settings.goal; $('set-mpg').value = settings.mpg; $('set-gas').value = settings.gas;
+  $('acct-email').textContent = user ? 'Signed in as ' + user.email : '';
+}
+$('set-save').onclick = async () => {
+  const s = { goal: num($('set-goal').value) || DEFAULTS.goal, mpg: num($('set-mpg').value) || DEFAULTS.mpg, gas: num($('set-gas').value) || DEFAULTS.gas };
+  try {
+    await setDoc(doc(db, 'gig_users', user.uid, 'settings', 'main'), s);
+    settings = s; toast('Settings saved'); renderAll();
+  } catch (e) { toast('Could not save. Check your connection.'); }
+};
+$('signout').onclick = () => signOut(auth);
+
+// ── Log / edit a job ──────────────────────────────────
+let sheetPlatform = 'Amazon Flex';
+function setPlatform(p) {
+  sheetPlatform = p;
+  document.querySelectorAll('#plat-chips button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.p === p)));
+  $('other-wrap').classList.toggle('hidden', p !== 'Other');
+  updatePreview();
+}
+document.querySelectorAll('#plat-chips button').forEach(b => b.onclick = () => setPlatform(b.dataset.p));
+
+function readForm() {
+  const platform = sheetPlatform === 'Other' ? ($('f-other').value.trim() || 'Other') : sheetPlatform;
+  return {
+    platform, date: $('f-date').value, start: $('f-start').value, end: $('f-end').value,
+    pay: num($('f-pay').value), tip: num($('f-tip').value), miles: num($('f-miles').value),
+    driveMiles: num($('f-dmiles').value), driveMin: num($('f-dmin').value), notes: $('f-notes').value.trim()
+  };
+}
+function updatePreview() {
+  const j = readForm(), c = jobCalc(j);
+  if (c.grossHr === null) { $('preview').innerHTML = '<span style="margin:0">Add start and end times to see the hourly rate.</span>'; return; }
+  $('preview').innerHTML = `<b>${money(c.grossHr)} an hour</b><span>${money(c.total)} over ${dur(c.allMin)}${num(j.driveMin) ? ' including the drive' : ''}.` +
+    (c.fuel > 0 ? ` About ${money(c.fuel)} in gas, so ${money(c.netHr)} an hour after gas.` : '') + '</span>';
+}
+['f-date', 'f-start', 'f-end', 'f-pay', 'f-tip', 'f-miles', 'f-dmiles', 'f-dmin', 'f-other'].forEach(id => $(id).addEventListener('input', updatePreview));
+
+function openSheet(id) {
+  editingId = id || null;
+  const j = id ? jobs.find(x => x.id === id) : null;
+  $('sheet-title').textContent = j ? 'Edit job' : 'Log a job';
+  $('f-delete').classList.toggle('hidden', !j);
+  $('sheet-error').textContent = '';
+  const known = j && (j.platform === 'Amazon Flex' || j.platform === 'Uber');
+  setPlatform(j ? (known ? j.platform : 'Other') : 'Amazon Flex');
+  $('f-other').value = j && !known ? j.platform : '';
+  $('f-date').value = j ? j.date : dstr(viewDate);
+  $('f-start').value = j ? j.start || '' : '';
+  $('f-end').value = j ? j.end || '' : '';
+  $('f-pay').value = j && j.pay ? j.pay : '';
+  $('f-tip').value = j && j.tip ? j.tip : '';
+  $('f-miles').value = j && j.miles ? j.miles : '';
+  $('f-dmiles').value = j && j.driveMiles ? j.driveMiles : '';
+  $('f-dmin').value = j && j.driveMin ? j.driveMin : '';
+  $('f-notes').value = j ? j.notes || '' : '';
+  updatePreview();
+  $('scrim').classList.add('open'); $('sheet').classList.add('open'); $('sheet').setAttribute('aria-hidden', 'false');
+}
+function closeSheet() {
+  $('scrim').classList.remove('open'); $('sheet').classList.remove('open'); $('sheet').setAttribute('aria-hidden', 'true');
+}
+$('fab').onclick = () => openSheet();
+$('sheet-close').onclick = closeSheet;
+$('scrim').onclick = closeSheet;
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeSheet(); });
+
+$('f-save').onclick = async () => {
+  const j = readForm();
+  if (!j.date) { $('sheet-error').textContent = 'Choose the date of the job.'; return; }
+  if (!j.pay && !j.tip) { $('sheet-error').textContent = 'Enter the pay for this job.'; return; }
+  if (!j.start || !j.end) { $('sheet-error').textContent = 'Enter the start and end times.'; return; }
+  $('f-save').disabled = true;
+  try {
+    if (editingId) await updateDoc(doc(db, 'gig_users', user.uid, 'jobs', editingId), j);
+    else await addDoc(collection(db, 'gig_users', user.uid, 'jobs'), { ...j, createdAt: Date.now() });
+    const jd = parseD(j.date);
+    closeSheet();
+    toast(editingId ? 'Job updated' : 'Job saved');
+    if (dstr(mondayOf(jd)) !== dstr(mondayOf(viewDate)) || dstr(jd) !== dstr(viewDate)) goto(jd);
+  } catch (e) {
+    $('sheet-error').textContent = 'Could not save this job. Check your connection and try again.';
+  }
+  $('f-save').disabled = false;
+};
+$('f-delete').onclick = async () => {
+  if (!editingId) return;
+  if (!confirm('Delete this job? This cannot be undone.')) return;
+  try { await deleteDoc(doc(db, 'gig_users', user.uid, 'jobs', editingId)); closeSheet(); toast('Job deleted'); }
+  catch (e) { $('sheet-error').textContent = 'Could not delete this job. Try again.'; }
+};
+
+// ── Copy for Scout ────────────────────────────────────
+async function copyText(text, btn, okLabel) {
+  const original = btn.textContent;
+  let ok = false;
+  try { await navigator.clipboard.writeText(text); ok = true; }
+  catch (e) {
+    try { const ta = document.createElement('textarea'); ta.value = text; ta.style.cssText = 'position:fixed;top:0;opacity:0'; document.body.appendChild(ta); ta.focus(); ta.select(); ok = document.execCommand('copy'); ta.remove(); } catch (e2) {}
+  }
+  if (ok) { btn.textContent = okLabel; btn.classList.add('done'); setTimeout(() => { btn.textContent = original; btn.classList.remove('done'); }, 3000); }
+  else window.prompt('Copy this text and paste it into Scout:', text);
+}
+$('copy-day').onclick = () => {
+  const k = dstr(viewDate), items = dayItems(k);
+  const goal = settings.goal || DEFAULTS.goal, st = weekStats();
+  let t = 'JASON\'S DAY: ' + viewDate.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' }) + ' (Central time)\n';
+  t += 'Weekly goal: ' + money(goal, false) + ' gross across all platforms. Earned so far this week: ' + money(st.earned) + (st.booked ? ' (plus ' + money(st.booked) + ' booked with Patriot)' : '') + '.\n';
+  t += 'Home: Cibolo, TX. Car gets about ' + settings.mpg + ' MPG, gas about ' + money(settings.gas) + ' a gallon.\n';
+  t += 'Goal: earn as much as possible in the least time.\n\n';
+  if (items.length === 0) t += 'Nothing is scheduled yet.\n';
+  items.forEach(it => {
+    if (it.kind === 'job') t += '- ' + clockStr(it.start) + ' to ' + clockStr(it.end) + ': ' + it.platform + ', ' + money(it.earned) + (it.job.miles ? ', ' + it.job.miles + ' mi' : '') + (it.job.notes ? ' (' + it.job.notes + ')' : '') + '\n';
+    else t += '- ' + clockStr(it.start) + ' to ' + clockStr(it.end) + ': Patriot private ride for ' + (it.ride.client_name || 'client') + ', ' + money(it.earned) + (rideCounts(it.ride) ? ' (done)' : ' (booked, fixed appointment)') + '\n    Pickup: ' + (it.ride.pickup_address || '') + '\n    Drop-off: ' + (it.ride.dropoff_address || '') + '\n';
+  });
+  copyText(t, $('copy-day'), 'Copied. Paste it into Scout.');
+};
+$('copy-week').onclick = () => {
+  const st = weekStats(), goal = settings.goal || DEFAULTS.goal;
+  let t = 'JASON\'S WEEK: ' + st.wr.start.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' }) + ' through ' + st.wr.end.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' }) + '\n';
+  t += 'Goal: ' + money(goal, false) + ' gross. Earned: ' + money(st.earned) + '. Left to go: ' + money(Math.max(0, goal - st.earned)) + '.' + (st.booked ? ' Booked with Patriot but not done: ' + money(st.booked) + '.' : '') + '\n\nBY DAY\n';
+  st.days.forEach(d => { t += '- ' + d.date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' }) + ': ' + money(d.total) + (Object.keys(d.parts).length ? ' (' + Object.entries(d.parts).map(([p, a]) => p + ' ' + money(a)).join(', ') + ')' : '') + '\n'; });
+  t += '\nBY PLATFORM\n';
+  Object.entries(st.plat).sort((a, b) => b[1].earned - a[1].earned).forEach(([p, v]) => {
+    const rate = v.rateMin > 0 ? v.rateEarn / (v.rateMin / 60) : null;
+    t += '- ' + p + ': ' + money(v.earned) + ', ' + v.count + ' jobs' + (v.min ? ', ' + dur(v.min) : '') + (v.miles ? ', ' + v.miles.toFixed(1) + ' mi' : '') + (rate !== null ? ', ' + money(rate) + ' an hour' : '') + '\n';
+  });
+  copyText(t, $('copy-week'), 'Copied. Paste it into Scout.');
+};
+
+// ── Toast ─────────────────────────────────────────────
+let toastTimer;
+function toast(msg) { const t = $('toast'); t.textContent = msg; t.classList.remove('hidden'); clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.add('hidden'), 2200); }
+
+// ── Sign in ───────────────────────────────────────────
+function authMessage(code) {
+  const m = {
+    'auth/invalid-email': 'That email address is not valid.',
+    'auth/missing-password': 'Enter your password.',
+    'auth/invalid-credential': 'Email or password is not right. Try again, or reset your password.',
+    'auth/wrong-password': 'Email or password is not right. Try again, or reset your password.',
+    'auth/user-not-found': 'No account with that email. Choose Create an account.',
+    'auth/email-already-in-use': 'An account with that email already exists. Sign in instead.',
+    'auth/weak-password': 'Use a password with at least 6 characters.',
+    'auth/too-many-requests': 'Too many tries. Wait a few minutes and try again.',
+    'auth/network-request-failed': 'No connection. Check your internet and try again.',
+    'auth/operation-not-allowed': 'Email sign-in is not turned on yet in Firebase. See the setup steps.'
+  };
+  return m[code] || 'Could not sign in. Try again.';
+}
+function paintAuthMode() {
+  $('auth-submit').textContent = signUpMode ? 'Create account' : 'Sign in';
+  $('auth-toggle').textContent = signUpMode ? 'I already have an account' : 'Create an account';
+  $('auth-pass').setAttribute('autocomplete', signUpMode ? 'new-password' : 'current-password');
+  $('auth-error').textContent = '';
+}
+$('auth-toggle').onclick = () => { signUpMode = !signUpMode; paintAuthMode(); };
+$('auth-form').onsubmit = async e => {
+  e.preventDefault();
+  const email = $('auth-email').value.trim(), pass = $('auth-pass').value;
+  $('auth-error').textContent = '';
+  if (!email) { $('auth-error').textContent = 'Enter your email address.'; return; }
+  if (!pass) { $('auth-error').textContent = 'Enter your password.'; return; }
+  $('auth-submit').disabled = true;
+  try {
+    if (signUpMode) await createUserWithEmailAndPassword(auth, email, pass);
+    else await signInWithEmailAndPassword(auth, email, pass);
+  } catch (err) { $('auth-error').textContent = authMessage(err.code); }
+  $('auth-submit').disabled = false;
+};
+$('auth-reset').onclick = async () => {
+  const email = $('auth-email').value.trim();
+  if (!email) { $('auth-error').textContent = 'Enter your email above, then tap Forgot password.'; return; }
+  try { await sendPasswordResetEmail(auth, email); $('auth-error').style.color = 'var(--green)'; $('auth-error').textContent = 'Check your email for a reset link.'; }
+  catch (err) { $('auth-error').style.color = ''; $('auth-error').textContent = authMessage(err.code); }
+};
+
+onAuthStateChanged(auth, u => {
+  user = u;
+  if (unsubSettings) { unsubSettings(); unsubSettings = null; }
+  if (!u) {
+    if (unsubJobs) unsubJobs(); if (unsubRides) unsubRides();
+    jobs = []; rides = [];
+    $('app').classList.add('hidden'); $('fab').classList.add('hidden'); $('tabbar').classList.add('hidden');
+    $('auth').classList.remove('hidden'); paintAuthMode();
+    return;
+  }
+  $('auth').classList.add('hidden'); $('app').classList.remove('hidden'); $('tabbar').classList.remove('hidden');
+  $('fab').classList.toggle('hidden', tab === 'settings');
+  unsubSettings = onSnapshot(doc(db, 'gig_users', u.uid, 'settings', 'main'), snap => {
+    settings = { ...DEFAULTS, ...(snap.exists() ? snap.data() : {}) };
+    renderAll();
+  }, err => console.log('settings listener', err));
+  subscribeWeek();
+  renderAll();
+});
+
+// ── Keep the app fresh ────────────────────────────────
+if ('serviceWorker' in navigator) {
+  const hadController = !!navigator.serviceWorker.controller;
+  let reloaded = false;
+  navigator.serviceWorker.addEventListener('controllerchange', () => { if (hadController && !reloaded) { reloaded = true; location.reload(); } });
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js', { updateViaCache: 'none' }).then(reg => {
+      document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') reg.update().catch(() => {}); });
+      reg.update().catch(() => {});
+    }).catch(() => {});
+  });
+}
+</script>
+</body>
+</html>
