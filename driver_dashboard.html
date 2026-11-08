@@ -519,6 +519,9 @@ body {
 </div>
 
 <div id="completed-tab" style="display:none;">
+  <div style="margin-bottom:12px; text-align:right;">
+    <button class="btn btn-counter" id="weekly-btn" onclick="exportWeeklyReport()" style="width:auto; padding:10px 20px;">📋 Copy weekly report</button>
+  </div>
   <div id="completed-requests" class="loading">Loading...</div>
 </div>
 
@@ -1520,6 +1523,114 @@ async function exportForScout() {
   }
 }
 window.exportForScout = exportForScout;
+
+
+// ── WEEKLY REPORT (Mon–Sun) AS TEXT FOR CHATGPT ────────────────────────────
+// Sat, Sun, Fri -> current week.  Mon, Tue, Wed, Thu -> previous week.
+function weeklyPeriod() {
+  const now = new Date();
+  const dow = now.getDay(); // 0 Sun ... 6 Sat
+  const backToMonday = (dow + 6) % 7;
+  const usePrevious = dow >= 1 && dow <= 4;
+  const startOffset = -backToMonday - (usePrevious ? 7 : 0);
+  const start = new Date(now.getFullYear(), now.getMonth(), now.getDate() + startOffset);
+  const end = new Date(start.getFullYear(), start.getMonth(), start.getDate() + 6);
+  const pad = n => String(n).padStart(2, '0');
+  const fmt = d => d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate());
+  return { start, end, startStr: fmt(start), endStr: fmt(end) };
+}
+function shortDate(d) { return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }); }
+function longDate(d) { return d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' }); }
+function rideDate(str) { const p = (str || '').split('-').map(Number); return new Date(p[0], p[1] - 1, p[2]); }
+function money(n) { return '$' + n.toFixed(2); }
+
+function buildWeeklyText() {
+  const rides = latestMileRides || [];
+  const per = weeklyPeriod();
+  const inWeek = rides.filter(r => r.pickup_date >= per.startStr && r.pickup_date <= per.endStr);
+  const sortFn = (a, b) => (a.pickup_date + ' ' + (a.pickup_time || '')).localeCompare(b.pickup_date + ' ' + (b.pickup_time || ''));
+  const done = inWeek.filter(r => r.status === 'completed' || r.status === 'paid').sort(sortFn);
+  const lateCancels = inWeek.filter(isLateCancel).sort(sortFn);
+
+  let out = 'PATRIOT TRANSPORTATION — WEEKLY RIDE REPORT\n';
+  out += 'Period: ' + longDate(per.start) + ' through ' + longDate(per.end) + ', ' + per.end.getFullYear() + ' (Monday to Sunday)\n';
+  out += 'Includes every completed ride in this period, whether or not it has been paid yet. Miles are passenger trip miles only (pickup to drop-off).\n';
+
+  let totalMiles = 0, totalFares = 0, totalTips = 0, paidTotal = 0, unpaidTotal = 0, paidCount = 0, unpaidCount = 0, missingMiles = 0;
+
+  out += '\nCOMPLETED RIDES (' + done.length + ')\n';
+  if (done.length === 0) out += '\nNo completed rides in this period.\n';
+  done.forEach((r, i) => {
+    const fare = (r.final_price !== undefined && r.final_price !== null) ? r.final_price : (r.client_bid || 0);
+    const tip = (r.tip !== undefined && r.tip !== null && r.tip > 0) ? r.tip : 0;
+    const received = fare + tip;
+    const isPaid = r.status === 'paid';
+    totalFares += fare; totalTips += tip;
+    if (isPaid) { paidTotal += received; paidCount++; } else { unpaidTotal += received; unpaidCount++; }
+    if (r.trip_miles) totalMiles += r.trip_miles; else missingMiles++;
+    out += '\n' + (i + 1) + ') ' + longDate(rideDate(r.pickup_date)) + ', ' + fmtClock(r.pickup_time) + ' — ' + (r.client_name || 'Client') + '\n';
+    out += '   Miles: ' + (r.trip_miles ? r.trip_miles.toFixed(1) : 'not recorded') + ' | Fare: ' + money(fare) + ' | Tip: ' + money(tip) + ' | Total: ' + money(received) + '\n';
+    out += '   Payment: ' + (isPaid ? 'Paid' + (r.payment_method ? ' (' + r.payment_method + ')' : '') : 'Not yet paid') + '\n';
+  });
+
+  out += '\nWEEK TOTALS\n';
+  out += '  Completed rides: ' + done.length + '\n';
+  out += '  Miles: ' + totalMiles.toFixed(1) + (missingMiles ? ' (' + missingMiles + ' ride' + (missingMiles !== 1 ? 's' : '') + ' without recorded miles)' : '') + '\n';
+  out += '  Fares: ' + money(totalFares) + '\n';
+  out += '  Tips: ' + money(totalTips) + '\n';
+  out += '  Total including tips: ' + money(totalFares + totalTips) + '\n';
+  out += '    Already paid: ' + money(paidTotal) + ' (' + paidCount + ' ride' + (paidCount !== 1 ? 's' : '') + ')\n';
+  out += '    Not yet paid: ' + money(unpaidTotal) + ' (' + unpaidCount + ' ride' + (unpaidCount !== 1 ? 's' : '') + ')\n';
+
+  if (lateCancels.length) {
+    out += '\nLATE-CANCELLED RIDES (' + lateCancels.length + ') — no income; the client cancelled within 15 minutes of pickup or after it\n';
+    lateCancels.forEach((r, i) => {
+      const mins = Math.round((pickupMs(r) - cancelledMs(r)) / 60000);
+      const when = mins >= 0 ? mins + ' min before pickup' : Math.abs(mins) + ' min after pickup time';
+      out += '\n' + (i + 1) + ') ' + longDate(rideDate(r.pickup_date)) + ', ' + fmtClock(r.pickup_time) + ' — ' + (r.client_name || 'Client') + ' (cancelled ' + when + ')\n';
+      out += '   Pickup: ' + r.pickup_address + '\n';
+    });
+  }
+  return { text: out, count: done.length, per };
+}
+
+async function exportWeeklyReport() {
+  const btn = document.getElementById('weekly-btn');
+  const original = btn.innerHTML;
+  if (!latestMileRides) { alert('Rides are still loading. Please try again in a few seconds.'); return; }
+  const { text, count } = buildWeeklyText();
+  let copied = false;
+  try {
+    await navigator.clipboard.writeText(text);
+    copied = true;
+  } catch (e) {
+    try {
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      ta.style.position = 'fixed';
+      ta.style.top = '0';
+      ta.style.opacity = '0';
+      document.body.appendChild(ta);
+      ta.focus();
+      ta.select();
+      copied = document.execCommand('copy');
+      ta.remove();
+    } catch (e2) { copied = false; }
+  }
+  if (copied) {
+    btn.innerHTML = '✓ Copied report (' + count + ' ride' + (count !== 1 ? 's' : '') + ')';
+    setTimeout(() => { btn.innerHTML = original; }, 3500);
+  } else {
+    window.prompt('Copy this text and paste it into ChatGPT:', text);
+  }
+}
+window.exportWeeklyReport = exportWeeklyReport;
+(function labelWeeklyButton() {
+  const btn = document.getElementById('weekly-btn');
+  if (!btn) return;
+  const per = weeklyPeriod();
+  btn.innerHTML = '📋 Copy weekly report (' + shortDate(per.start) + ' – ' + shortDate(per.end) + ')';
+})();
 
 // Register PWA service worker
 if ('serviceWorker' in navigator) {
