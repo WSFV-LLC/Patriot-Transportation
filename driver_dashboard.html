@@ -11,6 +11,7 @@
 <meta name="apple-mobile-web-app-title" content="PT Driver">
 <link rel="apple-touch-icon" href="icon.png">
 <style>
+.pac-container { z-index: 100000; }
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -738,6 +739,21 @@ function displayFilteredRequests(ridesArray, containerId) {
   });
 }
 
+function routeEditHtml(id, data) {
+  if (!['pending', 'quoted', 'confirmed'].includes(data.status)) return '';
+  const q = s => String(s || '').replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
+  return `<div style="margin:4px 0 6px;"><button class="edit-toggle" style="font-size:12px;" onclick="event.stopPropagation(); openRouteEdit('${id}')">✏️ Edit addresses</button></div>
+    <div class="edit-section" id="route-edit-${id}" onclick="event.stopPropagation()">
+      <div style="font-size:12px; font-weight:600; margin-bottom:3px;">Pickup address</div>
+      <input type="text" id="route-pick-${id}" value="${q(data.pickup_address)}" style="width:100%; padding:8px; border:1px solid #e0c0c0; border-radius:4px; font-size:14px; margin-bottom:8px;">
+      <div style="font-size:12px; font-weight:600; margin-bottom:3px;">Drop-off address</div>
+      <input type="text" id="route-drop-${id}" value="${q(data.dropoff_address)}" style="width:100%; padding:8px; border:1px solid #e0c0c0; border-radius:4px; font-size:14px; margin-bottom:8px;">
+      <button class="btn btn-counter" style="padding:8px 12px; font-size:13px; width:100%;" onclick="checkRoute('${id}')">Recalculate route and fare</button>
+      <div id="route-result-${id}" style="font-size:13px; margin-top:8px;"></div>
+    </div>`;
+}
+window.routeEditHtml = routeEditHtml;
+
 function createRequestCard(id, data) {
   const statusClass = `status-${data.status}`;
   const amount = (data.final_price !== undefined && data.final_price !== null) ? data.final_price : (data.client_bid || 0);
@@ -844,6 +860,7 @@ function createRequestCard(id, data) {
           →
           <span class="address-link" data-address="${data.dropoff_address.replace(/"/g, '&quot;')}" onclick="event.stopPropagation(); showMapMenu(this.dataset.address, event)" style="color:#6b1f1f; text-decoration:underline; cursor:pointer;">${data.dropoff_address}</span>
         </div>
+        ${routeEditHtml(id, data)}
       </div>
       <div class="detail-item" style="margin-bottom:12px;">
         <div class="detail-label">Luggage</div>
@@ -881,6 +898,7 @@ function createConfirmedCard(id, data) {
       <span style="color:#999;"> → </span>
       <span class="address-link" data-address="${data.dropoff_address.replace(/"/g, '&quot;')}" onclick="event.stopPropagation(); showMapMenu(this.dataset.address, event)" style="color:#6b1f1f; text-decoration:underline; cursor:pointer;">${data.dropoff_address}</span>
     </div>
+    ${routeEditHtml(id, data)}
     ${data.notes ? `
     <div style="font-size:12px; color:#555; background:#f8f9fa; padding:6px 8px; border-radius:4px; margin-bottom:8px;">
       📝 ${formatNotes(data.notes)}
@@ -2355,6 +2373,81 @@ async function updateDateTime(id) {
 }
 window.updateDateTime = updateDateTime;
 
+// ── Edit addresses: recalculate miles, time and standard fare ──
+const ROUTE_RATE = 2.25;
+const routeDrafts = {};
+function openRouteEdit(id) {
+  toggleEditSection('route-edit-' + id);
+  if (!(window.google && google.maps && google.maps.places)) return;
+  ['route-pick-', 'route-drop-'].forEach(pre => {
+    const el = document.getElementById(pre + id);
+    if (el && !el.dataset.ac) {
+      el.dataset.ac = '1';
+      const ac = new google.maps.places.Autocomplete(el, { componentRestrictions: { country: 'us' }, fields: ['formatted_address', 'name'] });
+      ac.addListener('place_changed', () => { const pl = ac.getPlace(); if (pl.formatted_address) el.value = pl.formatted_address; });
+    }
+  });
+}
+window.openRouteEdit = openRouteEdit;
+
+async function checkRoute(id) {
+  const pick = document.getElementById('route-pick-' + id).value.trim();
+  const drop = document.getElementById('route-drop-' + id).value.trim();
+  const res = document.getElementById('route-result-' + id);
+  if (!pick || !drop) { res.textContent = 'Enter both addresses.'; return; }
+  if (typeof legInfo !== 'function' || !mapsReady) { res.textContent = 'Maps is still loading. Try again in a moment.'; return; }
+  res.textContent = 'Calculating…';
+  const leg = await legInfo(pick, drop);
+  if (!leg) { res.textContent = 'Could not find one of those addresses. Include the city and state.'; return; }
+  const snap = await window.getDoc(window.doc(window.db, 'ride_requests', id));
+  const d = snap.data();
+  const miles = Math.round(leg.miles * 100) / 100, mins = Math.round(leg.minutes);
+  const std = Math.max(5, Math.round(leg.miles * ROUTE_RATE));
+  const cur = Number((d.final_price !== undefined && d.final_price !== null) ? d.final_price : (d.client_bid || 0));
+  routeDrafts[id] = { pick, drop, miles, mins, std };
+  const btn = 'padding:8px 10px; font-size:13px; flex:1;';
+  res.innerHTML = `<div>New trip: <b>${miles.toFixed(1)} mi, ${mins} min</b>.<br>Standard fare <b>$${std.toFixed(2)}</b>. Current fare <b>$${cur.toFixed(2)}</b>.</div>
+    <div style="display:flex; gap:6px; margin-top:8px;">
+      <button class="btn btn-accept" style="${btn}" onclick="saveRoute('${id}', true)">Save, use $${std.toFixed(2)}</button>
+      <button class="btn btn-counter" style="${btn}" onclick="saveRoute('${id}', false)">Save, keep $${cur.toFixed(2)}</button>
+    </div>`;
+}
+window.checkRoute = checkRoute;
+
+async function saveRoute(id, useStandard) {
+  const r = routeDrafts[id]; if (!r) return;
+  const ref = window.doc(window.db, 'ride_requests', id);
+  const upd = { pickup_address: r.pick, dropoff_address: r.drop, trip_miles: r.miles, trip_duration_minutes: r.mins, route_edited_at: new Date().toISOString() };
+  if (useStandard) upd.final_price = r.std;
+  try {
+    await window.updateDoc(ref, upd);
+    const rideData = (await window.getDoc(ref)).data();
+    if (rideData.status === 'confirmed') {
+      try {
+        fetch('https://hook.us2.make.com/zlo5peda4fwlrz2nk7m1hakc4dxjblw1', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            action: 'rescheduled',
+            calendar_event_id: rideData.calendar_event_id || null,
+            client_name: rideData.client_name, client_email: rideData.client_email,
+            pickup_address: rideData.pickup_address, dropoff_address: rideData.dropoff_address,
+            pickup_date: rideData.pickup_date, pickup_time: rideData.pickup_time,
+            trip_duration_minutes: rideData.trip_duration_minutes || 30, final_price: rideData.final_price
+          })
+        }).then(x => x.json()).then(data => {
+          const newEventId = data.event_id || data.id || null;
+          if (newEventId) window.updateDoc(ref, { calendar_event_id: newEventId }).catch(err => console.log(err));
+        }).catch(err => console.log('Route calendar webhook error:', err));
+      } catch (err) { console.log(err); }
+    }
+    delete routeDrafts[id];
+    alert('Addresses updated.');
+  } catch (error) {
+    alert('Error updating addresses: ' + error.message);
+  }
+}
+window.saveRoute = saveRoute;
+
 async function confirmPayment(id) {
   const method = document.getElementById('pay-method-' + id).value;
   const tipInput = document.getElementById('pay-tip-' + id);
@@ -2465,6 +2558,6 @@ async function undoPaidFromClient(rideId, clientPhone) {
 window.undoPaidFromClient = undoPaidFromClient;
 </script>
 
-<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCiU4H9v1LWki-x5rjO0CMPUtAO35GW1Tc&callback=initDashMaps" async defer></script>
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCiU4H9v1LWki-x5rjO0CMPUtAO35GW1Tc&libraries=places&callback=initDashMaps" async defer></script>
 </body>
 </html>
