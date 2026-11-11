@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Patriot Transportation</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#2f0b12">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Patriot">
+<link rel="apple-touch-icon" href="icon.png">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Oswald:wght@500;700&family=Open+Sans:wght@400;600;700&display=swap');
+:root { --maroon:#6b1f1f; --maroon2:#8b2c2c; --gold:#c8952a; --ink:#1d1d1f; --ink2:#4a4a52; --line:#d9d3c7; --card:#ffffff; --green:#1d6b2a; }
+* { box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent; }
+body { font-family:'Open Sans',system-ui,sans-serif; font-size:20px; line-height:1.4; color:var(--ink); min-height:100vh; padding:16px 16px 90px;
+  background:#2f0b12; }
+.wrap { max-width:640px; margin:0 auto; }
+.brand { text-align:center; color:#f5f0e6; font-family:'Oswald',sans-serif; letter-spacing:2px; padding:8px 0 16px; }
+.brand b { display:block; font-size:28px; letter-spacing:3px; }
+.brand span { font-size:14px; color:var(--gold); letter-spacing:3px; }
+.card { background:var(--card); border-radius:18px; padding:24px 22px; margin-bottom:18px; box-shadow:0 8px 28px rgba(0,0,0,.35); }
+h1 { font-family:'Oswald',sans-serif; font-size:34px; line-height:1.15; color:var(--maroon); margin-bottom:6px; font-weight:700; }
+h2 { font-family:'Oswald',sans-serif; font-size:28px; color:var(--maroon); margin-bottom:14px; font-weight:700; }
+p.lead { color:var(--ink2); margin-bottom:18px; }
+button { font:inherit; cursor:pointer; border:none; }
+.big { display:block; width:100%; min-height:68px; padding:16px 20px; border-radius:14px; font-size:23px; font-weight:700; text-align:center; margin-bottom:14px; }
+.big.main { background:linear-gradient(135deg,var(--maroon2),var(--maroon)); color:#fff; border:2px solid var(--gold); }
+.big.alt { background:#fff; color:var(--maroon); border:3px solid var(--maroon); }
+.big.go { background:var(--green); color:#fff; }
+.big.call { flex-direction:column; gap:0; background:#fff; color:var(--ink); border:3px solid var(--line); text-decoration:none; display:flex; align-items:center; justify-content:center; gap:10px; }
+.big:active { transform:scale(.985); }
+.back { background:none; color:var(--maroon); font-weight:700; font-size:20px; padding:10px 4px; margin-bottom:6px; }
+.step { color:var(--ink2); font-weight:600; font-size:17px; margin-bottom:4px; }
+.bar { height:10px; background:#eee7da; border-radius:6px; margin-bottom:18px; overflow:hidden; }
+.bar i { display:block; height:100%; background:var(--gold); border-radius:6px; transition:width .25s; }
+.label { font-weight:700; margin:16px 0 8px; font-size:20px; }
+.place { display:block; width:100%; text-align:left; background:#faf7f0; border:3px solid var(--line); border-radius:14px; padding:14px 16px; margin-bottom:10px; min-height:68px; }
+.place b { display:block; font-size:21px; }
+.place span { color:var(--ink2); font-size:17px; }
+.place.sel { border-color:var(--maroon); background:#fbeeee; }
+input.txt, select.sel { width:100%; font-size:22px; padding:16px; border:3px solid var(--line); border-radius:14px; background:#fff; color:var(--ink); }
+input.txt:focus, select.sel:focus { outline:none; border-color:var(--maroon); }
+.row { display:flex; gap:10px; }
+.row > * { flex:1; }
+.pill { min-height:64px; border-radius:14px; border:3px solid var(--line); background:#faf7f0; font-size:21px; font-weight:700; padding:10px; }
+.pill.sel { border-color:var(--maroon); background:var(--maroon); color:#fff; }
+.counter { display:flex; align-items:center; gap:14px; }
+.counter button { width:76px; height:76px; border-radius:50%; font-size:42px; font-weight:700; background:var(--maroon); color:#fff; flex:none; }
+.counter .n { flex:1; text-align:center; font-size:44px; font-family:'Oswald',sans-serif; font-weight:700; }
+.sum { border:3px solid var(--line); border-radius:14px; padding:6px 16px; margin-bottom:16px; }
+.sum div { padding:12px 0; border-bottom:2px solid #eee7da; display:flex; justify-content:space-between; gap:10px; align-items:flex-start; }
+.sum div:last-child { border-bottom:none; }
+.sum small { display:block; color:var(--ink2); font-size:16px; }
+.sum a { color:var(--maroon); font-weight:700; text-decoration:underline; background:none; font-size:18px; flex:none; padding:4px; }
+.price { text-align:center; background:#faf7f0; border-radius:14px; padding:16px; margin-bottom:16px; }
+.price b { font-family:'Oswald',sans-serif; font-size:52px; color:var(--maroon); display:block; line-height:1.1; }
+.ride { border:3px solid var(--line); border-radius:14px; padding:14px 16px; margin-bottom:14px; }
+.ride .when { font-family:'Oswald',sans-serif; font-size:24px; color:var(--maroon); }
+.chip { display:inline-block; font-weight:700; font-size:16px; padding:3px 12px; border-radius:999px; margin-left:8px; vertical-align:3px; }
+.chip.ok { background:#dff2e2; color:var(--green); } .chip.wait { background:#fdf0cf; color:#8a6200; }
+.textlink { background:none; color:var(--maroon); font-weight:700; text-decoration:underline; font-size:20px; padding:10px; }
+.mini { background:none; color:var(--maroon); font-weight:700; font-size:18px; text-decoration:underline; padding:8px 10px 8px 0; }
+.mini.red { color:#a32020; }
+.saveprompt { border:3px solid var(--gold); background:#fffaf0; border-radius:14px; padding:16px; margin:16px 0; text-align:left; }
+.notyou { text-align:center; margin-top:6px; } .notyou button { background:none; color:#f1e3c4; text-decoration:underline; font-size:18px; padding:10px; }
+.done { text-align:center; } .done .check { width:90px; height:90px; border-radius:50%; background:var(--green); color:#fff; font-size:56px; line-height:90px; margin:0 auto 14px; }
+.hidden { display:none !important; }
+.call .num { display:block; font-size:19px; font-weight:600; white-space:nowrap; }
+.chg { display:block; color:var(--maroon); font-weight:700; margin-top:6px; }
+.owe { display:block; width:100%; text-align:left; background:#fffaf0; border:3px solid var(--gold); border-radius:14px; padding:14px 16px; margin-bottom:14px; }
+.owe b { display:block; font-size:22px; color:var(--maroon); } .owe span { color:var(--ink2); font-size:17px; }
+.row2 { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+.pill.red { background:#a32020; border-color:#a32020; color:#fff; }
+.pay { display:block; text-align:center; text-decoration:none; background:#faf7f0; color:var(--ink); border:3px solid var(--line); border-radius:14px; padding:14px; margin-top:10px; font-weight:700; font-size:20px; }
+.small { color:var(--ink2); font-size:16px; margin-top:8px; }
+.amt { font-family:'Oswald',sans-serif; font-size:34px; color:var(--maroon); margin:8px 0 2px; }
+.chip.bad { background:#f6dddd; color:#8a1f1f; }
+.price.err { color:#8a1f1f; font-size:18px; font-weight:600; }
+textarea.txt { font-family:inherit; resize:vertical; }
+#flash { position:fixed; left:12px; right:12px; top:12px; z-index:60; background:#fff; color:#8a1f1f; border:3px solid #a32020; border-radius:14px; padding:14px 16px; font-weight:700; font-size:18px; box-shadow:0 8px 24px rgba(0,0,0,.4); max-width:620px; margin:0 auto; }
+.big:disabled { opacity:.5; cursor:default; }
+
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="brand"><b>PATRIOT TRANSPORTATION</b><span>SAN ANTONIO &amp; SURROUNDING AREAS</span></div>
+  <div id="flash" class="hidden" role="alert"></div>
+  <div id="screen"></div>
+  <div class="notyou" id="notyou"></div>
+</div>
+<script>window.initMaps=function(){window.__mapsLoaded=true;if(window.__onMaps)window.__onMaps();};</script>
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCiU4H9v1LWki-x5rjO0CMPUtAO35GW1Tc&libraries=places&callback=initMaps" async defer></script>
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+import { getFirestore, collection, query, where, orderBy, onSnapshot, doc, updateDoc, addDoc, setDoc, serverTimestamp, getDoc } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+
+const app = initializeApp({
+  apiKey: "AIzaSyCU5gio9iuDF1wkY8lRJVN0ULHQxgujluM",
+  authDomain: "patriot-transportation.firebaseapp.com",
+  projectId: "patriot-transportation",
+  storageBucket: "patriot-transportation.firebasestorage.app",
+  messagingSenderId: "296569517357",
+  appId: "1:296569517357:web:61b82f2d2310c3bf5bcfa4"
+});
+const db = getFirestore(app);
+
+// ── Constants ────────────────────────────────────────────────────────────
+const JASON_PHONE = '210-960-6034';
+const PRICE_PER_MILE = 2.25;
+const NEW_REQUEST_HOOK = 'https://hook.us2.make.com/jzkgfy68268az8wz34ylv8nyb2vxbcof';
+const CALENDAR_HOOK = 'https://hook.us2.make.com/zlo5peda4fwlrz2nk7m1hakc4dxjblw1';
+const AIRPORT = { key: 'airport', name: 'San Antonio Airport', addr: 'San Antonio International Airport, San Antonio, TX' };
+const BAGS = [
+  { label: 'None', value: 'No luggage — personal items only' },
+  { label: '1 or 2 bags', value: 'Small load — 1 to 2 standard bags' },
+  { label: '3 or 4 bags', value: 'Medium load — 3 to 4 bags or one large item' },
+  { label: '5 or more', value: 'Heavy load — 5 or more bags' }
+];
+const IS_MOBILE = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent) || (navigator.maxTouchPoints > 1 && /Mac/.test(navigator.platform));
+const LS_PHONE = 'patriot_phone';
+
+// ── State ────────────────────────────────────────────────────────────────
+const st = {};          // booking in progress + screen
+let phone = '';
+let profile = null;     // { name, email, places:[{key,name,addr}] }
+let rides = [];         // this customer's rides (live)
+let unsub = null;
+let editKey = null, delKey = null, pickEdit = false, savedMsg = '', pricing = false, priceError = '', cancelId = null, sending = false;
+const screen = document.getElementById('screen');
+
+function fresh() {
+  Object.assign(st, { step: 'signin', from: null, to: null, typed: '', typedName: '', date: '', time: '09:00', riders: 1, bags: 0, notes: '', price: 0, miles: 0, mins: 0 });
+  savedMsg = ''; pickEdit = false; pricing = false; priceError = ''; sending = false;
+}
+fresh();
+window.st = st;
+
+// ── Helpers ──────────────────────────────────────────────────────────────
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const fmtDate = d => d ? new Date(d + 'T12:00').toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' }) : '';
+const fmtTime = t => { if (!t || !t.includes(':')) return t || ''; const [h, m] = t.split(':').map(Number); return ((h % 12) || 12) + ':' + String(m).padStart(2, '0') + ' ' + (h >= 12 ? 'PM' : 'AM'); };
+const iso = n => { const d = new Date(); d.setDate(d.getDate() + n); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); };
+const normPhone = p => String(p || '').replace(/\D/g, '').slice(-10);
+const firstName = () => ((profile && profile.name) || '').trim().split(/\s+/)[0] || '';
+const home = () => (profile && profile.places || []).find(p => p.key === 'home');
+const places = () => (profile && profile.places) || [];
+const fare = miles => Math.max(5, Math.round(miles * PRICE_PER_MILE));
+const callBtn = () => `<a class="big call" href="tel:+12109606034">Call Jason<span class="num">${JASON_PHONE}</span></a>`;
+function placeName(addr) { const p = places().find(x => x.addr === addr); return p ? p.name : String(addr || '').split(',')[0]; }
+function suggestName() {
+  if (st.typedName) return st.typedName;
+  const t = st.typed.trim(); return t.includes(',') ? t.split(',')[0].trim() : t;
+}
+function flash(text) {
+  const el = document.getElementById('flash'); el.textContent = text; el.classList.remove('hidden');
+  clearTimeout(flash.t); flash.t = setTimeout(() => el.classList.add('hidden'), 6000);
+}
+
+// Plain-text notes with a FlightAware link when a flight number is spotted
+const AIRLINE_MAP = { delta: 'DAL', dl: 'DAL', united: 'UAL', ua: 'UAL', american: 'AAL', aa: 'AAL', southwest: 'SWA', wn: 'SWA', sw: 'SWA', swa: 'SWA', alaska: 'ASA', as: 'ASA', ak: 'ASA', jetblue: 'JBU', b6: 'JBU', jb: 'JBU', spirit: 'NKS', nk: 'NKS', frontier: 'FFT', f9: 'FFT', allegiant: 'AAY', g4: 'AAY', 'sun country': 'SCX', sy: 'SCX' };
+function formatNotes(notes) {
+  const re = /\b(delta|dl|united|ua|american|aa|southwest|wn|sw|swa|alaska|as|ak|jetblue|b6|jb|spirit|nk|frontier|f9|allegiant|g4|sun country|sy)\s*(?:airlines?|airways?|air lines?)?\s*(?:flight|flt)?\s*(\d{1,4}[a-z]?)\b/gi;
+  let out = '', last = 0, m;
+  while ((m = re.exec(notes))) {
+    const code = AIRLINE_MAP[m[1].toLowerCase()]; if (!code) continue;
+    const id = code + m[2].toUpperCase();
+    out += esc(notes.slice(last, m.index + m[0].length)) + ` <a href="https://flightaware.com/live/flight/${id}" target="_blank" rel="noopener" style="color:var(--maroon);font-weight:700">✈ Track ${id}</a>`;
+    last = m.index + m[0].length;
+  }
+  return out + esc(notes.slice(last));
+}
+
+// ── Google Maps (address search + distance) ──────────────────────────────
+let distanceService = null;
+function mapsLoaded() { distanceService = new google.maps.DistanceMatrixService(); attachAutocomplete(); }
+window.__onMaps = mapsLoaded; if (window.__mapsLoaded) mapsLoaded();
+function mapsReady() { return !!(window.google && google.maps && google.maps.places); }
+function auto(el, onPick) {
+  if (!el || !mapsReady() || el.dataset.ac) return;
+  el.dataset.ac = '1';
+  const ac = new google.maps.places.Autocomplete(el, { componentRestrictions: { country: 'us' }, fields: ['formatted_address', 'name', 'types'] });
+  ac.addListener('place_changed', () => {
+    const p = ac.getPlace(); if (!p || !p.formatted_address) return;
+    const biz = (p.types || []).some(t => ['establishment', 'point_of_interest', 'airport', 'hospital'].includes(t)) ? p.name : '';
+    el.value = p.formatted_address; onPick(p.formatted_address, biz);
+  });
+}
+function attachAutocomplete() {
+  auto(document.getElementById('typed'), (a, n) => { st.to = null; st.typed = a; st.typedName = n || ''; const b = document.getElementById('next1'); if (b) b.disabled = false; });
+  auto(document.getElementById('fromTyped'), (a, n) => pickFromTyped(a, n));
+  auto(document.getElementById('homeAddr'), a => { st.homeAddr = a; });
+}
+
+// ── Profile (name, email, saved places) ──────────────────────────────────
+const profKey = p => 'patriot_profile_' + p;
+async function loadProfile() {
+  let p = null;
+  try { const s = await getDoc(doc(db, 'clients', phone)); if (s.exists()) p = s.data(); } catch (e) { console.log('profile read', e.message); }
+  if (!p) { try { p = JSON.parse(localStorage.getItem(profKey(phone)) || 'null'); } catch (e) { } }
+  profile = p;
+}
+async function saveProfile() {
+  try { localStorage.setItem(profKey(phone), JSON.stringify(profile)); } catch (e) { }
+  try { await setDoc(doc(db, 'clients', phone), { ...profile, phone, updated_at: new Date() }); }
+  catch (e) { console.log('profile save', e.message); }
+}
+
+// ── Rides (live) ─────────────────────────────────────────────────────────
+function watchRides() {
+  if (unsub) unsub();
+  const q = query(collection(db, 'ride_requests'), where('client_phone', '==', phone), orderBy('created_at', 'desc'));
+  unsub = onSnapshot(q, snap => {
+    rides = []; snap.forEach(d => rides.push({ id: d.id, data: d.data() }));
+    if (st.step === 'home' || st.step === 'rides') render();
+  }, err => console.log('rides', err.message));
+}
+const balance = () => rides.filter(r => r.data.status === 'completed').reduce((s, r) => s + (r.data.final_price || 0), 0);
+
+// ── Sign in ──────────────────────────────────────────────────────────────
+async function startSession(p, remember) {
+  phone = p;
+  if (remember && IS_MOBILE) { try { localStorage.setItem(LS_PHONE, phone); } catch (e) { } }
+  screen.innerHTML = '<div class="card"><h2>One moment…</h2></div>';
+  watchRides();
+  await loadProfile();
+  if (!profile || !profile.name || !profile.email || !home()) {
+    // Brand-new customer, or an older customer who has not set up yet: borrow from their last ride
+    let last = null;
+    try { const s = await new Promise((res, rej) => { const u = onSnapshot(query(collection(db, 'ride_requests'), where('client_phone', '==', phone), orderBy('created_at', 'desc')), x => { res(x); u(); }, rej); }); if (!s.empty) last = s.docs[0].data(); } catch (e) { }
+    st.setup = { name: (profile && profile.name) || (last && last.client_name) || '', email: (profile && profile.email) || (last && last.client_email) || '', home: (home() && home().addr) || (last && last.pickup_address) || '' };
+    st.homeAddr = st.setup.home;
+    return go('setup');
+  }
+  go('home');
+}
+function signIn() {
+  const p = normPhone(document.getElementById('phone').value);
+  if (p.length !== 10) { flash('Please type your 10-digit phone number, like 210 555 1234.'); return; }
+  startSession(p, true);
+}
+function notYou() {
+  try { localStorage.removeItem(LS_PHONE); } catch (e) { }
+  if (unsub) unsub(); unsub = null;
+  phone = ''; profile = null; rides = []; fresh(); render();
+}
+async function saveSetup() {
+  const name = document.getElementById('sname').value.trim(), email = document.getElementById('semail').value.trim(), addr = (document.getElementById('homeAddr').value || '').trim();
+  if (!name) return flash('Please type your name.');
+  if (!/^\S+@\S+\.\S+$/.test(email)) return flash('Please type your email address, like name@example.com. We send your confirmation there.');
+  if (!addr) return flash('Please type the address where we pick you up.');
+  const keep = (profile && profile.places || []).filter(p => p.key !== 'home');
+  profile = { name, email, places: [{ key: 'home', name: 'My home', addr }, ...(keep.length || (profile && profile.places) ? keep : [AIRPORT])] };
+  await saveProfile();
+  go('home');
+}
+
+// ── Navigation / render ──────────────────────────────────────────────────
+function go(n) { st.step = n; render(); window.scrollTo(0, 0); }
+function render() {
+  const s = st.step;
+  document.getElementById('notyou').innerHTML = (phone && s === 'home') ? `<button onclick="notYou()">Not ${esc(firstName() || 'you')}? Tap here</button>` : '';
+  const nm = typeof s === 'number';
+  const bar = nm ? `<div class="step">Step ${s} of 4</div><div class="bar"><i style="width:${s * 25}%"></i></div>` : '';
+  screen.innerHTML = (VIEWS[nm ? 'book' + s : s] || VIEWS.home)(bar);
+  attachAutocomplete();
+}
+const VIEWS = {};
+
+VIEWS.signin = () => `<div class="card"><h1>Welcome</h1><p class="lead">Type your phone number to get started.</p>
+  <div class="label" style="margin-top:0">Your phone number</div>
+  <input class="txt" id="phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="210 555 1234" onkeydown="if(event.key==='Enter')signIn()">
+  <button class="big main" style="margin-top:18px" onclick="signIn()">Continue</button>
+  ${callBtn()}</div>`;
+
+VIEWS.setup = () => `<div class="card"><h1>Let’s get you set up</h1><p class="lead">We only ask this one time.</p>
+  <div class="label" style="margin-top:0">Your name</div><input class="txt" id="sname" autocomplete="name" value="${esc(st.setup.name)}">
+  <div class="label">Your email</div><input class="txt" id="semail" type="email" inputmode="email" autocomplete="email" value="${esc(st.setup.email)}">
+  <div class="label">Where should we pick you up? (your home)</div><input class="txt" id="homeAddr" autocomplete="off" placeholder="Street address and city" value="${esc(st.setup.home)}">
+  <button class="big main" style="margin-top:18px" onclick="saveSetup()">Save and continue</button></div>`;
+
+VIEWS.home = () => {
+  const owe = balance();
+  return `<div class="card"><h1>Welcome back, ${esc(firstName())}</h1><p class="lead">What would you like to do?</p>
+  ${owe > 0 ? `<button class="owe" onclick="go('rides')"><b>You have $${owe.toFixed(2)} to pay</b><span>Tap to see how to pay</span></button>` : ''}
+  <button class="big main" onclick="startBooking()">Book a ride</button>
+  <button class="big alt" onclick="go('rides')">My rides</button>
+  ${callBtn()}
+  <div style="text-align:center"><button class="textlink" onclick="editKey=null;delKey=null;go('places')">My saved places</button></div></div>`;
+};
+
+// Step 1 — where
+VIEWS.book1 = bar => {
+  const from = st.from;
+  const ps = places();
+  return `<div class="card"><button class="back" onclick="go('home')">← Back</button>${bar}
+  <h2>Where are you going?</h2>
+  <div class="label">Pick up from</div>
+  ${pickEdit ? `${ps.map(p => `<button class="place ${from && from.addr === p.addr ? 'sel' : ''}" onclick="pickFrom('${p.key}')"><b>${esc(p.name)}</b><span>${esc(p.addr)}</span></button>`).join('')}
+    <input class="txt" id="fromTyped" placeholder="Somewhere else? Type the address" onchange="pickFromTyped(this.value)">`
+    : `<button class="place sel" onclick="pickEdit=true;render()"><b>${esc(from.name)}</b><span>${esc(from.addr)}</span><span class="chg">Not here? Tap to change</span></button>`}
+  <div class="label">Going to</div>
+  ${ps.filter(p => p.addr !== from.addr).map(p => `<button class="place ${st.to && st.to.key === p.key ? 'sel' : ''}" onclick="pickTo('${p.key}')"><b>${esc(p.name)}</b><span>${esc(p.addr)}</span></button>`).join('')}
+  <div class="label">${ps.length > 1 ? 'Somewhere else? Type the address' : 'Type the address'}</div>
+  <input class="txt" id="typed" autocomplete="off" placeholder="Name or address, and the city" value="${esc(st.typed)}" oninput="typedChanged(this.value)">
+  <button class="big main" id="next1" style="margin-top:18px" ${(st.to || st.typed) ? '' : 'disabled'} onclick="go(2)">Next</button></div>`;
+};
+
+// Step 2 — when
+VIEWS.book2 = bar => {
+  const [h, m] = st.time.split(':').map(Number);
+  return `<div class="card"><button class="back" onclick="go(1)">← Back</button>${bar}
+  <h2>When do you need the ride?</h2>
+  <div class="row"><button class="pill ${st.date === iso(0) ? 'sel' : ''}" onclick="st.date=iso(0);render()">Today</button><button class="pill ${st.date === iso(1) ? 'sel' : ''}" onclick="st.date=iso(1);render()">Tomorrow</button></div>
+  <div class="label">Or pick another day</div>
+  <input class="txt" type="date" id="d" value="${st.date}" min="${iso(0)}" onchange="st.date=this.value;render()">
+  <div class="label">What time should we pick you up?</div>
+  <div class="row">
+    <select class="sel" id="hh" onchange="setT()">${[...Array(12)].map((_, i) => `<option value="${i + 1}" ${((h % 12) || 12) === i + 1 ? 'selected' : ''}>${i + 1}</option>`).join('')}</select>
+    <select class="sel" id="mm" onchange="setT()">${['00', '15', '30', '45'].map(x => `<option ${String(m).padStart(2, '0') === x ? 'selected' : ''}>${x}</option>`).join('')}</select>
+    <select class="sel" id="ap" onchange="setT()"><option ${h < 12 ? 'selected' : ''}>AM</option><option ${h >= 12 ? 'selected' : ''}>PM</option></select>
+  </div>
+  <p class="lead" style="margin-top:12px">Pickup: <b>${st.date ? fmtDate(st.date) : 'choose a day'}</b> at <b>${fmtTime(st.time)}</b></p>
+  <button class="big main" ${st.date ? '' : 'disabled'} onclick="go(3)">Next</button></div>`;
+};
+
+// Step 3 — who + bags + note
+VIEWS.book3 = bar => `<div class="card"><button class="back" onclick="go(2)">← Back</button>${bar}
+  <h2>Who is riding?</h2>
+  <div class="label">How many people?</div>
+  <div class="counter"><button onclick="st.riders=Math.max(1,st.riders-1);render()" aria-label="Fewer people">−</button><div class="n">${st.riders}</div><button onclick="st.riders=Math.min(7,st.riders+1);render()" aria-label="More people">+</button></div>
+  <div class="label">Are you bringing bags?</div>
+  <div class="row2">${BAGS.map((b, i) => `<button class="pill ${st.bags === i ? 'sel' : ''}" onclick="st.bags=${i};render()">${b.label}</button>`).join('')}</div>
+  <div class="label">Anything Jason should know? (optional)</div>
+  <textarea class="txt" id="notes" rows="2" placeholder="Walker or wheelchair, flight number, gate code…" oninput="st.notes=this.value">${esc(st.notes)}</textarea>
+  <button class="big main" style="margin-top:18px" onclick="st.notes=document.getElementById('notes').value;go(4)">Next</button></div>`;
+
+// Step 4 — check and send (price is worked out here)
+VIEWS.book4 = bar => {
+  const to = st.to ? st.to : { name: suggestName(), addr: st.typed.trim() };
+  const priceBlock = pricing ? `<div class="price"><small style="font-size:18px;color:var(--ink2)">Working out your price…</small></div>`
+    : priceError ? `<div class="price err">${esc(priceError)}</div>`
+      : `<div class="price"><small style="font-size:17px;color:var(--ink2)">Your price (${st.miles.toFixed(1)} miles)</small><b>$${st.price.toFixed(2)}</b></div>`;
+  return `<div class="card"><button class="back" onclick="go(3)">← Back</button>${bar}
+  <h2>Does this look right?</h2>
+  <div class="sum">
+    <div><span><small>From</small>${esc(st.from.name)}</span><a onclick="go(1)">Change</a></div>
+    <div><span><small>To</small>${esc(to.name)}</span><a onclick="go(1)">Change</a></div>
+    <div><span><small>Pickup</small>${fmtDate(st.date)}<br>${fmtTime(st.time)}</span><a onclick="go(2)">Change</a></div>
+    <div><span><small>Riders</small>${st.riders} ${st.riders === 1 ? 'person' : 'people'}, bags: ${esc(BAGS[st.bags].label.toLowerCase())}${st.notes.trim() ? '<br>Note: ' + esc(st.notes.trim()) : ''}</span><a onclick="go(3)">Change</a></div>
+  </div>
+  ${priceBlock}
+  <button class="big go" ${(pricing || priceError || sending) ? 'disabled' : ''} onclick="sendRequest()">${sending ? 'Sending…' : 'Send my request'}</button>
+  <p class="lead" style="text-align:center;margin:0">Jason will confirm your ride. Nothing is charged until after your ride.</p></div>`;
+};
+
+// Done
+VIEWS.book5 = () => `<div class="card done"><div class="check">✓</div><h1>Request sent!</h1>
+  <p class="lead">Jason will confirm your ride soon, and you will get an email when he does.</p>
+  ${savePromptHtml()}
+  <button class="big alt" onclick="returnTrip()">Book the ride back</button>
+  <button class="big main" onclick="fresh();go('home')">Back to start</button>
+  ${callBtn()}</div>`;
+
+// My rides
+const STATUS = { pending: ['Waiting for Jason', 'wait'], quoted: ['Needs your OK', 'wait'], confirmed: ['Confirmed', 'ok'], completed: ['Finished — payment due', 'wait'], paid: ['Paid', 'ok'], declined: ['Not available', 'bad'], cancelled: ['Cancelled', 'bad'] };
+const PAY = `<a class="pay" href="https://cash.app/$JasonNed" target="_blank" rel="noopener">Pay with Cash App</a><a class="pay" href="https://venmo.com/u/Jason-Nedoroscik" target="_blank" rel="noopener">Pay with Venmo</a><a class="pay" href="https://www.paypal.com/ncp/payment/GGLFF2L9XDA4E" target="_blank" rel="noopener">Pay by card (PayPal)</a><p class="small">Please put “Patriot Transportation” in the note. You can also pay cash in the car.</p>`;
+const TIP = `<div class="small" style="margin:12px 0 6px"><b>Add a tip? Thank you!</b></div><a class="pay" href="https://cash.app/$JasonNed" target="_blank" rel="noopener">Tip with Cash App</a><a class="pay" href="https://venmo.com/u/Jason-Nedoroscik" target="_blank" rel="noopener">Tip with Venmo</a><a class="pay" href="https://www.paypal.com/ncp/payment/GGLFF2L9XDA4E" target="_blank" rel="noopener">Tip with PayPal</a>`;
+function rideCard(r) {
+  const d = r.data, id = r.id, st_ = STATUS[d.status] || [d.status, 'wait'];
+  const amt = (d.final_price != null ? d.final_price : d.quoted_price) || 0;
+  let extra = '';
+  if (d.status === 'pending') extra = `<p class="small">Jason will confirm soon. Need to change something? Please call him.</p>`;
+  if (d.status === 'quoted') extra = `<div class="amt">$${amt.toFixed(2)}</div><button class="big go" style="min-height:58px" onclick="confirmRide('${id}')">Yes, book this ride</button>`;
+  if (d.status === 'confirmed') extra = `<div class="amt">$${amt.toFixed(2)}</div>${PAY}${cancelId === id
+    ? `<div class="ride" style="margin:12px 0 0"><b>Cancel this ride?</b><div class="row" style="margin-top:12px"><button class="pill red" onclick="cancelRide('${id}')">Yes, cancel it</button><button class="pill" onclick="cancelId=null;render()">Keep it</button></div></div>`
+    : `<button class="mini red" onclick="cancelId='${id}';render()">Cancel this ride</button>`}`;
+  if (d.status === 'completed') extra = `<div class="amt">$${amt.toFixed(2)} due</div>${PAY}`;
+  if (d.status === 'paid') extra = `<div class="amt">Paid $${amt.toFixed(2)}</div><a class="big alt" style="min-height:58px;font-size:20px;text-decoration:none;display:flex;align-items:center;justify-content:center" href="receipt.html?id=${id}" target="_blank" rel="noopener">View receipt</a>${TIP}`;
+  if (d.status === 'declined') extra = `<p class="small">Jason couldn’t take this one. Please call him or send a new request.</p>`;
+  return `<div class="ride"><div class="when">${esc(fmtDate(d.pickup_date))}, ${esc(fmtTime(d.pickup_time))}<span class="chip ${st_[1]}">${esc(st_[0])}</span></div>
+    <div style="margin:6px 0 4px">${esc(placeName(d.pickup_address))} → ${esc(placeName(d.dropoff_address))}</div>
+    ${d.notes ? `<div class="small">${formatNotes(d.notes)}</div>` : ''}
+    ${extra}
+    <button class="big alt" style="min-height:58px;font-size:20px;margin:12px 0 0" onclick="bookAgain('${id}')">Book this ride again</button></div>`;
+}
+VIEWS.rides = () => {
+  const pr = { pending: 1, quoted: 2, confirmed: 3, completed: 4, declined: 5, paid: 6, cancelled: 7 };
+  const list = [...rides].sort((a, b) => ((pr[a.data.status] || 99) - (pr[b.data.status] || 99)) || ((b.data.created_at && b.data.created_at.seconds || 0) - (a.data.created_at && a.data.created_at.seconds || 0)));
+  return `<div class="card"><button class="back" onclick="go('home')">← Back</button><h2>My rides</h2>
+  ${list.length ? list.map(rideCard).join('') : '<p class="lead">No rides yet. Tap Back, then Book a ride.</p>'}
+  <p class="lead">Need to change a ride? Please call Jason.</p>${callBtn()}</div>`;
+};
+
+// Saved places
+VIEWS.places = () => {
+  const list = places().filter(p => p.key !== 'home');
+  return `<div class="card"><button class="back" onclick="go('home')">← Back</button><h2>My saved places</h2>
+  ${list.length ? list.map(p => {
+    if (editKey === p.key) return `<div class="ride"><div class="label" style="margin-top:0">New name</div><input class="txt" id="rn" value="${esc(p.name)}"><div class="row" style="margin-top:12px"><button class="pill" onclick="renamePlace('${p.key}')">Save</button><button class="pill" onclick="editKey=null;render()">Cancel</button></div></div>`;
+    if (delKey === p.key) return `<div class="ride"><b>Delete “${esc(p.name)}”?</b><div class="row" style="margin-top:12px"><button class="pill red" onclick="delPlace('${p.key}')">Yes, delete</button><button class="pill" onclick="delKey=null;render()">Keep it</button></div></div>`;
+    return `<div class="ride"><b>${esc(p.name)}</b><div style="color:var(--ink2);font-size:17px">${esc(p.addr)}</div><div style="margin-top:4px"><button class="mini" onclick="editKey='${p.key}';delKey=null;render()">Rename</button><button class="mini red" onclick="delKey='${p.key}';editKey=null;render()">Delete</button></div></div>`;
+  }).join('') : '<p class="lead">You have no saved places yet.</p>'}
+  <p class="lead">To add a place, book a ride to it and tap Save place afterward.</p></div>`;
+};
+
+// ── Booking actions ──────────────────────────────────────────────────────
+function startBooking() { fresh(); st.step = 1; st.from = home(); phoneKeep(); render(); window.scrollTo(0, 0); }
+function phoneKeep() { /* st reset keeps phone/profile in module scope */ }
+function typedChanged(v) { st.typed = v; st.to = null; st.typedName = ''; const b = document.getElementById('next1'); if (b) b.disabled = !v.trim(); }
+function pickFrom(k) { st.from = places().find(p => p.key === k); if (st.to && st.to.addr === st.from.addr) st.to = null; pickEdit = false; render(); }
+function pickFromTyped(v, name) { v = String(v || '').trim(); if (!v) return; st.from = { key: 't', name: name || v.split(',')[0].trim(), addr: v }; pickEdit = false; render(); }
+function pickTo(k) { st.to = places().find(p => p.key === k); st.typed = ''; st.typedName = ''; go(2); }
+function setT() { let h = +document.getElementById('hh').value % 12; if (document.getElementById('ap').value === 'PM') h += 12; st.time = String(h).padStart(2, '0') + ':' + document.getElementById('mm').value; render(); }
+const dest = () => st.to ? st.to : { name: suggestName(), addr: st.typed.trim() };
+
+// Work out the price when step 4 opens
+const _go = go;
+go = function (n) { _go(n); if (n === 4) priceTrip(); };
+function priceTrip() {
+  const from = st.from.addr, to = dest().addr;
+  pricing = true; priceError = ''; render();
+  if (!distanceService && mapsReady()) distanceService = new google.maps.DistanceMatrixService();
+  if (!distanceService) { pricing = false; priceError = 'We couldn’t reach the map just now. Please check your internet and tap Back, then Next.'; return render(); }
+  const timer = setTimeout(() => { if (pricing) { pricing = false; priceError = 'This is taking too long. Please check your internet, then tap Back and Next. Or call Jason.'; render(); } }, 20000);
+  distanceService.getDistanceMatrix({ origins: [from], destinations: [to], travelMode: 'DRIVING', unitSystem: google.maps.UnitSystem.IMPERIAL }, (resp, status) => {
+    clearTimeout(timer); if (st.step !== 4) return;
+    pricing = false;
+    const el = resp && resp.rows && resp.rows[0] && resp.rows[0].elements[0];
+    if (status === 'OK' && el && el.status === 'OK') {
+      st.miles = el.distance.value / 1609.34; st.mins = Math.round(el.duration.value / 60); st.price = fare(st.miles);
+    } else {
+      priceError = 'We couldn’t find one of those addresses. Tap Change and add the city, like “Walgreens, Cibolo”.';
+    }
+    render();
+  });
+}
+
+async function sendRequest() {
+  if (sending || pricing || priceError || st.price <= 0) return;
+  sending = true; render();
+  const t = dest();
+  const ride = {
+    client_name: profile.name, client_email: profile.email, client_phone: phone,
+    pickup_date: st.date, pickup_time: st.time,
+    pickup_address: st.from.addr, dropoff_address: t.addr,
+    passengers: String(st.riders), luggage_type: BAGS[st.bags].value, notes: st.notes.trim(),
+    trip_miles: parseFloat(st.miles.toFixed(1)), trip_duration_minutes: st.mins,
+    quoted_price: st.price, final_price: st.price, status: 'pending'
+  };
+  try {
+    fetch(NEW_REQUEST_HOOK, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(ride) }).catch(e => console.log('notify', e));
+    await addDoc(collection(db, 'ride_requests'), { ...ride, created_at: serverTimestamp() });
+    sending = false; go(5);
+  } catch (e) {
+    console.error(e); sending = false; render();
+    flash('Your request did not go through. Please try again, or call Jason at ' + JASON_PHONE + '.');
+  }
+}
+
+// Save a typed destination
+function savePromptHtml() {
+  if (savedMsg) return `<div class="saveprompt" style="text-align:center"><b>${esc(savedMsg)}</b></div>`;
+  if (st.to || !st.typed.trim() || places().some(p => p.addr === st.typed.trim())) return '';
+  return `<div class="saveprompt"><b>Save this place for next time?</b><div style="color:var(--ink2);font-size:17px;margin:2px 0 10px">${esc(st.typed)}</div>
+    <div class="label" style="margin-top:0">Give it a name</div>
+    <input class="txt" id="pname" value="${esc(suggestName())}">
+    <div class="row" style="margin-top:12px"><button class="pill" onclick="savePlace()">Save place</button><button class="pill" onclick="st.typed='';render()">No thanks</button></div></div>`;
+}
+async function savePlace() {
+  const n = document.getElementById('pname').value.trim() || suggestName();
+  profile.places.push({ key: 'p' + Date.now(), name: n, addr: st.typed.trim() });
+  savedMsg = '✓ Saved as “' + n + '”'; render(); await saveProfile();
+}
+async function renamePlace(k) { const n = document.getElementById('rn').value.trim(); if (n) places().find(p => p.key === k).name = n; editKey = null; render(); await saveProfile(); }
+async function delPlace(k) { profile.places = places().filter(p => p.key !== k); delKey = null; render(); await saveProfile(); }
+
+// Return trip / repeat
+function setRoute(fromAddr, toAddr) {
+  const mk = a => places().find(p => p.addr === a) || { key: 't' + Math.random().toString(36).slice(2, 6), name: String(a).split(',')[0], addr: a };
+  const f = mk(fromAddr), t = mk(toAddr);
+  fresh(); st.from = f; st.to = t; st.step = 2; render(); window.scrollTo(0, 0);
+}
+function returnTrip() { const t = dest(); setRoute(t.addr, st.from.addr); }
+function bookAgain(id) { const r = rides.find(x => x.id === id); if (r) setRoute(r.data.pickup_address, r.data.dropoff_address); }
+
+// Ride actions
+async function confirmRide(id) {
+  try { await updateDoc(doc(db, 'ride_requests', id), { status: 'confirmed', confirmed_at: new Date() }); }
+  catch (e) { flash('That did not work. Please call Jason at ' + JASON_PHONE + '.'); }
+}
+async function cancelRide(id) {
+  try {
+    const snap = await getDoc(doc(db, 'ride_requests', id)); const d = snap.data() || {};
+    await updateDoc(doc(db, 'ride_requests', id), { status: 'cancelled', cancelled_at: new Date(), cancelled_by: 'client' });
+    if (d.calendar_event_id) fetch(CALENDAR_HOOK, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'delete', event_id: d.calendar_event_id }) }).catch(e => console.log('calendar', e));
+    cancelId = null; flash('Your ride was cancelled.');
+  } catch (e) { flash('That did not work. Please call Jason at ' + JASON_PHONE + '.'); }
+}
+
+// ── Start up ─────────────────────────────────────────────────────────────
+Object.assign(window, { iso, go: (n) => go(n), render, signIn, notYou, saveSetup, startBooking, typedChanged, pickFrom, pickFromTyped, pickTo, setT, sendRequest, savePlace, renamePlace, delPlace, returnTrip, bookAgain, confirmRide, cancelRide, fresh });
+Object.defineProperties(window, {
+  editKey: { get: () => editKey, set: v => { editKey = v; } },
+  delKey: { get: () => delKey, set: v => { delKey = v; } },
+  pickEdit: { get: () => pickEdit, set: v => { pickEdit = v; } },
+  cancelId: { get: () => cancelId, set: v => { cancelId = v; } }
+});
+window.fresh = () => { fresh(); };
+
+let remembered = '';
+if (IS_MOBILE) { try { remembered = localStorage.getItem(LS_PHONE) || ''; } catch (e) { } }
+if (remembered) startSession(remembered, false); else render();
+
+if ('serviceWorker' in navigator) window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => { }));
+
+</script>
+</body>
+</html>
