@@ -462,6 +462,167 @@ body {
 @media (max-width: 768px) {
   #total-deadhead { font-size: 14px !important; }
 }
+
+/* ═══════════════ CALM SKIN (maroon + warm neutrals, thin gold accent) ═══════════════ */
+:root {
+  --ink:#2d2326; --muted:#84767b; --line:#eadfd8; --bg:#f6f1ec; --card:#fff;
+  --maroon:#6b1f1f; --maroon-d:#541818; --maroon-soft:#f3e8e6;
+  --gold:#b48a35; --green:#3f7d58; --green-soft:#e5f0e8; --red:#a23b3b; --red-soft:#f8e8e6;
+}
+body { background:var(--bg); color:var(--ink); padding:14px; -webkit-font-smoothing:antialiased; }
+.pac-container { z-index:100000; }
+
+/* header */
+.header { background:linear-gradient(135deg,#6b1f1f,#521616); border-radius:16px; padding:16px 18px; margin-bottom:14px; border-bottom:3px solid var(--gold); }
+.header h1 { font-size:20px; font-weight:700; letter-spacing:.2px; }
+.header > div:first-child div { opacity:.8; font-size:13px !important; }
+#total-income, #total-tips, #total-miles, #total-deadhead { font-size:18px !important; font-weight:700 !important; color:#fff !important; }
+#total-tips { color:#ecd08a !important; }
+.header [style*="font-size:11px"] { font-size:11px !important; color:rgba(255,255,255,.65) !important; }
+.header > div:last-child { display:grid !important; grid-template-columns:repeat(4,1fr) !important; gap:6px !important; width:100% !important; max-width:460px; }
+.header > div:last-child > div { text-align:center !important; }
+
+/* tabs */
+.tabs { gap:6px; margin-bottom:14px; padding-bottom:2px; }
+.tab { padding:9px 15px; background:transparent; border:none; border-radius:999px; color:var(--muted); font-size:14px; font-weight:600; box-shadow:none; white-space:nowrap; }
+.tab:hover { background:rgba(107,31,31,.06); }
+.tab.active { background:var(--maroon); color:#fff; }
+
+/* cards */
+.request-card, .completed-card, .confirmed-card { background:var(--card); border:1px solid var(--line); border-radius:16px; box-shadow:0 1px 3px rgba(60,30,20,.06); margin-bottom:12px; }
+.request-card { padding:16px; }
+.request-header { border-bottom:none; padding-bottom:0; margin-bottom:8px; }
+.client-name { font-size:18px; font-weight:700; color:var(--ink); }
+.calendar-view { background:transparent; padding:0; border-radius:0; }
+
+/* status badges: soft pills */
+.status-badge { padding:4px 10px; border-radius:999px; font-size:11px; font-weight:700; text-transform:none; letter-spacing:.2px; }
+.status-pending { background:#f6ecd6; color:#7a5a12; }
+.status-quoted { background:#e8eef5; color:#33516e; }
+.status-confirmed { background:var(--green-soft); color:#2c6544; }
+.status-completed { background:#e8eef5; color:#33516e; }
+.status-paid { background:var(--green-soft); color:#2c6544; }
+.status-declined, .status-cancelled { background:var(--red-soft); color:#8a3232; }
+
+/* ride card text */
+.rc-when { font-size:17px; font-weight:700; color:var(--maroon); margin:2px 0 6px; }
+.rc-route { font-size:15px; line-height:1.5; color:var(--ink); margin-bottom:6px; }
+.rc-route .address-link { color:var(--ink) !important; text-decoration:none !important; border-bottom:1px dotted var(--muted); font-weight:600; }
+.rc-route b { font-weight:700; }
+.rc-arrow { color:var(--gold); font-weight:700; margin:0 4px; }
+.rc-meta { font-size:14px; color:var(--muted); margin-bottom:6px; }
+.rc-notes { font-size:14px; line-height:1.45; color:var(--ink); background:#faf6f2; border-left:3px solid var(--gold); border-radius:0 8px 8px 0; padding:8px 10px; margin:6px 0 8px; }
+.rc-notes a { color:var(--maroon) !important; }
+.rc-contact { font-size:13px; color:var(--muted); margin-bottom:10px; overflow-wrap:anywhere; }
+.rc-contact .phone-link { color:var(--maroon) !important; }
+.rc-dot { margin:0 6px; }
+.rc-line { font-size:13px; color:var(--muted); margin-bottom:4px; }
+.rc-price { font-size:18px; font-weight:700; color:var(--green); margin-top:8px; }
+.rc-price.due { color:var(--red); }
+.due-tag { font-size:12px; font-weight:600; background:var(--red-soft); color:var(--red); border-radius:999px; padding:2px 8px; margin-left:4px; vertical-align:middle; }
+.tip-note { font-size:12px; font-weight:600; color:var(--green); text-align:right; }
+.request-card.compact { padding:14px; box-shadow:none; background:#fff; }
+
+/* price box */
+.bid-section { background:#faf6f2; border:none; border-radius:12px; padding:12px 14px; margin:4px 0 12px; }
+.bid-label { font-weight:500; color:var(--muted); font-size:14px; }
+.bid-amount { font-size:22px; color:var(--maroon); }
+
+/* confirmed / completed accordions */
+.confirmed-card, .completed-card { overflow:hidden; }
+.confirmed-card-header, .completed-card-header { padding:14px 16px; }
+.confirmed-card-header:hover, .completed-card-header:hover { background:#fbf8f5; }
+.confirmed-card-header.open, .completed-card-header.open { background:#fbf8f5; border-bottom:1px solid var(--line); }
+.confirmed-card-name, .completed-card-name { font-size:16px; font-weight:700; color:var(--ink); margin-bottom:2px; }
+.confirmed-card-time, .completed-card-meta { font-size:14px; color:var(--maroon); font-weight:600; margin-bottom:2px; }
+.tile-stats { font-size:13px; font-weight:500; color:var(--muted); }
+.completed-card-amount { font-size:16px; font-weight:700; color:var(--green); }
+.confirmed-card-chevron, .completed-card-chevron { font-size:12px; color:var(--muted); }
+.confirmed-card-body, .completed-card-body { border-top:none; padding:14px 16px 16px; }
+.trip-bar { background:#faf6f2; border-left:none; border-radius:10px; padding:8px 12px; }
+.trip-bar-price { color:var(--maroon); }
+.compact-grid { grid-template-columns:1fr 1fr; gap:4px 12px; margin-bottom:8px; }
+.compact-item { background:none; padding:2px 0; }
+.compact-label { font-size:11px; color:var(--muted); text-transform:none; letter-spacing:0; }
+.compact-value { font-size:14px; font-weight:600; color:var(--ink); }
+.compact-value .phone-link { color:var(--maroon) !important; }
+
+/* day headers */
+.day-header { font-size:14px; font-weight:700; color:var(--maroon); border-bottom:1px solid var(--line); margin:16px 0 8px; padding:4px 2px; }
+.day-header-earlier { color:var(--red); border-bottom-color:#e8c9c6; }
+.day-tag { background:var(--maroon-soft); color:var(--maroon); font-weight:700; }
+.day-count { color:var(--muted); }
+
+/* buttons: solid maroon = main action, outlined = everything else */
+.btn { padding:11px 16px; border-radius:12px; font-size:14px; font-weight:600; transition:background .15s, border-color .15s; }
+.btn-accept { background:var(--maroon); color:#fff; border:1.5px solid var(--maroon); }
+.btn-accept:hover { background:var(--maroon-d); }
+.btn-counter { background:#fff; color:var(--maroon); border:1.5px solid #dcc9c4; }
+.btn-counter:hover { background:var(--maroon-soft); border-color:var(--maroon); }
+.btn-paid { background:var(--green); color:#fff; border:1.5px solid var(--green); }
+.btn-paid:hover { background:#336a4a; }
+.btn-deny { background:#fff; color:var(--red); border:1.5px solid #ebcfcc; }
+.btn-deny:hover { background:var(--red-soft); }
+.btn-receipt { background:#fff; color:var(--muted); border:1.5px solid var(--line); }
+.btn-receipt:hover { background:#faf6f2; }
+.back-btn { background:transparent; color:var(--maroon); border:none; padding:6px 0; font-size:15px; }
+.back-btn:hover { background:transparent; text-decoration:underline; }
+.actions { gap:8px; }
+.edit-toggle { color:var(--maroon); font-size:13px; }
+.icon-btn { width:42px; height:42px; background:#faf6f2; color:var(--ink); border:1px solid var(--line); }
+.icon-btn.green { background:var(--green-soft); border-color:#cfe3d5; }
+.icon-btn.yellow, .icon-btn.blue, .icon-btn.grey { background:#faf6f2; }
+.icon-btn.red { background:var(--red-soft); border-color:#ebcfcc; }
+.icon-btn-row { border-top:1px solid var(--line); }
+
+/* inputs (also overrides the old inline maroon borders) */
+input[type=text], input[type=tel], input[type=email], input[type=number], input[type=date], input[type=time], select, textarea {
+  border:1.5px solid #dccdc7 !important; border-radius:10px !important; background:#fff; color:var(--ink); font-size:15px !important; }
+input:focus, select:focus, textarea:focus { outline:none; border-color:var(--maroon) !important; box-shadow:0 0 0 3px rgba(107,31,31,.12); }
+.counter-input input { border-radius:10px; }
+.edit-section { background:#faf6f2; border:1px solid var(--line); border-radius:12px; padding:12px; }
+[style*="background:#f8f9fa"] { background:#faf6f2 !important; }
+[style*="color:#6b1f1f"] { color:var(--maroon); }
+
+/* QR */
+.qr-details { background:#fff; border:1px solid var(--line); border-radius:14px; }
+.qr-details summary { color:var(--maroon); font-size:14px; }
+.qr-details[open] summary { border-bottom:1px solid var(--line); }
+
+/* clients */
+.search-box { width:100%; padding:12px 14px !important; margin-bottom:12px; font-size:15px; }
+.client-line { display:flex; flex-wrap:wrap; gap:4px 16px; font-size:14px; color:var(--muted); padding:2px 4px 12px; }
+.client-line b { color:var(--ink); }
+.client-line .owed, .client-line .owed b { color:var(--red); }
+.client-section-title { font-size:13px; font-weight:700; text-transform:none; letter-spacing:0; margin:8px 0 6px; padding-left:4px; }
+.owed-title { color:var(--red); }
+.ok-title { color:var(--muted); cursor:pointer; }
+.client-list-box { background:#fff; border:1px solid var(--line); border-radius:14px; box-shadow:none; }
+.client-row { padding:13px 16px; border-bottom:1px solid #f1e9e4; }
+.client-row:hover { background:#fbf8f5; }
+.client-row-name { font-size:16px; font-weight:600; color:var(--ink); }
+.client-row-bal { font-size:14px; font-weight:700; display:flex; align-items:center; gap:8px; }
+.client-row-bal.owed { color:var(--red); }
+.client-row-bal .chev { color:#c9b8b1; font-size:20px; font-weight:400; }
+.cd-head { background:#fff; border:1px solid var(--line); border-radius:16px; padding:16px; margin-bottom:16px; }
+.cd-head h2 { font-size:21px; color:var(--ink); margin-bottom:4px; }
+.cd-sub { color:var(--muted); margin-bottom:12px; font-size:14px; overflow-wrap:anywhere; }
+.section-title { font-size:15px; font-weight:700; color:var(--ink); margin:4px 2px 10px; }
+
+
+[style*="color:#28a745"] { color:var(--green) !important; }
+[style*="color:#dc3545"] { color:var(--red) !important; }
+.counter-input span, .counter-input label { font-size:14px !important; font-weight:600 !important; color:var(--muted); }
+#tithe-tab h2, #clients-tab h2 { color:var(--ink) !important; font-size:20px !important; }
+#tithe-tab p { color:var(--muted) !important; }
+/* mobile: keep action buttons in rows, not tall stacks */
+@media (max-width:768px) {
+  body { padding:10px; }
+  .header { padding:14px; }
+  .actions { flex-direction:row !important; flex-wrap:wrap; }
+  .actions .btn { width:auto !important; flex:1 1 130px; padding:11px 12px; }
+  .request-card { padding:14px; }
+}
 </style>
 </head>
 <body>
@@ -486,7 +647,7 @@ body {
     </div>
     <div style="text-align:right;">
       <div style="font-size:11px; color:rgba(255,255,255,0.8); margin-bottom:4px;">YTD Dead-head</div>
-      <div id="total-deadhead" style="font-size:22px; font-weight:bold; color:#ffd28a;">0.0</div>
+      <div id="total-deadhead" style="font-size:22px; font-weight:bold; color:#fff;">0.0</div>
     </div>
   </div>
 </div>
@@ -536,8 +697,7 @@ body {
 <div id="clients-tab" style="display:none;">
   <div class="calendar-view">
     <div id="clients-list-view">
-      <h2 style="margin-bottom:16px; color:#6b1f1f;">All Clients</h2>
-      <input type="text" id="client-search" placeholder="Search by name or phone..." style="width:100%; padding:12px; border:2px solid #e0e0e0; border-radius:6px; margin-bottom:16px; font-size:15px;">
+      <input type="text" id="client-search" class="search-box" placeholder="Search clients by name or phone">
       <div id="clients-list" class="loading">Loading...</div>
     </div>
     <div id="client-detail-view" style="display:none;"></div>
@@ -848,26 +1008,16 @@ function createRequestCard(id, data) {
         <div class="client-name">${data.client_name}</div>
         <div class="status-badge ${statusClass}">${data.status}</div>
       </div>
-      <div class="detail-grid">
-        <div class="detail-item"><div class="detail-label">Phone</div><div class="detail-value">${createPhoneLink(data.client_phone)}</div></div>
-        <div class="detail-item"><div class="detail-label">Email</div><div class="detail-value">${data.client_email}</div></div>
-        <div class="detail-item"><div class="detail-label">Date & Time</div><div class="detail-value">${data.pickup_date} at ${data.pickup_time}</div></div>
-        <div class="detail-item"><div class="detail-label">Passengers</div><div class="detail-value">${data.passengers} passengers</div></div>
+      <div class="rc-when">${longDate(rideDate(data.pickup_date))} · ${fmtClock(data.pickup_time)}</div>
+      <div class="rc-route">
+        <span class="address-link" data-address="${data.pickup_address.replace(/"/g, '&quot;')}" onclick="event.stopPropagation(); showMapMenu(this.dataset.address, event)" style="color:#6b1f1f; text-decoration:underline; cursor:pointer;">${data.pickup_address}</span>
+        <span class="rc-arrow">→</span>
+        <span class="address-link" data-address="${data.dropoff_address.replace(/"/g, '&quot;')}" onclick="event.stopPropagation(); showMapMenu(this.dataset.address, event)" style="color:#6b1f1f; text-decoration:underline; cursor:pointer;">${data.dropoff_address}</span>
       </div>
-      <div class="detail-item" style="margin-bottom:12px;">
-        <div class="detail-label">Route</div>
-        <div class="detail-value">
-          <span class="address-link" data-address="${data.pickup_address.replace(/"/g, '&quot;')}" onclick="event.stopPropagation(); showMapMenu(this.dataset.address, event)" style="color:#6b1f1f; text-decoration:underline; cursor:pointer;">${data.pickup_address}</span>
-          →
-          <span class="address-link" data-address="${data.dropoff_address.replace(/"/g, '&quot;')}" onclick="event.stopPropagation(); showMapMenu(this.dataset.address, event)" style="color:#6b1f1f; text-decoration:underline; cursor:pointer;">${data.dropoff_address}</span>
-        </div>
-        ${routeEditHtml(id, data)}
-      </div>
-      <div class="detail-item" style="margin-bottom:12px;">
-        <div class="detail-label">Luggage</div>
-        <div class="detail-value">${data.luggage_type}</div>
-      </div>
-      ${data.notes ? `<div class="detail-item" style="margin-bottom:12px;"><div class="detail-label">Notes</div><div class="detail-value">${formatNotes(data.notes)}</div></div>` : ''}
+      ${routeEditHtml(id, data)}
+      <div class="rc-meta">${data.passengers} ${Number(data.passengers) === 1 ? 'passenger' : 'passengers'} · ${data.luggage_type || 'No luggage info'}</div>
+      ${data.notes ? `<div class="rc-notes">📝 ${formatNotes(data.notes)}</div>` : ''}
+      <div class="rc-contact">${createPhoneLink(data.client_phone)}<span class="rc-dot">·</span>${data.client_email}</div>
       <div class="bid-section">
         <div class="bid-row"><span class="bid-label">Trip Distance:</span><span style="font-size:18px; font-weight:600;">${data.trip_miles ? data.trip_miles.toFixed(1) + ' miles' : 'N/A'}</span></div>
         <div class="bid-row"><span class="bid-label">Quoted Price:</span><span class="bid-amount">$${(data.final_price !== undefined && data.final_price !== null ? data.final_price : (data.quoted_price || 0)).toFixed(2)}</span></div>
@@ -894,14 +1044,14 @@ function createConfirmedCard(id, data) {
       <div class="compact-item"><div class="compact-label">Passengers</div><div class="compact-value">${data.passengers}</div></div>
       <div class="compact-item"><div class="compact-label">Luggage</div><div class="compact-value" style="font-size:11px;">${data.luggage_type}</div></div>
     </div>
-    <div style="font-size:12px; color:#666; margin-bottom:8px; line-height:1.4;">
+    <div class="rc-route">
       <span class="address-link" data-address="${data.pickup_address.replace(/"/g, '&quot;')}" onclick="event.stopPropagation(); showMapMenu(this.dataset.address, event)" style="color:#6b1f1f; text-decoration:underline; cursor:pointer;">${data.pickup_address}</span>
       <span style="color:#999;"> → </span>
       <span class="address-link" data-address="${data.dropoff_address.replace(/"/g, '&quot;')}" onclick="event.stopPropagation(); showMapMenu(this.dataset.address, event)" style="color:#6b1f1f; text-decoration:underline; cursor:pointer;">${data.dropoff_address}</span>
     </div>
     ${routeEditHtml(id, data)}
     ${data.notes ? `
-    <div style="font-size:12px; color:#555; background:#f8f9fa; padding:6px 8px; border-radius:4px; margin-bottom:8px;">
+    <div class="rc-notes">
       📝 ${formatNotes(data.notes)}
       <button class="edit-toggle" onclick="toggleEditSection('notes-edit-${id}')" title="Edit notes">✏️</button>
     </div>
@@ -918,8 +1068,8 @@ function createConfirmedCard(id, data) {
       <button class="btn btn-counter" style="margin-top:6px; padding:6px 12px; font-size:12px;" onclick="updateNotes('${id}')">Save</button>
     </div>`}
 
-    <div style="font-size:12px; color:#666; margin-bottom:4px;">
-      📅 ${data.pickup_date} at ${data.pickup_time}
+    <div class="rc-line">
+      📅 ${longDate(rideDate(data.pickup_date))} · ${fmtClock(data.pickup_time)}
       <button class="edit-toggle" onclick="toggleEditSection('dt-edit-${id}')" title="Edit date/time">✏️</button>
     </div>
     <div class="edit-section" id="dt-edit-${id}">
@@ -930,7 +1080,7 @@ function createConfirmedCard(id, data) {
       <button class="btn btn-counter" style="margin-top:6px; padding:6px 12px; font-size:12px; width:100%;" onclick="updateDateTime('${id}')">Save Date/Time</button>
     </div>
 
-    <div style="font-size:12px; color:#666; margin-bottom:4px;">
+    <div class="rc-line">
       💵 $${amount.toFixed(2)}
       <button class="edit-toggle" onclick="toggleEditSection('amt-edit-${id}')" title="Edit amount">✏️</button>
     </div>
@@ -979,7 +1129,7 @@ function createConfirmedCard(id, data) {
       <div class="confirmed-card-header" onclick="toggleConfirmed('${id}')">
         <div class="confirmed-card-left">
           <div class="confirmed-card-name">${data.client_name}</div>
-          <div class="confirmed-card-time">${data.pickup_date} at ${data.pickup_time}</div>
+          <div class="confirmed-card-time">${longDate(rideDate(data.pickup_date))} · ${fmtClock(data.pickup_time)}</div>
           <div class="tile-stats">${tileStats(data, amount)}</div>
         </div>
         <div class="confirmed-card-chevron" id="chevron-${id}">▼</div>
@@ -1024,7 +1174,7 @@ function createCompletedCard(id, data) {
       </div>`;
   } else if (data.status === 'paid') {
     actionButtons = `
-      <div style="font-size:12px; color:#666; margin-bottom:4px;">
+      <div class="rc-line">
         💵 $${amount.toFixed(2)}
         <button class="edit-toggle" onclick="toggleEditSection('comp-amt-${id}')" title="Edit amount">✏️</button>
       </div>
@@ -1035,7 +1185,7 @@ function createCompletedCard(id, data) {
           <button class="btn btn-counter" style="padding:6px 12px; font-size:12px;" onclick="updatePaidAmount('${id}')">Save</button>
         </div>
       </div>
-      <div style="font-size:12px; color:#666; margin-bottom:4px;">
+      <div class="rc-line">
         💳 ${data.payment_method || 'No payment method'}
         <button class="edit-toggle" onclick="toggleEditSection('comp-pay-${id}')" title="Edit payment method">✏️</button>
       </div>
@@ -1045,7 +1195,7 @@ function createCompletedCard(id, data) {
           <button class="btn btn-counter" style="padding:6px 12px; font-size:12px;" onclick="updatePaymentMethod('${id}')">Save</button>
         </div>
       </div>
-      <div style="font-size:12px; color:#666; margin-bottom:4px;">
+      <div class="rc-line">
         💰 Tip: $${tip.toFixed(2)}
         <button class="edit-toggle" onclick="toggleEditSection('comp-tip-${id}')" title="Edit tip">✏️</button>
       </div>
@@ -1071,20 +1221,20 @@ function createCompletedCard(id, data) {
       <div class="completed-card-header" onclick="toggleCompleted('${id}')">
         <div class="completed-card-left">
           <div class="completed-card-name">${data.client_name}</div>
-          <div class="completed-card-meta">${data.pickup_date} at ${data.pickup_time}</div>
+          <div class="completed-card-meta">${longDate(rideDate(data.pickup_date))} · ${fmtClock(data.pickup_time)}</div>
           ${data.trip_miles ? `<div class="tile-stats">${data.trip_miles.toFixed(1)} mi</div>` : ''}
         </div>
         <div class="completed-card-right">
           <div>
             <div class="completed-card-amount">$${amount.toFixed(2)}</div>
-            ${tip > 0 ? `<div style="font-size:11px; color:#28a745; text-align:right;">+$${tip.toFixed(2)} tip</div>` : ''}
+            ${tip > 0 ? `<div class="tip-note">+$${tip.toFixed(2)} tip</div>` : ''}
             <div><span class="status-badge ${statusClass}" style="font-size:10px;">${data.status}</span></div>
           </div>
           <div class="completed-card-chevron" id="comp-chevron-${id}">▼</div>
         </div>
       </div>
       <div class="completed-card-body" id="comp-body-${id}">
-        <div style="font-size:12px; color:#666; margin-bottom:8px; line-height:1.4;">
+        <div class="rc-route">
           <span class="address-link" data-address="${data.pickup_address.replace(/"/g, '&quot;')}" onclick="event.stopPropagation(); showMapMenu(this.dataset.address, event)" style="color:#6b1f1f; text-decoration:underline; cursor:pointer;">${data.pickup_address}</span>
           <span style="color:#999;"> → </span>
           <span class="address-link" data-address="${data.dropoff_address.replace(/"/g, '&quot;')}" onclick="event.stopPropagation(); showMapMenu(this.dataset.address, event)" style="color:#6b1f1f; text-decoration:underline; cursor:pointer;">${data.dropoff_address}</span>
@@ -1093,7 +1243,7 @@ function createCompletedCard(id, data) {
           <div class="compact-item"><div class="compact-label">Phone</div><div class="compact-value">${createPhoneLink(data.client_phone)}</div></div>
           <div class="compact-item"><div class="compact-label">Passengers</div><div class="compact-value">${data.passengers}</div></div>
         </div>
-        ${data.notes ? `<div style="font-size:12px; color:#555; background:#f8f9fa; padding:6px 8px; border-radius:4px; margin-bottom:8px;">📝 ${formatNotes(data.notes)}</div>` : ''}
+        ${data.notes ? `<div class="rc-notes">📝 ${formatNotes(data.notes)}</div>` : ''}
         ${actionButtons}
       </div>
     </div>`;
@@ -1169,6 +1319,7 @@ function detectFlight(text) {
 
 function formatNotes(notes) {
   if (!notes) return '';
+  notes = escPlace(notes);
   // Split into sentences/segments and look for flight numbers
   const flightId = detectFlight(notes.trim());
   if (flightId) {
@@ -1273,7 +1424,7 @@ function deadheadRowHtml(id, d) {
   const has = typeof d.deadhead_miles === 'number';
   const label = has ? d.deadhead_miles.toFixed(1) + ' mi' + (d.deadhead_manual ? ' (manual)' : '') : 'calculating…';
   return `
-    <div style="font-size:12px; color:#666; margin-bottom:4px;">
+    <div class="rc-line">
       🚗 Dead-head: ${label}${d.status === 'cancelled' ? ' · late cancel' : ''}
       <button class="edit-toggle" onclick="toggleEditSection('dh-edit-${id}')" title="Edit dead-head miles">✏️</button>
     </div>
@@ -1989,22 +2140,22 @@ function displayClients(clients) {
     return `
       <div class="client-row" onclick="viewClientDetail('${client.phone}')">
         <div class="client-row-name">${client.name}</div>
-        <div class="client-row-bal ${owes ? 'owed' : 'ok'}">${owes ? '$' + client.balanceDue.toFixed(2) : '✓'} ›</div>
+        <div class="client-row-bal ${owes ? 'owed' : 'ok'}">${owes ? '$' + client.balanceDue.toFixed(2) : ''}<span class="chev">›</span></div>
       </div>`;
   }
 
-  // Summary strip uses ALL clients, not just search matches
+  // Summary line uses ALL clients, not just search matches
   const allBalanceDue = clients.filter(c => c.balanceDue > 0);
   const totalOwed = allBalanceDue.reduce((sum, c) => sum + c.balanceDue, 0);
   let html = `
-    <div class="client-summary">
-      <div><div class="cs-num owed">$${totalOwed.toFixed(2)}</div><div class="cs-label">Total owed</div></div>
-      <div><div class="cs-num ${allBalanceDue.length ? 'owed' : ''}">${allBalanceDue.length}</div><div class="cs-label">With balance</div></div>
-      <div><div class="cs-num">${clients.length}</div><div class="cs-label">Total clients</div></div>
+    <div class="client-line">
+      <span><b>${clients.length}</b> clients</span>
+      <span class="${totalOwed > 0 ? 'owed' : ''}"><b>$${totalOwed.toFixed(2)}</b> owed</span>
+      <span><b>${allBalanceDue.length}</b> with a balance</span>
     </div>`;
 
   if (balanceDue.length > 0) {
-    html += `<div class="client-section-title" style="color:#dc3545;">⚠ Balance Due (${balanceDue.length})</div>`;
+    html += `<div class="client-section-title owed-title">Balance due (${balanceDue.length})</div>`;
     html += `<div class="client-list-box">${balanceDue.map(clientRow).join('')}</div>`;
   }
 
@@ -2012,7 +2163,7 @@ function displayClients(clients) {
     const open = (searchTerm.length > 0 || window._paidUpOpen) ? ' open' : '';
     html += `
       <details class="paid-up-details"${open} ontoggle="window._paidUpOpen = this.open">
-        <summary class="client-section-title" style="color:#28a745;">✓ Paid Up (${paidUp.length}) — tap to show / hide</summary>
+        <summary class="client-section-title ok-title">Paid up (${paidUp.length}) · tap to show or hide</summary>
         <div class="client-list-box">${paidUp.map(clientRow).join('')}</div>
       </details>`;
   }
@@ -2097,20 +2248,21 @@ function viewClientDetail(phone) {
         </div>
       </div>` : '';
     ridesHtml += `
-      <div class="request-card" style="margin-bottom:12px;">
+      <div class="request-card compact">
         <div class="request-header">
-          <div style="font-weight:600; color:#6b1f1f;">${ride.pickup_date} at ${ride.pickup_time}</div>
+          <div class="rc-when" style="margin:0;">${longDate(rideDate(ride.pickup_date))} · ${fmtClock(ride.pickup_time)}</div>
           <div class="status-badge ${statusClass}">${ride.status}</div>
         </div>
-        <div style="font-size:14px; color:#666; margin-top:8px;">
+        <div class="rc-route">
           <span class="address-link" data-address="${ride.pickup_address.replace(/"/g, '&quot;')}" onclick="event.stopPropagation(); showMapMenu(this.dataset.address, event, '${phone}')" style="color:#6b1f1f; text-decoration:underline; cursor:pointer;">${placeLabel(phone, ride.pickup_address)}</span>
           →
           <span class="address-link" data-address="${ride.dropoff_address.replace(/"/g, '&quot;')}" onclick="event.stopPropagation(); showMapMenu(this.dataset.address, event, '${phone}')" style="color:#6b1f1f; text-decoration:underline; cursor:pointer;">${placeLabel(phone, ride.dropoff_address)}</span>
         </div>
-        <div style="font-size:18px; font-weight:600; color:${isPending ? '#dc3545' : '#28a745'}; margin-top:8px;">
-          $${price.toFixed(2)} ${isPending ? '(Unpaid)' : ''}
+        ${ride.notes ? `<div class="rc-notes">📝 ${formatNotes(ride.notes)}</div>` : ''}
+        <div class="rc-price ${isPending ? 'due' : ''}">
+          $${price.toFixed(2)} ${isPending ? '<span class="due-tag">unpaid</span>' : ''}
+          ${(ride.tip !== undefined && ride.tip !== null && ride.tip > 0) ? `<span class="tip-note" style="margin-left:8px;">+$${ride.tip.toFixed(2)} tip</span>` : ''}
         </div>
-        ${(ride.tip !== undefined && ride.tip !== null && ride.tip > 0) ? `<div style="font-size:14px; color:#28a745; margin-top:4px;">Tip: $${ride.tip.toFixed(2)}</div>` : ''}
         ${editSection}
         ${ride.status === 'completed' ? `
           <div style="margin-top:12px; padding-top:12px; border-top:1px solid #e0e0e0; display:flex; gap:8px;">
@@ -2130,9 +2282,9 @@ function viewClientDetail(phone) {
     `<button class="btn btn-paid" style="margin-top:12px;" onclick="markAllAsPaid('${client.phone}', ${JSON.stringify(unpaidRideIds).replace(/"/g, '&quot;')})">Mark All ${unpaidRideIds.length} Rides as Paid ($${client.balanceDue.toFixed(2)})</button>` : '';
   document.getElementById('client-detail-view').innerHTML = `
     <button class="back-btn" onclick="backToClientsList()">← Back to Clients</button>
-    <div style="background:#f8f9fa; padding:20px; border-radius:8px; margin-bottom:20px;">
-      <h2 style="color:#6b1f1f; margin-bottom:8px;">${client.name}</h2>
-      <div style="color:#666; margin-bottom:16px;">${createPhoneLink(client.phone)} • ${client.email}</div>
+    <div class="cd-head">
+      <h2>${client.name}</h2>
+      <div class="cd-sub">${createPhoneLink(client.phone)} • ${client.email}</div>
       <div style="display:flex; gap:20px; flex-wrap:wrap; margin-bottom:16px;">
         <div><div style="font-size:12px; color:#666;">Total Rides</div><div style="font-size:24px; font-weight:600; color:#6b1f1f;">${client.totalRides}</div></div>
         <div><div style="font-size:12px; color:#666;">Balance</div><div style="font-size:24px; font-weight:600; color:${balanceColor};">${balanceText}</div></div>
@@ -2157,9 +2309,9 @@ function viewClientDetail(phone) {
           <button class="btn" style="background:#6c757d; color:white; flex:1;" onclick="document.getElementById('edit-client-info-form').style.display='none'">Cancel</button>
         </div>
       </div>
-      <button class="btn btn-counter" onclick="document.getElementById('edit-client-info-form').style.display='block'" style="margin-top:12px; width:100%;">✏️ Edit Client Info</button>
+      <button class="btn btn-counter" onclick="document.getElementById('edit-client-info-form').style.display='block'" style="margin-top:12px; width:100%;">✏️ Edit client info</button>
     </div>
-    <h3 style="margin-bottom:12px; color:#6b1f1f;">Ride History</h3>
+    <h3 class="section-title">Ride history</h3>
     ${ridesHtml}`;
 }
 
