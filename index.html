@@ -189,7 +189,7 @@ let nameTarget = null, editKey = null, delKey = null, pickEdit = false, savedMsg
 const screen = document.getElementById('screen');
 
 function fresh() {
-  Object.assign(st, { step: 'signin', from: null, to: null, typed: '', typedName: '', date: '', time: '09:00', riders: 1, bags: 0, notes: '', price: 0, miles: 0, mins: 0 });
+  Object.assign(st, { isReturn: false, step: 'signin', from: null, to: null, typed: '', typedName: '', date: '', time: '09:00', riders: 1, bags: 0, notes: '', price: 0, miles: 0, mins: 0 });
   savedMsg = ''; pickEdit = false; pricing = false; priceError = ''; sending = false;
 }
 fresh();
@@ -288,6 +288,7 @@ async function startSession(p, remember) {
     let last = null;
     try { const s = await new Promise((res, rej) => { const u = onSnapshot(query(collection(db, 'ride_requests'), where('client_phone', '==', phone), orderBy('created_at', 'desc')), x => { res(x); u(); }, rej); }); if (!s.empty) last = s.docs[0].data(); } catch (e) { }
     st.setup = { name: (profile && profile.name) || (last && last.client_name) || '', email: (profile && profile.email) || (last && last.client_email) || '', home: (home() && home().addr) || '' };
+    st.setup.needName = !st.setup.name; st.setup.needEmail = !st.setup.email; st.setup.needHome = !st.setup.home;
     st.homeAddr = st.setup.home;
     return go('setup');
   }
@@ -304,7 +305,8 @@ function notYou() {
   phone = ''; profile = null; rides = []; fresh(); render();
 }
 async function saveSetup() {
-  const name = document.getElementById('sname').value.trim(), email = document.getElementById('semail').value.trim(), addr = (document.getElementById('homeAddr').value || '').trim();
+  const S = st.setup, val = id => { const e = document.getElementById(id); return e ? e.value.trim() : ''; };
+  const name = S.needName ? val('sname') : S.name, email = S.needEmail ? val('semail') : S.email, addr = S.needHome ? val('homeAddr') : S.home;
   if (!name) return flash('Please type your name.');
   if (!/^\S+@\S+\.\S+$/.test(email)) return flash('Please type your email address, like name@example.com. We send your confirmation there.');
   if (!addr) return flash('Please type the address where we pick you up.');
@@ -337,11 +339,11 @@ VIEWS.signin = () => `<div class="card"><h1>Welcome</h1><p class="lead">Type you
   ${callBtn()}</div>
   <div class="qr"><div class="qr-label">Share this app with a friend</div><img src="https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=https://wsfv-llc.github.io/Patriot-Transportation/&color=c8952a&bgcolor=0a0a0a&margin=6" alt="QR code to share this app" width="140" height="140"></div>`;
 
-VIEWS.setup = () => `<div class="card"><h1>Let’s get started</h1><p class="lead">We only ask this one time.</p>
-  <div class="label" style="margin-top:0">Your name</div><input class="txt" id="sname" autocomplete="name" value="${esc(st.setup.name)}">
-  <div class="label">Your email</div><input class="txt" id="semail" type="email" inputmode="email" autocomplete="email" value="${esc(st.setup.email)}">
-  <div class="label">Where should we pick you up? (your home)</div><input class="txt" id="homeAddr" autocomplete="off" placeholder="Street address and city" value="${esc(st.setup.home)}">
-  <button class="big main" style="margin-top:18px" onclick="saveSetup()">Save and continue</button></div>`;
+VIEWS.setup = () => { const S = st.setup, only = !S.needName && !S.needEmail; return `<div class="card"><h1>${only ? 'One last thing' : 'Let’s get started'}</h1><p class="lead">We only ask this one time.</p>
+  ${S.needName ? `<div class="label" style="margin-top:0">Your name</div><input class="txt" id="sname" autocomplete="name" value="${esc(S.name)}">` : ''}
+  ${S.needEmail ? `<div class="label">Your email</div><input class="txt" id="semail" type="email" inputmode="email" autocomplete="email" value="${esc(S.email)}">` : ''}
+  ${S.needHome ? `<div class="label" ${only ? 'style="margin-top:0"' : ''}>Where should we pick you up? (your home)</div><input class="txt" id="homeAddr" autocomplete="off" placeholder="Street address and city" value="${esc(S.home)}">` : ''}
+  <button class="big main" style="margin-top:18px" onclick="saveSetup()">Save and continue</button></div>`; };
 
 VIEWS.home = () => {
   const owe = balance();
@@ -422,10 +424,16 @@ VIEWS.book4 = bar => {
 VIEWS.book5 = () => `<div class="card done"><div class="check">✓</div><h1>Request sent!</h1>
   <p class="lead">Jason will confirm your ride soon, and you will get an email when he does.</p>
   ${savePromptHtml()}
-  <button class="big alt" onclick="returnTrip()">Book the ride back</button>
+  ${returnOffered() ? '<button class="big alt" onclick="returnTrip()">Book the ride back</button>' : ''}
   <button class="big main" onclick="fresh();go('home')">Back to start</button>
   ${callBtn()}</div>`;
 
+// Offer the return ride only if it has not been booked already
+function returnOffered() {
+  if (st.isReturn) return false;
+  const to = dest().addr, from = st.from.addr;
+  return !rides.some(r => r.data.pickup_address === to && r.data.dropoff_address === from && r.data.pickup_date >= st.date && !['cancelled', 'declined'].includes(r.data.status));
+}
 // My rides
 const STATUS = { pending: ['Waiting for Jason', 'wait'], quoted: ['Needs your OK', 'wait'], confirmed: ['Confirmed', 'ok'], completed: ['Finished — payment due', 'wait'], paid: ['Paid', 'ok'], declined: ['Not available', 'bad'], cancelled: ['Cancelled', 'bad'] };
 const PAY = `<a class="pay" href="https://cash.app/$JasonNed" target="_blank" rel="noopener">Pay with Cash App</a><a class="pay" href="https://venmo.com/u/Jason-Nedoroscik" target="_blank" rel="noopener">Pay with Venmo</a><a class="pay" href="https://www.paypal.com/ncp/payment/GGLFF2L9XDA4E" target="_blank" rel="noopener">Pay by card (PayPal)</a><p class="small">Please put “Patriot Transportation” in the note. You can also pay cash in the car.</p>`;
@@ -563,12 +571,12 @@ async function renamePlace(k) { const n = document.getElementById('rn').value.tr
 async function delPlace(k) { profile.places = places().filter(p => p.key !== k); delKey = null; render(); await saveProfile(); }
 
 // Return trip / repeat
-function setRoute(fromAddr, toAddr) {
+function setRoute(fromAddr, toAddr, isReturn) {
   const mk = a => places().find(p => p.addr === a) || { key: 't' + Math.random().toString(36).slice(2, 6), name: String(a).split(',')[0], addr: a };
   const f = mk(fromAddr), t = mk(toAddr);
-  fresh(); st.from = f; st.to = t; st.step = 2; render(); window.scrollTo(0, 0);
+  fresh(); st.isReturn = !!isReturn; st.from = f; st.to = t; st.step = 2; render(); window.scrollTo(0, 0);
 }
-function returnTrip() { const t = dest(); setRoute(t.addr, st.from.addr); }
+function returnTrip() { const t = dest(); setRoute(t.addr, st.from.addr, true); }
 function bookAgain(id) { const r = rides.find(x => x.id === id); if (r) setRoute(r.data.pickup_address, r.data.dropoff_address); }
 
 // Ride actions
