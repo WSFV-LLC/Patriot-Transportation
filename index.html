@@ -116,6 +116,7 @@ body { background-color:#2f0b12; background-image:linear-gradient(to bottom, rgb
   .driver-photo, .van-photo-wrap { width:64px; height:64px; } .driver-info { text-align:center; }
   .driver-name { font-size:17px; } .driver-title, .driver-tagline { font-size:11px; }
 }
+.addr { background:none; color:var(--ink); font:inherit; font-size:20px; font-weight:700; text-align:left; padding:2px 0; border-bottom:2px dotted var(--maroon); }
 
 </style>
 </head>
@@ -184,7 +185,7 @@ let phone = '';
 let profile = null;     // { name, email, places:[{key,name,addr}] }
 let rides = [];         // this customer's rides (live)
 let unsub = null;
-let editKey = null, delKey = null, pickEdit = false, savedMsg = '', pricing = false, priceError = '', cancelId = null, sending = false;
+let nameTarget = null, editKey = null, delKey = null, pickEdit = false, savedMsg = '', pricing = false, priceError = '', cancelId = null, sending = false;
 const screen = document.getElementById('screen');
 
 function fresh() {
@@ -429,6 +430,27 @@ VIEWS.book5 = () => `<div class="card done"><div class="check">✓</div><h1>Requ
 const STATUS = { pending: ['Waiting for Jason', 'wait'], quoted: ['Needs your OK', 'wait'], confirmed: ['Confirmed', 'ok'], completed: ['Finished — payment due', 'wait'], paid: ['Paid', 'ok'], declined: ['Not available', 'bad'], cancelled: ['Cancelled', 'bad'] };
 const PAY = `<a class="pay" href="https://cash.app/$JasonNed" target="_blank" rel="noopener">Pay with Cash App</a><a class="pay" href="https://venmo.com/u/Jason-Nedoroscik" target="_blank" rel="noopener">Pay with Venmo</a><a class="pay" href="https://www.paypal.com/ncp/payment/GGLFF2L9XDA4E" target="_blank" rel="noopener">Pay by card (PayPal)</a><p class="small">Please put “Patriot Transportation” in the note. You can also pay cash in the car.</p>`;
 const TIP = `<div class="small" style="margin:12px 0 6px"><b>Add a tip? Thank you!</b></div><a class="pay" href="https://cash.app/$JasonNed" target="_blank" rel="noopener">Tip with Cash App</a><a class="pay" href="https://venmo.com/u/Jason-Nedoroscik" target="_blank" rel="noopener">Tip with Venmo</a><a class="pay" href="https://www.paypal.com/ncp/payment/GGLFF2L9XDA4E" target="_blank" rel="noopener">Tip with PayPal</a>`;
+function addrBtn(id, which, addr) { return `<button class="addr" onclick="startName('${id}','${which}')">${esc(placeName(addr))}</button>`; }
+function targetAddr() { const r = rides.find(x => x.id === nameTarget.id); return r ? (nameTarget.which === 'p' ? r.data.pickup_address : r.data.dropoff_address) : ''; }
+function nameEditor(d) {
+  const addr = nameTarget.which === 'p' ? d.pickup_address : d.dropoff_address;
+  const cur = places().find(p => p.addr === addr);
+  return `<div class="saveprompt"><b>Name this place</b><div style="color:var(--ink2);font-size:17px;margin:2px 0 10px">${esc(addr)}</div>
+    <input class="txt" id="nm" value="${esc(cur ? cur.name : String(addr).split(',')[0])}">
+    <div class="row" style="margin-top:12px"><button class="pill" onclick="saveName()">Save</button><button class="pill" onclick="nameTarget=null;render()">Cancel</button></div>
+    ${cur && cur.key !== 'home' ? '<button class="mini red" onclick="removeName()">Remove this name</button>' : ''}</div>`;
+}
+function startName(id, which) { nameTarget = { id, which }; render(); }
+async function saveName() {
+  const addr = targetAddr(); const n = document.getElementById('nm').value.trim(); if (!addr || !n) return;
+  const cur = places().find(p => p.addr === addr);
+  if (cur) cur.name = n; else profile.places.push({ key: 'p' + Date.now(), name: n, addr });
+  nameTarget = null; render(); await saveProfile();
+}
+async function removeName() {
+  const addr = targetAddr(); profile.places = places().filter(p => p.addr !== addr || p.key === 'home');
+  nameTarget = null; render(); await saveProfile();
+}
 function rideCard(r) {
   const d = r.data, id = r.id, st_ = STATUS[d.status] || [d.status, 'wait'];
   const amt = (d.final_price != null ? d.final_price : d.quoted_price) || 0;
@@ -442,7 +464,8 @@ function rideCard(r) {
   if (d.status === 'paid') extra = `<div class="amt">Paid $${amt.toFixed(2)}</div><a class="big alt" style="min-height:58px;font-size:20px;text-decoration:none;display:flex;align-items:center;justify-content:center" href="receipt.html?id=${id}" target="_blank" rel="noopener">View receipt</a>${TIP}`;
   if (d.status === 'declined') extra = `<p class="small">Jason couldn’t take this one. Please call him or send a new request.</p>`;
   return `<div class="ride"><div class="when">${esc(fmtDate(d.pickup_date))}, ${esc(fmtTime(d.pickup_time))}<span class="chip ${st_[1]}">${esc(st_[0])}</span></div>
-    <div style="margin:6px 0 4px">${esc(placeName(d.pickup_address))} → ${esc(placeName(d.dropoff_address))}</div>
+    <div style="margin:6px 0 4px">${addrBtn(id, 'p', d.pickup_address)} → ${addrBtn(id, 'd', d.dropoff_address)}</div>
+    ${nameTarget && nameTarget.id === id ? nameEditor(d) : ''}
     ${d.notes ? `<div class="small">${formatNotes(d.notes)}</div>` : ''}
     ${extra}
     <button class="big alt" style="min-height:58px;font-size:20px;margin:12px 0 0" onclick="bookAgain('${id}')">Book this ride again</button></div>`;
@@ -452,6 +475,7 @@ VIEWS.rides = () => {
   const list = [...rides].sort((a, b) => ((pr[a.data.status] || 99) - (pr[b.data.status] || 99)) || ((b.data.created_at && b.data.created_at.seconds || 0) - (a.data.created_at && a.data.created_at.seconds || 0)));
   return `<div class="card"><button class="back" onclick="go('home')">← Back</button><h2>My rides</h2>
   ${list.length ? list.map(rideCard).join('') : '<p class="lead">No rides yet. Tap Back, then Book a ride.</p>'}
+  ${list.length ? '<p class="small">Tip: tap a place to give it a name.</p>' : ''}
   <p class="lead">Need to change a ride? Please call Jason.</p>${callBtn()}</div>`;
 };
 
@@ -562,11 +586,12 @@ async function cancelRide(id) {
 }
 
 // ── Start up ─────────────────────────────────────────────────────────────
-Object.assign(window, { iso, go: (n) => go(n), render, signIn, notYou, saveSetup, startBooking, typedChanged, pickFrom, pickFromTyped, pickTo, setT, sendRequest, savePlace, renamePlace, delPlace, returnTrip, bookAgain, confirmRide, cancelRide, fresh });
+Object.assign(window, { startName, saveName, removeName, iso, go: (n) => go(n), render, signIn, notYou, saveSetup, startBooking, typedChanged, pickFrom, pickFromTyped, pickTo, setT, sendRequest, savePlace, renamePlace, delPlace, returnTrip, bookAgain, confirmRide, cancelRide, fresh });
 Object.defineProperties(window, {
   editKey: { get: () => editKey, set: v => { editKey = v; } },
   delKey: { get: () => delKey, set: v => { delKey = v; } },
   pickEdit: { get: () => pickEdit, set: v => { pickEdit = v; } },
+  nameTarget: { get: () => nameTarget, set: v => { nameTarget = v; } },
   cancelId: { get: () => cancelId, set: v => { cancelId = v; } }
 });
 window.fresh = () => { fresh(); };
