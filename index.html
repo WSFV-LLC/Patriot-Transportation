@@ -271,8 +271,17 @@ function watchRides() {
   const q = query(collection(db, 'ride_requests'), where('client_phone', '==', phone), orderBy('created_at', 'desc'));
   unsub = onSnapshot(q, snap => {
     rides = []; snap.forEach(d => rides.push({ id: d.id, data: d.data() }));
+    syncFromRides();
     if (st.step === 'home' || st.step === 'rides') render();
   }, err => console.log('rides', err.message));
+}
+// The office may correct a customer's name/email on the dashboard (it updates their rides); follow the newest ride
+function syncFromRides() {
+  if (!profile || !rides.length) return;
+  const d = rides[0].data; let ch = false;
+  if (d.client_name && d.client_name !== profile.name) { profile.name = d.client_name; ch = true; }
+  if (d.client_email && d.client_email !== profile.email) { profile.email = d.client_email; ch = true; }
+  if (ch) { saveProfile(); if (st.step === 'home' || st.step === 'rides') render(); }
 }
 const balance = () => rides.filter(r => r.data.status === 'completed').reduce((s, r) => s + (r.data.final_price || 0), 0);
 
@@ -283,6 +292,8 @@ async function startSession(p, remember) {
   screen.innerHTML = '<div class="card"><h2>One moment…</h2></div>';
   watchRides();
   await loadProfile();
+  if (!rides.length) { try { await new Promise(r => { const t = setTimeout(r, 2500); const iv = setInterval(() => { if (rides.length) { clearInterval(iv); clearTimeout(t); r(); } }, 100); setTimeout(() => clearInterval(iv), 2600); }); } catch (e) { } }
+  syncFromRides();
   if (!profile || !profile.name || !profile.email || !home()) {
     // Brand-new customer, or an older customer who has not set up yet: borrow from their last ride
     let last = null;
