@@ -85,7 +85,7 @@ textarea.txt { display:block; width:100%; min-height:130px; font-size:22px; line
 textarea.txt:focus { outline:none; border-color:var(--maroon); }
 textarea.txt::placeholder, input.txt::placeholder { font-size:21px; color:#7a7a82; }
 
-body.welcome { background-color:#2f0b12; background-image:linear-gradient(to bottom, rgba(47,11,18,.45), rgba(47,11,18,.7)), url('https://wsfv-llc.github.io/Patriot-Transportation/skyline.png'); background-size:cover; background-position:top center; background-repeat:no-repeat; }
+body { background-color:#2f0b12; background-image:linear-gradient(to bottom, rgba(47,11,18,.45), rgba(47,11,18,.7)), url('https://wsfv-llc.github.io/Patriot-Transportation/skyline.png'); background-size:cover; background-position:top center; background-repeat:no-repeat; }
 .brand b { font-size:30px; } .brand { padding:6px 0 18px; }
 .hero { text-align:center; padding:16px 20px 12px; }
 .hero-stars { color:#c8952a; font-size:18px; letter-spacing:8px; margin-bottom:8px; }
@@ -336,7 +336,7 @@ VIEWS.signin = () => `<div class="card"><h1>Welcome</h1><p class="lead">Type you
   ${callBtn()}</div>
   <div class="qr"><div class="qr-label">Share this app with a friend</div><img src="https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=https://wsfv-llc.github.io/Patriot-Transportation/&color=c8952a&bgcolor=0a0a0a&margin=6" alt="QR code to share this app" width="140" height="140"></div>`;
 
-VIEWS.setup = () => `<div class="card"><h1>Let’s get you set up</h1><p class="lead">We only ask this one time.</p>
+VIEWS.setup = () => `<div class="card"><h1>Let’s get started</h1><p class="lead">We only ask this one time.</p>
   <div class="label" style="margin-top:0">Your name</div><input class="txt" id="sname" autocomplete="name" value="${esc(st.setup.name)}">
   <div class="label">Your email</div><input class="txt" id="semail" type="email" inputmode="email" autocomplete="email" value="${esc(st.setup.email)}">
   <div class="label">Where should we pick you up? (your home)</div><input class="txt" id="homeAddr" autocomplete="off" placeholder="Street address and city" value="${esc(st.setup.home)}">
