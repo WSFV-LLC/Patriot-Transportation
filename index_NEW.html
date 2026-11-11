@@ -85,11 +85,64 @@ textarea.txt { display:block; width:100%; min-height:130px; font-size:22px; line
 textarea.txt:focus { outline:none; border-color:var(--maroon); }
 textarea.txt::placeholder, input.txt::placeholder { font-size:21px; color:#7a7a82; }
 
+body.welcome { background-color:#2f0b12; background-image:linear-gradient(to bottom, rgba(47,11,18,.45), rgba(47,11,18,.7)), url('https://wsfv-llc.github.io/Patriot-Transportation/skyline.png'); background-size:cover; background-position:top center; background-repeat:no-repeat; }
+.brand b { font-size:30px; } .brand { padding:6px 0 18px; }
+.hero { text-align:center; padding:16px 20px 12px; }
+.hero-stars { color:#c8952a; font-size:18px; letter-spacing:8px; margin-bottom:8px; }
+.hero-badge { display:inline-block; border:2px solid #c8952a; color:#c8952a; font-family:'Oswald',sans-serif; font-size:11px; font-weight:600; letter-spacing:2px; padding:4px 12px; border-radius:2px; margin-bottom:12px; text-transform:uppercase; }
+.hero h1 { font-family:'Oswald',sans-serif; font-size:42px; font-weight:700; color:#fff; text-transform:uppercase; letter-spacing:2px; line-height:1; margin-bottom:4px; }
+.hero h1 span { color:#a83838; display:block; font-size:48px; }
+.hero-sub { color:rgba(255,255,255,.7); font-size:13px; letter-spacing:3px; text-transform:uppercase; margin-bottom:10px; }
+.hero-divider { display:flex; align-items:center; justify-content:center; gap:12px; margin:8px 0; }
+.hero-divider i { height:1px; width:60px; background:linear-gradient(to right, transparent, #c8952a); }
+.hero-divider i.r { background:linear-gradient(to left, transparent, #c8952a); }
+.hero-divider b { color:#c8952a; font-size:14px; }
+.driver-profile { display:flex; align-items:center; justify-content:center; gap:20px; background:rgba(255,255,255,.06); border:1px solid rgba(200,149,42,.35); border-radius:12px; padding:16px 24px; margin:4px 0 16px; }
+.driver-photo { width:80px; height:80px; border-radius:50%; border:3px solid #c8952a; object-fit:cover; flex-shrink:0; }
+.van-photo-wrap { width:80px; height:80px; border-radius:50%; overflow:hidden; flex-shrink:0; border:3px solid #c8952a; background:#fff; }
+.van-photo-wrap img { width:100%; height:100%; object-fit:contain; object-position:center; transform:scale(1.35) translateX(8%); }
+.van-photo-wrap img.telluride-img { transform:none; }
+.driver-info { text-align:left; }
+.driver-name { font-family:'Oswald',sans-serif; font-size:20px; font-weight:600; color:#fff; margin-bottom:2px; }
+.driver-title { color:#c8952a; font-size:12px; font-weight:600; letter-spacing:1px; text-transform:uppercase; margin-bottom:6px; }
+.driver-tagline { color:rgba(255,255,255,.75); font-size:12px; font-style:italic; }
+.qr { text-align:center; margin:8px 0 12px; }
+.qr-label { font-size:12px; color:rgba(255,255,255,.6); text-transform:uppercase; letter-spacing:1px; margin-bottom:10px; font-weight:600; }
+.qr img { border:2px solid #c8952a; border-radius:8px; }
+@media (max-width:768px) {
+  .hero { padding:12px 6px 10px; } .hero-badge { font-size:9px; padding:4px 8px; letter-spacing:1px; }
+  .hero h1 { font-size:26px; letter-spacing:1px; } .hero h1 span { font-size:30px; } .hero-sub { font-size:11px; letter-spacing:2px; }
+  .driver-profile { flex-direction:column; text-align:center; padding:16px; gap:12px; }
+  .driver-photo, .van-photo-wrap { width:64px; height:64px; } .driver-info { text-align:center; }
+  .driver-name { font-size:17px; } .driver-title, .driver-tagline { font-size:11px; }
+}
+
 </style>
 </head>
 <body>
 <div class="wrap">
-  <div class="brand"><b>PATRIOT TRANSPORTATION</b><span>SAN ANTONIO &amp; SURROUNDING AREAS</span></div>
+  <div id="hero" class="hero-wrap">
+    <div class="hero">
+      <div class="hero-stars">★ ★ ★ ★ ★</div>
+      <div class="hero-badge">U.S. Army Veteran Retired · 20 Years of Service</div>
+      <h1>Patriot<span>Transportation</span></h1>
+      <div class="hero-sub">Serving San Antonio, Austin &amp; Houston</div>
+      <div class="hero-divider"><i></i><b>★</b><i class="r"></i></div>
+    </div>
+    <div class="driver-profile">
+      <div style="display:flex; gap:8px; flex-shrink:0;">
+        <img src="https://wsfv-llc.github.io/Patriot-Transportation/driver.png" alt="Jason, your driver" class="driver-photo">
+        <div class="van-photo-wrap"><img src="https://wsfv-llc.github.io/Patriot-Transportation/van.jpg" alt="Our vehicle"></div>
+        <div class="van-photo-wrap"><img src="https://wsfv-llc.github.io/Patriot-Transportation/telluride.jpg" alt="Our vehicle" class="telluride-img"></div>
+      </div>
+      <div class="driver-info">
+        <div class="driver-name">Jason Nedoroscik</div>
+        <div class="driver-title">Veteran Owner &amp; Operator</div>
+        <div class="driver-tagline">Driven by Service. Committed to Excellence. Focused on You.</div>
+      </div>
+    </div>
+  </div>
+  <div class="brand hidden" id="brand"><b>PATRIOT TRANSPORTATION</b></div>
   <div id="flash" class="hidden" role="alert"></div>
   <div id="screen"></div>
   <div class="notyou" id="notyou"></div>
@@ -264,6 +317,10 @@ async function saveSetup() {
 function go(n) { st.step = n; render(); window.scrollTo(0, 0); }
 function render() {
   const s = st.step;
+  const welcome = s === 'signin';
+  document.body.classList.toggle('welcome', welcome);
+  document.getElementById('hero').classList.toggle('hidden', !welcome);
+  document.getElementById('brand').classList.toggle('hidden', welcome);
   document.getElementById('notyou').innerHTML = (phone && s === 'home') ? `<button onclick="notYou()">Not ${esc(firstName() || 'you')}? Tap here</button>` : '';
   const nm = typeof s === 'number';
   const bar = nm ? `<div class="step">Step ${s} of 4</div><div class="bar"><i style="width:${s * 25}%"></i></div>` : '';
@@ -276,7 +333,8 @@ VIEWS.signin = () => `<div class="card"><h1>Welcome</h1><p class="lead">Type you
   <div class="label" style="margin-top:0">Your phone number</div>
   <input class="txt" id="phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="210 555 1234" onkeydown="if(event.key==='Enter')signIn()">
   <button class="big main" style="margin-top:18px" onclick="signIn()">Continue</button>
-  ${callBtn()}</div>`;
+  ${callBtn()}</div>
+  <div class="qr"><div class="qr-label">Share this app with a friend</div><img src="https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=https://wsfv-llc.github.io/Patriot-Transportation/&color=c8952a&bgcolor=0a0a0a&margin=6" alt="QR code to share this app" width="140" height="140"></div>`;
 
 VIEWS.setup = () => `<div class="card"><h1>Let’s get you set up</h1><p class="lead">We only ask this one time.</p>
   <div class="label" style="margin-top:0">Your name</div><input class="txt" id="sname" autocomplete="name" value="${esc(st.setup.name)}">
