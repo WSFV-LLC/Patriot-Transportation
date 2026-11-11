@@ -2466,6 +2466,18 @@ async function saveClientInfo(oldPhone) {
     });
 
     await Promise.all(updatePromises);
+
+    // Keep the customer's app profile (clients/{phone}) in step, so "Welcome back, ..." shows the new name
+    try {
+      const oldRef = window.doc(window.db, 'clients', oldPhone);
+      const oldSnap = await window.getDoc(oldRef);
+      if (oldSnap.exists()) {
+        const prof = { ...oldSnap.data(), name: newName, email: newEmail, phone: newPhone, updated_at: new Date() };
+        await window.setDoc(window.doc(window.db, 'clients', newPhone), prof);
+        if (newPhone !== oldPhone) await window.deleteDoc(oldRef);
+      }
+    } catch (e) { console.log('profile sync', e.message); }
+
     alert('Client information updated across ' + snapshot.size + ' ride(s)!');
 
     // Reload clients and go back to the updated client detail
