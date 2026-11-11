@@ -615,6 +615,13 @@ input:focus, select:focus, textarea:focus { outline:none; border-color:var(--mar
 .counter-input span, .counter-input label { font-size:14px !important; font-weight:600 !important; color:var(--muted); }
 #tithe-tab h2, #clients-tab h2 { color:var(--ink) !important; font-size:20px !important; }
 #tithe-tab p { color:var(--muted) !important; }
+
+/* amount / tip rows: small number box, button never pushed outside the card */
+#client-detail-view input[type=number], .counter-input input[type=number] { min-width:0 !important; }
+#client-detail-view input[type=number] { flex:0 1 110px !important; width:110px !important; max-width:42%; padding:8px 10px !important; }
+#client-detail-view .btn { flex-shrink:0; white-space:nowrap; width:auto !important; padding:8px 14px !important; font-size:13px !important; }
+#client-detail-view [style*="display:flex"] { min-width:0; }
+#client-detail-view .request-card div[style*="display:flex"] > span:first-child { min-width:76px; }
 /* mobile: keep action buttons in rows, not tall stacks */
 @media (max-width:768px) {
   body { padding:10px; }
