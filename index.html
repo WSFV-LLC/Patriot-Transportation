@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -6,1149 +5,578 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Patriot Transportation</title>
 <link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#6b1f1f">
+<meta name="theme-color" content="#2f0b12">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Patriot">
 <link rel="apple-touch-icon" href="icon.png">
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Oswald:wght@400;600;700&family=Open+Sans:wght@400;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Oswald:wght@500;700&family=Open+Sans:wght@400;600;700&display=swap');
+:root { --maroon:#6b1f1f; --maroon2:#8b2c2c; --gold:#c8952a; --ink:#1d1d1f; --ink2:#4a4a52; --line:#d9d3c7; --card:#ffffff; --green:#1d6b2a; }
+* { box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent; }
+body { font-family:'Open Sans',system-ui,sans-serif; font-size:20px; line-height:1.4; color:var(--ink); min-height:100vh; padding:16px 16px 90px;
+  background:#2f0b12; }
+.wrap { max-width:640px; margin:0 auto; }
+.brand { text-align:center; color:#f5f0e6; font-family:'Oswald',sans-serif; letter-spacing:2px; padding:8px 0 16px; }
+.brand b { display:block; font-size:28px; letter-spacing:3px; }
+.brand span { font-size:14px; color:var(--gold); letter-spacing:3px; }
+.card { background:var(--card); border-radius:18px; padding:24px 22px; margin-bottom:18px; box-shadow:0 8px 28px rgba(0,0,0,.35); }
+h1 { font-family:'Oswald',sans-serif; font-size:34px; line-height:1.15; color:var(--maroon); margin-bottom:6px; font-weight:700; }
+h2 { font-family:'Oswald',sans-serif; font-size:28px; color:var(--maroon); margin-bottom:14px; font-weight:700; }
+p.lead { color:var(--ink2); margin-bottom:18px; }
+button { font:inherit; cursor:pointer; border:none; }
+.big { display:block; width:100%; min-height:68px; padding:16px 20px; border-radius:14px; font-size:23px; font-weight:700; text-align:center; margin-bottom:14px; }
+.big.main { background:linear-gradient(135deg,var(--maroon2),var(--maroon)); color:#fff; border:2px solid var(--gold); }
+.big.alt { background:#fff; color:var(--maroon); border:3px solid var(--maroon); }
+.big.go { background:var(--green); color:#fff; }
+.big.call { flex-direction:column; gap:0; background:#fff; color:var(--ink); border:3px solid var(--line); text-decoration:none; display:flex; align-items:center; justify-content:center; gap:10px; }
+.big:active { transform:scale(.985); }
+.back { background:none; color:var(--maroon); font-weight:700; font-size:20px; padding:10px 4px; margin-bottom:6px; }
+.step { color:var(--ink2); font-weight:600; font-size:17px; margin-bottom:4px; }
+.bar { height:10px; background:#eee7da; border-radius:6px; margin-bottom:18px; overflow:hidden; }
+.bar i { display:block; height:100%; background:var(--gold); border-radius:6px; transition:width .25s; }
+.label { font-weight:700; margin:16px 0 8px; font-size:20px; }
+.place { display:block; width:100%; text-align:left; background:#faf7f0; border:3px solid var(--line); border-radius:14px; padding:14px 16px; margin-bottom:10px; min-height:68px; }
+.place b { display:block; font-size:21px; }
+.place span { color:var(--ink2); font-size:17px; }
+.place.sel { border-color:var(--maroon); background:#fbeeee; }
+input.txt, select.sel { width:100%; font-size:22px; padding:16px; border:3px solid var(--line); border-radius:14px; background:#fff; color:var(--ink); }
+input.txt:focus, select.sel:focus { outline:none; border-color:var(--maroon); }
+.row { display:flex; gap:10px; }
+.row > * { flex:1; }
+.pill { min-height:64px; border-radius:14px; border:3px solid var(--line); background:#faf7f0; font-size:21px; font-weight:700; padding:10px; }
+.pill.sel { border-color:var(--maroon); background:var(--maroon); color:#fff; }
+.counter { display:flex; align-items:center; gap:14px; }
+.counter button { width:76px; height:76px; border-radius:50%; font-size:42px; font-weight:700; background:var(--maroon); color:#fff; flex:none; }
+.counter .n { flex:1; text-align:center; font-size:44px; font-family:'Oswald',sans-serif; font-weight:700; }
+.sum { border:3px solid var(--line); border-radius:14px; padding:6px 16px; margin-bottom:16px; }
+.sum div { padding:12px 0; border-bottom:2px solid #eee7da; display:flex; justify-content:space-between; gap:10px; align-items:flex-start; }
+.sum div:last-child { border-bottom:none; }
+.sum small { display:block; color:var(--ink2); font-size:16px; }
+.sum a { color:var(--maroon); font-weight:700; text-decoration:underline; background:none; font-size:18px; flex:none; padding:4px; }
+.price { text-align:center; background:#faf7f0; border-radius:14px; padding:16px; margin-bottom:16px; }
+.price b { font-family:'Oswald',sans-serif; font-size:52px; color:var(--maroon); display:block; line-height:1.1; }
+.ride { border:3px solid var(--line); border-radius:14px; padding:14px 16px; margin-bottom:14px; }
+.ride .when { font-family:'Oswald',sans-serif; font-size:24px; color:var(--maroon); }
+.chip { display:inline-block; font-weight:700; font-size:16px; padding:3px 12px; border-radius:999px; margin-left:8px; vertical-align:3px; }
+.chip.ok { background:#dff2e2; color:var(--green); } .chip.wait { background:#fdf0cf; color:#8a6200; }
+.textlink { background:none; color:var(--maroon); font-weight:700; text-decoration:underline; font-size:20px; padding:10px; }
+.mini { background:none; color:var(--maroon); font-weight:700; font-size:18px; text-decoration:underline; padding:8px 10px 8px 0; }
+.mini.red { color:#a32020; }
+.saveprompt { border:3px solid var(--gold); background:#fffaf0; border-radius:14px; padding:16px; margin:16px 0; text-align:left; }
+.notyou { text-align:center; margin-top:6px; } .notyou button { background:none; color:#f1e3c4; text-decoration:underline; font-size:18px; padding:10px; }
+.done { text-align:center; } .done .check { width:90px; height:90px; border-radius:50%; background:var(--green); color:#fff; font-size:56px; line-height:90px; margin:0 auto 14px; }
+.hidden { display:none !important; }
+.call .num { display:block; font-size:19px; font-weight:600; white-space:nowrap; }
+.chg { display:block; color:var(--maroon); font-weight:700; margin-top:6px; }
+.owe { display:block; width:100%; text-align:left; background:#fffaf0; border:3px solid var(--gold); border-radius:14px; padding:14px 16px; margin-bottom:14px; }
+.owe b { display:block; font-size:22px; color:var(--maroon); } .owe span { color:var(--ink2); font-size:17px; }
+.row2 { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+.pill.red { background:#a32020; border-color:#a32020; color:#fff; }
+.pay { display:block; text-align:center; text-decoration:none; background:#faf7f0; color:var(--ink); border:3px solid var(--line); border-radius:14px; padding:14px; margin-top:10px; font-weight:700; font-size:20px; }
+.small { color:var(--ink2); font-size:16px; margin-top:8px; }
+.amt { font-family:'Oswald',sans-serif; font-size:34px; color:var(--maroon); margin:8px 0 2px; }
+.chip.bad { background:#f6dddd; color:#8a1f1f; }
+.price.err { color:#8a1f1f; font-size:18px; font-weight:600; }
+textarea.txt { font-family:inherit; resize:vertical; }
+#flash { position:fixed; left:12px; right:12px; top:12px; z-index:60; background:#fff; color:#8a1f1f; border:3px solid #a32020; border-radius:14px; padding:14px 16px; font-weight:700; font-size:18px; box-shadow:0 8px 24px rgba(0,0,0,.4); max-width:620px; margin:0 auto; }
+.big:disabled { opacity:.5; cursor:default; }
+textarea.txt { display:block; width:100%; min-height:130px; font-size:22px; line-height:1.4; padding:16px; border:3px solid var(--line); border-radius:14px; background:#fff; color:var(--ink); }
+textarea.txt:focus { outline:none; border-color:var(--maroon); }
+textarea.txt::placeholder, input.txt::placeholder { font-size:21px; color:#7a7a82; }
 
-* { box-sizing: border-box; margin: 0; padding: 0; }
-
-body {
-  font-family: 'Open Sans', sans-serif;
-  min-height: 100vh;
-  background-image: 
-    linear-gradient(to bottom, rgba(10,10,15,0.45), rgba(10,10,15,0.65)),
-    url('https://wsfv-llc.github.io/Patriot-Transportation/skyline.png');
-  background-size: cover;
-  background-position: top center;
-  background-repeat: no-repeat;
-  background-color: #0a0a0f;
-  padding: 20px;
-}
-
-.container { max-width: 700px; margin: 0 auto; }
-
-/* ── HERO HEADER ── */
-.hero {
-  text-align: center;
-  padding: 16px 20px 12px;
-  position: relative;
-}
-.hero-stars {
-  color: #c8952a;
-  font-size: 18px;
-  letter-spacing: 8px;
-  margin-bottom: 8px;
-}
-.hero-badge {
-  display: inline-block;
-  border: 2px solid #c8952a;
-  color: #c8952a;
-  font-family: 'Oswald', sans-serif;
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 2px;
-  padding: 4px 12px;
-  border-radius: 2px;
-  margin-bottom: 12px;
-  text-transform: uppercase;
-}
-.hero h1 {
-  font-family: 'Oswald', sans-serif;
-  font-size: 42px;
-  font-weight: 700;
-  color: white;
-  text-transform: uppercase;
-  letter-spacing: 2px;
-  line-height: 1;
-  margin-bottom: 4px;
-}
-.hero h1 span {
-  color: #a83838;
-  display: block;
-  font-size: 48px;
-}
-.hero-sub {
-  color: rgba(255,255,255,0.6);
-  font-size: 13px;
-  letter-spacing: 3px;
-  text-transform: uppercase;
-  margin-bottom: 10px;
-}
-.hero-divider {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
-  margin: 8px 0;
-}
-.hero-divider-line {
-  height: 1px;
-  width: 60px;
-  background: linear-gradient(to right, transparent, #c8952a);
-}
-.hero-divider-line.right {
-  background: linear-gradient(to left, transparent, #c8952a);
-}
-.hero-divider-star { color: #c8952a; font-size: 14px; }
-
-/* ── DRIVER PROFILE ── */
-.driver-profile {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 20px;
-  background: rgba(255,255,255,0.04);
-  border: 1px solid rgba(200,149,42,0.3);
-  border-radius: 12px;
-  padding: 16px 24px;
-  margin-bottom: 16px;
-  margin-top: 4px;
-}
-.driver-photo {
-  width: 80px;
-  height: 80px;
-  border-radius: 50%;
-  border: 3px solid #c8952a;
-  object-fit: cover;
-  flex-shrink: 0;
-}
-.van-photo-wrap {
-  width: 80px;
-  height: 80px;
-  border-radius: 50%;
-  overflow: hidden;
-  flex-shrink: 0;
-  border: 3px solid #c8952a;
-  background: white;
-}
-.van-photo-wrap img {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-  object-position: center center;
-  transform: scale(1.35) translateX(8%);
-}
-.van-photo-wrap .telluride-img {
-  transform: scale(1.0) translateX(0%);
-}
-.driver-info { text-align: left; }
-.driver-name {
-  font-family: 'Oswald', sans-serif;
-  font-size: 20px;
-  font-weight: 600;
-  color: white;
-  margin-bottom: 2px;
-}
-.driver-title {
-  color: #c8952a;
-  font-size: 12px;
-  font-weight: 600;
-  letter-spacing: 1px;
-  text-transform: uppercase;
-  margin-bottom: 6px;
-}
-.driver-tagline {
-  color: rgba(255,255,255,0.6);
-  font-size: 12px;
-  font-style: italic;
+body { background-color:#2f0b12; background-image:linear-gradient(to bottom, rgba(47,11,18,.45), rgba(47,11,18,.7)), url('https://wsfv-llc.github.io/Patriot-Transportation/skyline.png'); background-size:cover; background-position:top center; background-repeat:no-repeat; }
+.brand b { font-size:30px; } .brand { padding:6px 0 18px; }
+.hero { text-align:center; padding:16px 20px 12px; }
+.hero-stars { color:#c8952a; font-size:18px; letter-spacing:8px; margin-bottom:8px; }
+.hero-badge { display:inline-block; border:2px solid #c8952a; color:#c8952a; font-family:'Oswald',sans-serif; font-size:11px; font-weight:600; letter-spacing:2px; padding:4px 12px; border-radius:2px; margin-bottom:12px; text-transform:uppercase; }
+.hero h1 { font-family:'Oswald',sans-serif; font-size:42px; font-weight:700; color:#fff; text-transform:uppercase; letter-spacing:2px; line-height:1; margin-bottom:4px; }
+.hero h1 span { color:#a83838; display:block; font-size:48px; }
+.hero-sub { color:rgba(255,255,255,.7); font-size:13px; letter-spacing:3px; text-transform:uppercase; margin-bottom:10px; }
+.hero-divider { display:flex; align-items:center; justify-content:center; gap:12px; margin:8px 0; }
+.hero-divider i { height:1px; width:60px; background:linear-gradient(to right, transparent, #c8952a); }
+.hero-divider i.r { background:linear-gradient(to left, transparent, #c8952a); }
+.hero-divider b { color:#c8952a; font-size:14px; }
+.driver-profile { display:flex; align-items:center; justify-content:center; gap:20px; background:rgba(255,255,255,.06); border:1px solid rgba(200,149,42,.35); border-radius:12px; padding:16px 24px; margin:4px 0 16px; }
+.driver-photo { width:80px; height:80px; border-radius:50%; border:3px solid #c8952a; object-fit:cover; flex-shrink:0; }
+.van-photo-wrap { width:80px; height:80px; border-radius:50%; overflow:hidden; flex-shrink:0; border:3px solid #c8952a; background:#fff; }
+.van-photo-wrap img { width:100%; height:100%; object-fit:contain; object-position:center; transform:scale(1.35) translateX(8%); }
+.van-photo-wrap img.telluride-img { transform:none; }
+.driver-info { text-align:left; }
+.driver-name { font-family:'Oswald',sans-serif; font-size:20px; font-weight:600; color:#fff; margin-bottom:2px; }
+.driver-title { color:#c8952a; font-size:12px; font-weight:600; letter-spacing:1px; text-transform:uppercase; margin-bottom:6px; }
+.driver-tagline { color:rgba(255,255,255,.75); font-size:12px; font-style:italic; }
+.qr { text-align:center; margin:8px 0 12px; }
+.qr-label { font-size:12px; color:rgba(255,255,255,.6); text-transform:uppercase; letter-spacing:1px; margin-bottom:10px; font-weight:600; }
+.qr img { border:2px solid #c8952a; border-radius:8px; }
+@media (max-width:768px) {
+  .hero { padding:12px 6px 10px; } .hero-badge { font-size:9px; padding:4px 8px; letter-spacing:1px; }
+  .hero h1 { font-size:26px; letter-spacing:1px; } .hero h1 span { font-size:30px; } .hero-sub { font-size:11px; letter-spacing:2px; }
+  .driver-profile { flex-direction:column; text-align:center; padding:16px; gap:12px; }
+  .driver-photo, .van-photo-wrap { width:64px; height:64px; } .driver-info { text-align:center; }
+  .driver-name { font-size:17px; } .driver-title, .driver-tagline { font-size:11px; }
 }
 
-/* ── SERVICE ICONS ── */
-.services {
-  display: flex;
-  justify-content: center;
-  gap: 0;
-  margin-top: 20px;
-  margin-bottom: 16px;
-  border: 1px solid rgba(200,149,42,0.2);
-  border-radius: 8px;
-  overflow: hidden;
-}
-.service-item {
-  flex: 1;
-  text-align: center;
-  padding: 14px 8px;
-  border-right: 1px solid rgba(200,149,42,0.2);
-  background: rgba(255,255,255,0.02);
-}
-.service-item:last-child { border-right: none; }
-.service-icon { font-size: 20px; margin-bottom: 6px; }
-.service-label {
-  font-size: 9px;
-  color: rgba(255,255,255,0.6);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  font-weight: 600;
-  line-height: 1.3;
-}
-
-/* ── CARD ── */
-.card {
-  background: rgba(255,255,255,0.05);
-  border: 1px solid rgba(255,255,255,0.1);
-  border-radius: 12px;
-  padding: 28px;
-  margin-bottom: 20px;
-  backdrop-filter: blur(10px);
-}
-
-/* ── LOGIN ── */
-.login-section { max-width: 400px; margin: 0 auto; }
-.field { margin-bottom: 20px; }
-label {
-  display: block;
-  font-weight: 600;
-  color: #c8952a;
-  margin-bottom: 6px;
-  font-size: 13px;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-input, select, textarea {
-  width: 100%;
-  padding: 12px 16px;
-  border: 1px solid rgba(255,255,255,0.15);
-  border-radius: 6px;
-  font-size: 15px;
-  background: rgba(255,255,255,0.08);
-  color: white;
-  transition: border-color 0.3s;
-  font-family: 'Open Sans', sans-serif;
-}
-input::placeholder, textarea::placeholder { color: rgba(255,255,255,0.35); }
-input:focus, select:focus, textarea:focus {
-  outline: none;
-  border-color: #c8952a;
-  background: rgba(255,255,255,0.1);
-}
-select option { background: #1a1a1a; color: white; }
-.row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-
-/* ── BUTTONS ── */
-.btn {
-  width: 100%; padding: 14px; border: none; border-radius: 6px;
-  font-size: 15px; font-weight: 700; cursor: pointer; transition: all 0.3s;
-  font-family: 'Oswald', sans-serif; letter-spacing: 1px; text-transform: uppercase;
-}
-.btn-primary {
-  background: linear-gradient(135deg, #8b2c2c, #6b1f1f);
-  color: #f5f0e6;
-  border: 1px solid rgba(200,149,42,0.4);
-}
-.btn-primary:hover {
-  background: linear-gradient(135deg, #9c3535, #7a2525);
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(139,44,44,0.35);
-  border-color: #c8952a;
-}
-.btn-primary:disabled { background: #444; border-color: #444; cursor: not-allowed; transform: none; }
-.btn-confirm {
-  background: linear-gradient(135deg, #1a6b1a, #145214);
-  color: white;
-  margin-top: 12px;
-  border: 1px solid #1a6b1a;
-}
-.btn-confirm:hover { background: linear-gradient(135deg, #228822, #1a6b1a); }
-
-/* ── TABS ── */
-.tabs { display: flex; gap: 0; margin-bottom: 24px; border-bottom: 2px solid rgba(200,149,42,0.3); }
-.tab {
-  flex: 1; padding: 12px; background: none; border: none;
-  border-bottom: 3px solid transparent; cursor: pointer;
-  font-weight: 700; font-size: 13px; color: rgba(255,255,255,0.5);
-  transition: all 0.3s; font-family: 'Oswald', sans-serif;
-  letter-spacing: 1px; text-transform: uppercase;
-  margin-bottom: -2px;
-}
-.tab.active { color: #c8952a; border-bottom-color: #c8952a; }
-.tab:hover { color: rgba(200,149,42,0.8); }
-
-/* ── QUOTE BOX ── */
-.quote-box {
-  background: linear-gradient(135deg, rgba(139,44,44,0.25), rgba(107,31,31,0.15));
-  border: 1px solid rgba(200,149,42,0.4);
-  border-radius: 8px; padding: 24px;
-  margin: 24px 0; text-align: center;
-}
-.quote-label {
-  font-size: 11px; color: #c8952a; text-transform: uppercase;
-  letter-spacing: 2px; margin-bottom: 8px; font-weight: 600;
-}
-.quote-price { font-size: 52px; font-weight: 700; color: white; font-family: 'Oswald', sans-serif; }
-.quote-note { font-size: 12px; color: rgba(255,255,255,0.5); margin-top: 6px; }
-
-/* ── RIDE CARDS ── */
-.ride-card {
-  background: rgba(255,255,255,0.04);
-  border: 1px solid rgba(255,255,255,0.1);
-  border-radius: 8px; padding: 20px; margin-bottom: 16px;
-}
-.ride-header {
-  display: flex; justify-content: space-between; align-items: center;
-  margin-bottom: 16px; padding-bottom: 12px;
-  border-bottom: 1px solid rgba(255,255,255,0.1);
-}
-.ride-date { font-size: 16px; font-weight: 700; color: #c8952a; font-family: 'Oswald', sans-serif; }
-.status-badge { padding: 5px 12px; border-radius: 20px; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; }
-.status-pending { background: rgba(200,149,42,0.2); color: #c8952a; border: 1px solid #c8952a; }
-.status-quoted { background: rgba(13,202,240,0.15); color: #0dcaf0; border: 1px solid #0dcaf0; }
-.status-confirmed { background: rgba(25,135,84,0.2); color: #28a745; border: 1px solid #28a745; }
-.status-completed { background: rgba(13,110,253,0.2); color: #6ea8fe; border: 1px solid #6ea8fe; }
-.status-declined { background: rgba(139,44,44,0.25); color: #e08a8a; border: 1px solid rgba(139,44,44,0.6); }
-.status-cancelled { background: rgba(139,44,44,0.25); color: #e08a8a; border: 1px solid rgba(139,44,44,0.6); }
-.status-paid { background: rgba(25,135,84,0.2); color: #28a745; border: 1px solid #28a745; }
-.ride-detail { display: flex; align-items: flex-start; margin-bottom: 8px; font-size: 14px; color: rgba(255,255,255,0.7); }
-.ride-icon { margin-right: 8px; flex-shrink: 0; }
-
-/* ── PRICE BOX ── */
-.price-box {
-  background: rgba(255,255,255,0.05);
-  border: 1px solid rgba(200,149,42,0.4);
-  border-radius: 6px; padding: 16px; margin: 16px 0; text-align: center;
-}
-.price-label { font-size: 11px; color: #c8952a; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; font-weight: 600; }
-.price-amount { font-size: 36px; font-weight: 700; color: white; font-family: 'Oswald', sans-serif; }
-
-/* ── PAYMENT ── */
-.payment-section {
-  background: rgba(255,255,255,0.03);
-  border: 1px solid rgba(200,149,42,0.3);
-  border-radius: 6px; padding: 16px; margin-top: 16px;
-}
-.payment-title { font-weight: 700; color: #c8952a; margin-bottom: 12px; text-align: center; font-family: 'Oswald', sans-serif; letter-spacing: 1px; text-transform: uppercase; font-size: 14px; }
-.payment-link {
-  display: block; background: rgba(255,255,255,0.08);
-  border: 1px solid rgba(255,255,255,0.15);
-  color: white; padding: 11px; border-radius: 6px;
-  text-align: center; text-decoration: none;
-  font-weight: 600; margin-bottom: 8px; font-size: 14px;
-  transition: all 0.3s;
-}
-.payment-link:hover { background: rgba(200,149,42,0.2); border-color: #c8952a; color: #c8952a; }
-
-/* ── SUCCESS ── */
-.success {
-  background: rgba(25,135,84,0.15);
-  border: 1px solid #28a745;
-  border-radius: 8px; padding: 24px; text-align: center;
-}
-.success h2 { color: #28a745; margin-bottom: 12px; font-family: 'Oswald', sans-serif; font-size: 24px; letter-spacing: 1px; }
-.success p { color: rgba(255,255,255,0.7); }
-
-/* ── BALANCE ── */
-#balance-section {
-  background: rgba(200,149,42,0.1) !important;
-  border: 1px solid rgba(200,149,42,0.4) !important;
-  border-radius: 8px;
-}
-
-/* ── MISC ── */
-.empty-state { text-align: center; padding: 60px 20px; color: rgba(255,255,255,0.3); }
-.loading { text-align: center; padding: 40px; color: rgba(255,255,255,0.4); }
-.hidden { display: none; }
-
-/* Google Places Autocomplete dropdown styling */
-.pac-container {
-  border-radius: 6px;
-  border: 1px solid rgba(200,149,42,0.4);
-  box-shadow: 0 4px 16px rgba(0,0,0,0.3);
-  font-family: 'Open Sans', sans-serif;
-  z-index: 99999 !important;
-}
-.pac-item {
-  padding: 10px 14px;
-  font-size: 14px;
-  cursor: pointer;
-  border-top: 1px solid #f0f0f0;
-}
-.pac-item:hover { background: rgba(200,149,42,0.1); }
-.pac-item-query { color: #333; font-weight: 600; }
-.pac-matched { color: #6b1f1f; }
-.error { background: rgba(204,34,0,0.15); border: 1px solid #cc2200; border-radius: 6px; padding: 12px; color: #ff6b6b; margin-bottom: 16px; font-size: 14px; }
-.logout-btn {
-  background: none; border: 1px solid rgba(200,149,42,0.5);
-  color: #c8952a; padding: 6px 14px; border-radius: 4px;
-  cursor: pointer; font-size: 12px; font-weight: 600;
-  text-transform: uppercase; letter-spacing: 0.5px;
-  transition: all 0.3s;
-}
-.logout-btn:hover { background: rgba(200,149,42,0.1); }
-
-/* ── QR SECTION ── */
-.qr-section {
-  text-align: center;
-  margin-top: 24px;
-  padding-top: 24px;
-  border-top: 1px solid rgba(255,255,255,0.1);
-}
-.qr-label {
-  font-size: 11px; color: rgba(255,255,255,0.4);
-  text-transform: uppercase; letter-spacing: 1px;
-  margin-bottom: 12px; font-weight: 600;
-}
-
-/* ── FOOTER ── */
-.footer-stars {
-  text-align: center;
-  color: #c8952a;
-  font-size: 14px;
-  letter-spacing: 8px;
-  margin-top: 8px;
-  padding-bottom: 8px;
-}
-
-/* ── MOBILE ── */
-@media (max-width: 768px) {
-  body {
-    padding: 10px;
-    background-size: 200% auto;
-    background-position: top left;
-  }
-  .hero { padding: 20px 10px 16px; }
-  .hero-badge { font-size: 9px; padding: 4px 8px; letter-spacing: 1px; }
-  .hero h1 { font-size: 26px; letter-spacing: 1px; }
-  .hero h1 span { font-size: 30px; }
-  .hero-sub { font-size: 11px; letter-spacing: 2px; }
-  .driver-profile {
-    flex-direction: column;
-    text-align: center;
-    padding: 16px;
-    gap: 12px;
-  }
-  .driver-photo { width: 64px; height: 64px; }
-  .van-photo-wrap { width: 64px; height: 64px; }
-  .driver-info { text-align: center; }
-  .driver-name { font-size: 17px; }
-  .driver-title { font-size: 11px; }
-  .driver-tagline { font-size: 11px; }
-  .services {
-    flex-wrap: wrap;
-    margin-bottom: 20px;
-  }
-  .service-item {
-    flex: 0 0 33.333% !important;
-    width: 33.333% !important;
-    max-width: 33.333% !important;
-    min-width: 0 !important;
-    padding: 10px 4px;
-    border-right: none !important;
-    border-bottom: 1px solid rgba(200,149,42,0.2);
-    box-sizing: border-box;
-  }
-  .service-icon { font-size: 16px; margin-bottom: 4px; }
-  .service-label { font-size: 8px; }
-  .card { padding: 18px; }
-  .tabs { overflow-x: auto; flex-wrap: nowrap; padding-bottom: 8px; }
-  .tab { padding: 10px 12px; font-size: 11px; white-space: nowrap; flex-shrink: 0; }
-  label { font-size: 12px; }
-  input, select, textarea { padding: 11px 14px; font-size: 15px; }
-  .btn { padding: 14px 20px; font-size: 14px; }
-  .price-amount { font-size: 26px; }
-  .quote-price { font-size: 40px; }
-  .ride-card { padding: 16px; }
-  .ride-header { flex-direction: column; align-items: flex-start; gap: 6px; }
-  .ride-date { font-size: 14px; }
-  .row { grid-template-columns: 1fr; gap: 0; }
-  #balance-section > div:first-child { flex-direction: column !important; align-items: flex-start !important; }
-  #balance-section #total-balance { font-size: 26px !important; }
-  .payment-link { padding: 10px; font-size: 13px; }
-  .qr-section img { width: 110px !important; height: 110px !important; }
-}
-
-@media (max-width: 400px) {
-  .hero h1 { font-size: 22px; }
-  .hero h1 span { font-size: 26px; }
-}
 </style>
 </head>
 <body>
-
-<div class="container">
-
-  <!-- HERO -->
-  <div class="hero">
-    <div class="hero-stars">★ ★ ★ ★ ★</div>
-    <div class="hero-badge">U.S. Army Veteran Retired · 20 Years of Service</div>
-    <h1>Patriot<span>Transportation</span></h1>
-    <div class="hero-sub">Serving San Antonio, Austin &amp; Houston</div>
-    <div class="hero-divider">
-      <div class="hero-divider-line"></div>
-      <div class="hero-divider-star">★</div>
-      <div class="hero-divider-line right"></div>
+<div class="wrap">
+  <div id="hero" class="hero-wrap">
+    <div class="hero">
+      <div class="hero-stars">★ ★ ★ ★ ★</div>
+      <div class="hero-badge">U.S. Army Veteran Retired · 20 Years of Service</div>
+      <h1>Patriot<span>Transportation</span></h1>
+      <div class="hero-sub">Serving San Antonio, Austin &amp; Houston</div>
+      <div class="hero-divider"><i></i><b>★</b><i class="r"></i></div>
     </div>
-  </div>
-
-  <!-- DRIVER PROFILE -->
-  <div class="driver-profile">
-    <div style="display:flex; gap:8px; flex-shrink:0;">
-      <img src="https://wsfv-llc.github.io/Patriot-Transportation/driver.png" alt="Your Driver" class="driver-photo">
-      <div class="van-photo-wrap">
-        <img src="https://wsfv-llc.github.io/Patriot-Transportation/van.jpg" alt="Our Vehicle">
+    <div class="driver-profile">
+      <div style="display:flex; gap:8px; flex-shrink:0;">
+        <img src="https://wsfv-llc.github.io/Patriot-Transportation/driver.png" alt="Jason, your driver" class="driver-photo">
+        <div class="van-photo-wrap"><img src="https://wsfv-llc.github.io/Patriot-Transportation/van.jpg" alt="Our vehicle"></div>
+        <div class="van-photo-wrap"><img src="https://wsfv-llc.github.io/Patriot-Transportation/telluride.jpg" alt="Our vehicle" class="telluride-img"></div>
       </div>
-      <div class="van-photo-wrap">
-        <img src="https://wsfv-llc.github.io/Patriot-Transportation/telluride.jpg" alt="Our Vehicle" class="telluride-img">
-      </div>
-    </div>
-    <div class="driver-info">
-      <div class="driver-name">Jason Nedoroscik</div>
-      <div class="driver-title">Veteran Owner &amp; Operator</div>
-      <div class="driver-tagline">Driven by Service. Committed to Excellence. Focused on You.</div>
-    </div>
-  </div>
-
-  <!-- Login Screen -->
-  <div id="login-screen" class="card">
-    <div class="login-section">
-      <div class="field">
-        <label>Enter Your Phone Number</label>
-        <input type="tel" id="phone_login" placeholder="(555) 555-5555" maxlength="10">
-      </div>
-      <button class="btn btn-primary" onclick="login()">Continue →</button>
-      <p style="text-align:center; margin-top:20px; font-size:13px; color:rgba(255,255,255,0.4);">
-        Questions? Call <a href="tel:+12109606034" style="color:#c8952a; font-weight:600;">210-960-6034</a>
-      </p>
-      <div class="qr-section">
-        <div class="qr-label">Share this app with a friend</div>
-        <img src="https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=https://wsfv-llc.github.io/Patriot-Transportation/&color=c8952a&bgcolor=0a0a0a&margin=6" alt="QR Code" style="width:140px; height:140px; border:2px solid #c8952a; border-radius:8px;">
+      <div class="driver-info">
+        <div class="driver-name">Jason Nedoroscik</div>
+        <div class="driver-title">Veteran Owner &amp; Operator</div>
+        <div class="driver-tagline">Driven by Service. Committed to Excellence. Focused on You.</div>
       </div>
     </div>
   </div>
-
-  <!-- Main App -->
-  <div id="main-app" class="card hidden">
-    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
-      <div>
-        <div style="font-family:'Oswald',sans-serif; font-size:20px; font-weight:700; color:white; letter-spacing:1px;">PATRIOT TRANSPORTATION</div>
-        <div style="font-size:12px; color:rgba(255,255,255,0.4); text-transform:uppercase; letter-spacing:1px;">Welcome back!</div>
-      </div>
-      <button class="logout-btn" onclick="logout()">Change #</button>
-    </div>
-
-    <div class="tabs">
-      <button class="tab active" onclick="showTab('book')">Book a Ride</button>
-      <button class="tab" onclick="showTab('rides')">My Rides</button>
-    </div>
-
-    <!-- Book Tab -->
-    <div id="book-tab">
-      <div id="error-message" class="error hidden"></div>
-
-      <form id="booking-form">
-        <div class="field">
-          <label>Full Name *</label>
-          <input type="text" id="client_name" required placeholder="First and last name">
-        </div>
-        <div class="field">
-          <label>Email *</label>
-          <input type="email" id="client_email" required placeholder="your@email.com">
-        </div>
-        <div class="row">
-          <div class="field">
-            <label>Pickup Date *</label>
-            <input type="date" id="pickup_date" required>
-          </div>
-          <div class="field">
-            <label>Pickup Time *</label>
-            <input type="time" id="pickup_time" required>
-          </div>
-        </div>
-        <div class="field">
-          <label>Pickup Address *</label>
-          <input type="text" id="pickup_address" required placeholder="e.g., 123 Main St, San Antonio or Chick-fil-A, Cibolo">
-        </div>
-        <div class="field">
-          <label>Drop-off Address *</label>
-          <input type="text" id="dropoff_address" required placeholder="e.g., San Antonio Airport or 456 Oak Ave, San Antonio">
-        </div>
-        <div class="row">
-          <div class="field">
-            <label>Passengers *</label>
-            <input type="number" id="passengers" min="1" max="7" required placeholder="1 to 7">
-          </div>
-          <div class="field">
-            <label>Luggage *</label>
-            <select id="luggage_type" required>
-              <option value="">Select...</option>
-              <option value="No luggage — personal items only">No luggage — personal items only</option>
-              <option value="Small load — 1 to 2 standard bags">Small load — 1 to 2 standard bags</option>
-              <option value="Medium load — 3 to 4 bags or one large item">Medium load — 3 to 4 bags</option>
-              <option value="Heavy load — 5 or more bags">Heavy load — 5+ bags</option>
-            </select>
-          </div>
-        </div>
-        <div class="field">
-          <label>Special Instructions</label>
-          <textarea id="notes" rows="2" placeholder="If airport pickup, please include flight number"></textarea>
-        </div>
-        <button type="button" class="btn btn-primary" id="quote-btn" onclick="calculateQuote()">Get My Quote →</button>
-      </form>
-
-      <div id="quote-section" class="hidden">
-        <div class="quote-box">
-          <div class="quote-label">Your Ride Quote</div>
-          <div class="quote-price" id="quote-price">$--</div>
-          <div class="quote-note">Based on $2.25/mile · <span id="quote-miles">--</span> miles</div>
-        </div>
-        <button type="button" class="btn btn-primary" id="submit-btn" onclick="submitRequest()">Submit Booking Request →</button>
-      </div>
-
-      <div id="success-section" class="success hidden">
-        <h2>✓ Request Submitted!</h2>
-        <p>We've received your booking request and will confirm shortly.</p>
-        <button class="btn btn-primary" onclick="resetBookingForm()" style="margin-top:16px;">Book Another Ride</button>
-      </div>
-    </div>
-
-    <!-- Rides Tab -->
-    <div id="rides-tab" class="hidden">
-      <div id="balance-section" class="hidden" style="padding:20px; margin-bottom:20px;">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
-          <div>
-            <div style="font-size:13px; color:#c8952a; font-weight:700; text-transform:uppercase; letter-spacing:1px;">Outstanding Balance</div>
-            <div id="total-balance" style="font-size:32px; font-weight:700; color:white; font-family:'Oswald',sans-serif;">$0.00</div>
-            <div style="font-size:12px; color:rgba(255,255,255,0.5); margin-top:4px;"><span id="unpaid-count">0</span> unpaid rides</div>
-          </div>
-        </div>
-        <div style="display:flex; gap:8px; flex-wrap:wrap;">
-          <a id="balance-cashapp-link" href="https://cash.app/$JasonNed" class="payment-link" target="_blank" style="flex:1; min-width:150px;">Pay Total with CashApp</a>
-          <a id="balance-venmo-link" href="https://venmo.com/u/Jason-Nedoroscik" class="payment-link" target="_blank" style="flex:1; min-width:150px;">Pay Total with Venmo</a>
-          <a id="balance-paypal-link" href="https://www.paypal.com/ncp/payment/GGLFF2L9XDA4E" class="payment-link" target="_blank" style="flex:1; min-width:150px;">Pay Total with Credit Card / PayPal</a>
-        </div>
-        <p style="font-size:11px; color:rgba(200,149,42,0.6); margin-top:12px; text-align:center;">Include "Patriot Transportation" in the payment note</p>
-      </div>
-      <div id="rides-list" class="loading" style="color:rgba(255,255,255,0.4);">Loading your rides...</div>
-    </div>
-  </div>
-
-  <!-- SERVICES -->
-  <div class="services">
-    <div class="service-item">
-      <div class="service-icon">✈️</div>
-      <div class="service-label">Airport<br>Transfers</div>
-    </div>
-    <div class="service-item">
-      <div class="service-icon">💼</div>
-      <div class="service-label">Business<br>Travel</div>
-    </div>
-    <div class="service-item">
-      <div class="service-icon">🎉</div>
-      <div class="service-label">Special<br>Events</div>
-    </div>
-    <div class="service-item">
-      <div class="service-icon">🛣️</div>
-      <div class="service-label">Long Distance<br>Rides</div>
-    </div>
-    <div class="service-item">
-      <div class="service-icon">🛡️</div>
-      <div class="service-label">Safe &amp;<br>On Time</div>
-    </div>
-  </div>
-
-  <div class="footer-stars">★ ★ ★ ★ ★</div>
-
+  <div class="brand hidden" id="brand"><b>PATRIOT TRANSPORTATION</b></div>
+  <div id="flash" class="hidden" role="alert"></div>
+  <div id="screen"></div>
+  <div class="notyou" id="notyou"></div>
 </div>
-
-<!-- Google Maps JavaScript API -->
+<script>window.initMaps=function(){window.__mapsLoaded=true;if(window.__onMaps)window.__onMaps();};</script>
 <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCiU4H9v1LWki-x5rjO0CMPUtAO35GW1Tc&libraries=places&callback=initMaps" async defer></script>
-
 <script type="module">
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
-import { getFirestore, collection, query, where, orderBy, onSnapshot, doc, updateDoc, addDoc, serverTimestamp, getDoc } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+import { getFirestore, collection, query, where, orderBy, onSnapshot, doc, updateDoc, addDoc, setDoc, serverTimestamp, getDoc } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
 
-const firebaseConfig = {
+const app = initializeApp({
   apiKey: "AIzaSyCU5gio9iuDF1wkY8lRJVN0ULHQxgujluM",
   authDomain: "patriot-transportation.firebaseapp.com",
   projectId: "patriot-transportation",
   storageBucket: "patriot-transportation.firebasestorage.app",
   messagingSenderId: "296569517357",
   appId: "1:296569517357:web:61b82f2d2310c3bf5bcfa4"
-};
-
-const app = initializeApp(firebaseConfig);
+});
 const db = getFirestore(app);
 
-window.db = db;
-window.addDoc = addDoc;
-window.collection = collection;
-window.serverTimestamp = serverTimestamp;
-window.query = query;
-window.where = where;
-window.orderBy = orderBy;
-window.onSnapshot = onSnapshot;
-window.updateDoc = updateDoc;
-window.doc = doc;
-window.getDoc = getDoc;
-</script>
-
-<script>
+// ── Constants ────────────────────────────────────────────────────────────
+const JASON_PHONE = '210-960-6034';
 const PRICE_PER_MILE = 2.25;
+const NEW_REQUEST_HOOK = 'https://hook.us2.make.com/jzkgfy68268az8wz34ylv8nyb2vxbcof';
+const CALENDAR_HOOK = 'https://hook.us2.make.com/zlo5peda4fwlrz2nk7m1hakc4dxjblw1';
+const AIRPORT = { key: 'airport', name: 'San Antonio Airport', addr: 'San Antonio International Airport, San Antonio, TX' };
+const BAGS = [
+  { label: 'None', value: 'No luggage — personal items only' },
+  { label: '1 or 2 bags', value: 'Small load — 1 to 2 standard bags' },
+  { label: '3 or 4 bags', value: 'Medium load — 3 to 4 bags or one large item' },
+  { label: '5 or more', value: 'Heavy load — 5 or more bags' }
+];
+const IS_MOBILE = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent) || (navigator.maxTouchPoints > 1 && /Mac/.test(navigator.platform));
+const LS_PHONE = 'patriot_phone';
 
-// ── FLIGHT DETECTION ──────────────────────────────────────────────────────
-const AIRLINE_MAP = {
-  'delta': 'DAL', 'dl': 'DAL', 'delta air lines': 'DAL', 'delta airlines': 'DAL',
-  'united': 'UAL', 'ua': 'UAL', 'united airlines': 'UAL', 'united air lines': 'UAL',
-  'american': 'AAL', 'aa': 'AAL', 'american airlines': 'AAL', 'american air lines': 'AAL',
-  'southwest': 'SWA', 'wn': 'SWA', 'sw': 'SWA', 'swa': 'SWA', 'southwest airlines': 'SWA',
-  'alaska': 'ASA', 'as': 'ASA', 'ak': 'ASA', 'alaska airlines': 'ASA',
-  'jetblue': 'JBU', 'b6': 'JBU', 'jb': 'JBU', 'jetblue airways': 'JBU', 'jetblue airlines': 'JBU',
-  'spirit': 'NKS', 'nk': 'NKS', 'spirit airlines': 'NKS',
-  'frontier': 'FFT', 'f9': 'FFT', 'frontier airlines': 'FFT',
-  'allegiant': 'AAY', 'g4': 'AAY', 'allegiant air': 'AAY', 'allegiant airlines': 'AAY',
-  'sun country': 'SCX', 'sy': 'SCX', 'sun country airlines': 'SCX'
+// ── State ────────────────────────────────────────────────────────────────
+const st = {};          // booking in progress + screen
+let phone = '';
+let profile = null;     // { name, email, places:[{key,name,addr}] }
+let rides = [];         // this customer's rides (live)
+let unsub = null;
+let editKey = null, delKey = null, pickEdit = false, savedMsg = '', pricing = false, priceError = '', cancelId = null, sending = false;
+const screen = document.getElementById('screen');
+
+function fresh() {
+  Object.assign(st, { step: 'signin', from: null, to: null, typed: '', typedName: '', date: '', time: '09:00', riders: 1, bags: 0, notes: '', price: 0, miles: 0, mins: 0 });
+  savedMsg = ''; pickEdit = false; pricing = false; priceError = ''; sending = false;
+}
+fresh();
+window.st = st;
+
+// ── Helpers ──────────────────────────────────────────────────────────────
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const fmtDate = d => d ? new Date(d + 'T12:00').toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' }) : '';
+const fmtTime = t => { if (!t || !t.includes(':')) return t || ''; const [h, m] = t.split(':').map(Number); return ((h % 12) || 12) + ':' + String(m).padStart(2, '0') + ' ' + (h >= 12 ? 'PM' : 'AM'); };
+const iso = n => { const d = new Date(); d.setDate(d.getDate() + n); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); };
+const normPhone = p => String(p || '').replace(/\D/g, '').slice(-10);
+const firstName = () => ((profile && profile.name) || '').trim().split(/\s+/)[0] || '';
+const home = () => (profile && profile.places || []).find(p => p.key === 'home');
+const places = () => (profile && profile.places) || [];
+const fare = miles => Math.max(5, Math.round(miles * PRICE_PER_MILE));
+const callBtn = () => `<a class="big call" href="tel:+12109606034">Call Jason<span class="num">${JASON_PHONE}</span></a>`;
+function placeName(addr) { const p = places().find(x => x.addr === addr); return p ? p.name : String(addr || '').split(',')[0]; }
+function suggestName() {
+  if (st.typedName) return st.typedName;
+  const t = st.typed.trim(); return t.includes(',') ? t.split(',')[0].trim() : t;
+}
+function flash(text) {
+  const el = document.getElementById('flash'); el.textContent = text; el.classList.remove('hidden');
+  clearTimeout(flash.t); flash.t = setTimeout(() => el.classList.add('hidden'), 6000);
+}
+
+// Plain-text notes with a FlightAware link when a flight number is spotted
+const AIRLINE_MAP = { delta: 'DAL', dl: 'DAL', united: 'UAL', ua: 'UAL', american: 'AAL', aa: 'AAL', southwest: 'SWA', wn: 'SWA', sw: 'SWA', swa: 'SWA', alaska: 'ASA', as: 'ASA', ak: 'ASA', jetblue: 'JBU', b6: 'JBU', jb: 'JBU', spirit: 'NKS', nk: 'NKS', frontier: 'FFT', f9: 'FFT', allegiant: 'AAY', g4: 'AAY', 'sun country': 'SCX', sy: 'SCX' };
+function formatNotes(notes) {
+  const re = /\b(delta|dl|united|ua|american|aa|southwest|wn|sw|swa|alaska|as|ak|jetblue|b6|jb|spirit|nk|frontier|f9|allegiant|g4|sun country|sy)\s*(?:airlines?|airways?|air lines?)?\s*(?:flight|flt)?\s*(\d{1,4}[a-z]?)\b/gi;
+  let out = '', last = 0, m;
+  while ((m = re.exec(notes))) {
+    const code = AIRLINE_MAP[m[1].toLowerCase()]; if (!code) continue;
+    const id = code + m[2].toUpperCase();
+    out += esc(notes.slice(last, m.index + m[0].length)) + ` <a href="https://flightaware.com/live/flight/${id}" target="_blank" rel="noopener" style="color:var(--maroon);font-weight:700">✈ Track ${id}</a>`;
+    last = m.index + m[0].length;
+  }
+  return out + esc(notes.slice(last));
+}
+
+// ── Google Maps (address search + distance) ──────────────────────────────
+let distanceService = null;
+function mapsLoaded() { distanceService = new google.maps.DistanceMatrixService(); attachAutocomplete(); }
+window.__onMaps = mapsLoaded; if (window.__mapsLoaded) mapsLoaded();
+function mapsReady() { return !!(window.google && google.maps && google.maps.places); }
+function auto(el, onPick) {
+  if (!el || !mapsReady() || el.dataset.ac) return;
+  el.dataset.ac = '1';
+  const ac = new google.maps.places.Autocomplete(el, { componentRestrictions: { country: 'us' }, fields: ['formatted_address', 'name', 'types'] });
+  ac.addListener('place_changed', () => {
+    const p = ac.getPlace(); if (!p || !p.formatted_address) return;
+    const biz = (p.types || []).some(t => ['establishment', 'point_of_interest', 'airport', 'hospital'].includes(t)) ? p.name : '';
+    el.value = p.formatted_address; onPick(p.formatted_address, biz);
+  });
+}
+function attachAutocomplete() {
+  auto(document.getElementById('typed'), (a, n) => { st.to = null; st.typed = a; st.typedName = n || ''; const b = document.getElementById('next1'); if (b) b.disabled = false; });
+  auto(document.getElementById('fromTyped'), (a, n) => pickFromTyped(a, n));
+  auto(document.getElementById('homeAddr'), a => { st.homeAddr = a; });
+}
+
+// ── Profile (name, email, saved places) ──────────────────────────────────
+const profKey = p => 'patriot_profile_' + p;
+async function loadProfile() {
+  let p = null;
+  try { const s = await getDoc(doc(db, 'clients', phone)); if (s.exists()) p = s.data(); } catch (e) { console.log('profile read', e.message); }
+  if (!p) { try { p = JSON.parse(localStorage.getItem(profKey(phone)) || 'null'); } catch (e) { } }
+  profile = p;
+}
+async function saveProfile() {
+  try { localStorage.setItem(profKey(phone), JSON.stringify(profile)); } catch (e) { }
+  try { await setDoc(doc(db, 'clients', phone), { ...profile, phone, updated_at: new Date() }); }
+  catch (e) { console.log('profile save', e.message); }
+}
+
+// ── Rides (live) ─────────────────────────────────────────────────────────
+function watchRides() {
+  if (unsub) unsub();
+  const q = query(collection(db, 'ride_requests'), where('client_phone', '==', phone), orderBy('created_at', 'desc'));
+  unsub = onSnapshot(q, snap => {
+    rides = []; snap.forEach(d => rides.push({ id: d.id, data: d.data() }));
+    if (st.step === 'home' || st.step === 'rides') render();
+  }, err => console.log('rides', err.message));
+}
+const balance = () => rides.filter(r => r.data.status === 'completed').reduce((s, r) => s + (r.data.final_price || 0), 0);
+
+// ── Sign in ──────────────────────────────────────────────────────────────
+async function startSession(p, remember) {
+  phone = p;
+  if (remember && IS_MOBILE) { try { localStorage.setItem(LS_PHONE, phone); } catch (e) { } }
+  screen.innerHTML = '<div class="card"><h2>One moment…</h2></div>';
+  watchRides();
+  await loadProfile();
+  if (!profile || !profile.name || !profile.email || !home()) {
+    // Brand-new customer, or an older customer who has not set up yet: borrow from their last ride
+    let last = null;
+    try { const s = await new Promise((res, rej) => { const u = onSnapshot(query(collection(db, 'ride_requests'), where('client_phone', '==', phone), orderBy('created_at', 'desc')), x => { res(x); u(); }, rej); }); if (!s.empty) last = s.docs[0].data(); } catch (e) { }
+    st.setup = { name: (profile && profile.name) || (last && last.client_name) || '', email: (profile && profile.email) || (last && last.client_email) || '', home: (home() && home().addr) || '' };
+    st.homeAddr = st.setup.home;
+    return go('setup');
+  }
+  go('home');
+}
+function signIn() {
+  const p = normPhone(document.getElementById('phone').value);
+  if (p.length !== 10) { flash('Please type your 10-digit phone number, like 210 555 1234.'); return; }
+  startSession(p, true);
+}
+function notYou() {
+  try { localStorage.removeItem(LS_PHONE); } catch (e) { }
+  if (unsub) unsub(); unsub = null;
+  phone = ''; profile = null; rides = []; fresh(); render();
+}
+async function saveSetup() {
+  const name = document.getElementById('sname').value.trim(), email = document.getElementById('semail').value.trim(), addr = (document.getElementById('homeAddr').value || '').trim();
+  if (!name) return flash('Please type your name.');
+  if (!/^\S+@\S+\.\S+$/.test(email)) return flash('Please type your email address, like name@example.com. We send your confirmation there.');
+  if (!addr) return flash('Please type the address where we pick you up.');
+  const keep = (profile && profile.places || []).filter(p => p.key !== 'home');
+  profile = { name, email, places: [{ key: 'home', name: 'My home', addr }, ...(keep.length || (profile && profile.places) ? keep : [AIRPORT])] };
+  await saveProfile();
+  go('home');
+}
+
+// ── Navigation / render ──────────────────────────────────────────────────
+function go(n) { st.step = n; render(); window.scrollTo(0, 0); }
+function render() {
+  const s = st.step;
+  const welcome = s === 'signin';
+  document.body.classList.toggle('welcome', welcome);
+  document.getElementById('hero').classList.toggle('hidden', !welcome);
+  document.getElementById('brand').classList.toggle('hidden', welcome);
+  document.getElementById('notyou').innerHTML = (phone && s === 'home') ? `<button onclick="notYou()">Not ${esc(firstName() || 'you')}? Tap here</button>` : '';
+  const nm = typeof s === 'number';
+  const bar = nm ? `<div class="step">Step ${s} of 4</div><div class="bar"><i style="width:${s * 25}%"></i></div>` : '';
+  screen.innerHTML = (VIEWS[nm ? 'book' + s : s] || VIEWS.home)(bar);
+  attachAutocomplete();
+}
+const VIEWS = {};
+
+VIEWS.signin = () => `<div class="card"><h1>Welcome</h1><p class="lead">Type your phone number to get started.</p>
+  <div class="label" style="margin-top:0">Your phone number</div>
+  <input class="txt" id="phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="210 555 1234" onkeydown="if(event.key==='Enter')signIn()">
+  <button class="big main" style="margin-top:18px" onclick="signIn()">Continue</button>
+  ${callBtn()}</div>
+  <div class="qr"><div class="qr-label">Share this app with a friend</div><img src="https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=https://wsfv-llc.github.io/Patriot-Transportation/&color=c8952a&bgcolor=0a0a0a&margin=6" alt="QR code to share this app" width="140" height="140"></div>`;
+
+VIEWS.setup = () => `<div class="card"><h1>Let’s get started</h1><p class="lead">We only ask this one time.</p>
+  <div class="label" style="margin-top:0">Your name</div><input class="txt" id="sname" autocomplete="name" value="${esc(st.setup.name)}">
+  <div class="label">Your email</div><input class="txt" id="semail" type="email" inputmode="email" autocomplete="email" value="${esc(st.setup.email)}">
+  <div class="label">Where should we pick you up? (your home)</div><input class="txt" id="homeAddr" autocomplete="off" placeholder="Street address and city" value="${esc(st.setup.home)}">
+  <button class="big main" style="margin-top:18px" onclick="saveSetup()">Save and continue</button></div>`;
+
+VIEWS.home = () => {
+  const owe = balance();
+  return `<div class="card"><h1>Welcome back, ${esc(firstName())}</h1><p class="lead">What would you like to do?</p>
+  ${owe > 0 ? `<button class="owe" onclick="go('rides')"><b>You have $${owe.toFixed(2)} to pay</b><span>Tap to see how to pay</span></button>` : ''}
+  <button class="big main" onclick="startBooking()">Book a ride</button>
+  <button class="big alt" onclick="go('rides')">My rides</button>
+  ${callBtn()}
+  <div style="text-align:center"><button class="textlink" onclick="editKey=null;delKey=null;go('places')">My saved places</button></div></div>`;
 };
 
-function formatNotes(notes) {
-  if (!notes) return '';
-  const inlinePattern = /\b(delta|dl|united|ua|american|aa|southwest|wn|sw|swa|alaska|as|ak|jetblue|b6|jb|spirit|nk|frontier|f9|allegiant|g4|sun country|sy)\s*(?:airlines?|airways?|air lines?)?\s*(?:flight|flt)?\s*(\d{1,4}[a-z]?)\b/gi;
-  let matched = false;
-  const formatted = notes.replace(inlinePattern, (match, airline, num) => {
-    const code = AIRLINE_MAP[airline.toLowerCase().replace(/\s*(airlines?|airways?|air lines?|air)\s*/gi, '').trim()];
-    if (!code) return match;
-    const flightId = code + num.toUpperCase();
-    const url = 'https://flightaware.com/live/flight/' + flightId;
-    matched = true;
-    return match + ' <a href="' + url + '" target="_blank" style="color:#c8952a; font-weight:700; text-decoration:underline;">✈ Track ' + flightId + '</a>';
-  });
-  return matched ? formatted : notes;
+// Step 1 — where
+VIEWS.book1 = bar => {
+  const from = st.from;
+  const ps = places();
+  return `<div class="card"><button class="back" onclick="go('home')">← Back</button>${bar}
+  <h2>Where are you going?</h2>
+  <div class="label">Pick up from</div>
+  ${pickEdit ? `${ps.map(p => `<button class="place ${from && from.addr === p.addr ? 'sel' : ''}" onclick="pickFrom('${p.key}')"><b>${esc(p.name)}</b><span>${esc(p.addr)}</span></button>`).join('')}
+    <input class="txt" id="fromTyped" placeholder="Somewhere else? Type the address" onchange="pickFromTyped(this.value)">`
+    : `<button class="place sel" onclick="pickEdit=true;render()"><b>${esc(from.name)}</b><span>${esc(from.addr)}</span><span class="chg">Not here? Tap to change</span></button>`}
+  <div class="label">Going to</div>
+  ${ps.filter(p => p.addr !== from.addr).map(p => `<button class="place ${st.to && st.to.key === p.key ? 'sel' : ''}" onclick="pickTo('${p.key}')"><b>${esc(p.name)}</b><span>${esc(p.addr)}</span></button>`).join('')}
+  <div class="label">${ps.length > 1 ? 'Somewhere else? Type the address' : 'Type the address'}</div>
+  <input class="txt" id="typed" autocomplete="off" placeholder="Name or address, and the city" value="${esc(st.typed)}" oninput="typedChanged(this.value)">
+  <button class="big main" id="next1" style="margin-top:18px" ${(st.to || st.typed) ? '' : 'disabled'} onclick="go(2)">Next</button></div>`;
+};
+
+// Step 2 — when
+VIEWS.book2 = bar => {
+  const [h, m] = st.time.split(':').map(Number);
+  return `<div class="card"><button class="back" onclick="go(1)">← Back</button>${bar}
+  <h2>When do you need the ride?</h2>
+  <div class="row"><button class="pill ${st.date === iso(0) ? 'sel' : ''}" onclick="st.date=iso(0);render()">Today</button><button class="pill ${st.date === iso(1) ? 'sel' : ''}" onclick="st.date=iso(1);render()">Tomorrow</button></div>
+  <div class="label">Or pick another day</div>
+  <input class="txt" type="date" id="d" value="${st.date}" min="${iso(0)}" onchange="st.date=this.value;render()">
+  <div class="label">What time should we pick you up?</div>
+  <div class="row">
+    <select class="sel" id="hh" onchange="setT()">${[...Array(12)].map((_, i) => `<option value="${i + 1}" ${((h % 12) || 12) === i + 1 ? 'selected' : ''}>${i + 1}</option>`).join('')}</select>
+    <select class="sel" id="mm" onchange="setT()">${['00', '15', '30', '45'].map(x => `<option ${String(m).padStart(2, '0') === x ? 'selected' : ''}>${x}</option>`).join('')}</select>
+    <select class="sel" id="ap" onchange="setT()"><option ${h < 12 ? 'selected' : ''}>AM</option><option ${h >= 12 ? 'selected' : ''}>PM</option></select>
+  </div>
+  <p class="lead" style="margin-top:12px">Pickup: <b>${st.date ? fmtDate(st.date) : 'choose a day'}</b> at <b>${fmtTime(st.time)}</b></p>
+  <button class="big main" ${st.date ? '' : 'disabled'} onclick="go(3)">Next</button></div>`;
+};
+
+// Step 3 — who + bags + note
+VIEWS.book3 = bar => `<div class="card"><button class="back" onclick="go(2)">← Back</button>${bar}
+  <h2>Who is riding?</h2>
+  <div class="label">How many people?</div>
+  <div class="counter"><button onclick="st.riders=Math.max(1,st.riders-1);render()" aria-label="Fewer people">−</button><div class="n">${st.riders}</div><button onclick="st.riders=Math.min(7,st.riders+1);render()" aria-label="More people">+</button></div>
+  <div class="label">Are you bringing bags?</div>
+  <div class="row2">${BAGS.map((b, i) => `<button class="pill ${st.bags === i ? 'sel' : ''}" onclick="st.bags=${i};render()">${b.label}</button>`).join('')}</div>
+  <div class="label">Anything Jason should know? (optional)</div>
+  <textarea class="txt" id="notes" rows="4" placeholder="Walker or wheelchair, flight number, gate code…" oninput="st.notes=this.value">${esc(st.notes)}</textarea>
+  <button class="big main" style="margin-top:18px" onclick="st.notes=document.getElementById('notes').value;go(4)">Next</button></div>`;
+
+// Step 4 — check and send (price is worked out here)
+VIEWS.book4 = bar => {
+  const to = st.to ? st.to : { name: suggestName(), addr: st.typed.trim() };
+  const priceBlock = pricing ? `<div class="price"><small style="font-size:18px;color:var(--ink2)">Working out your price…</small></div>`
+    : priceError ? `<div class="price err">${esc(priceError)}</div>`
+      : `<div class="price"><small style="font-size:17px;color:var(--ink2)">Your price (${st.miles.toFixed(1)} miles)</small><b>$${st.price.toFixed(2)}</b></div>`;
+  return `<div class="card"><button class="back" onclick="go(3)">← Back</button>${bar}
+  <h2>Does this look right?</h2>
+  <div class="sum">
+    <div><span><small>From</small>${esc(st.from.name)}</span><a onclick="go(1)">Change</a></div>
+    <div><span><small>To</small>${esc(to.name)}</span><a onclick="go(1)">Change</a></div>
+    <div><span><small>Pickup</small>${fmtDate(st.date)}<br>${fmtTime(st.time)}</span><a onclick="go(2)">Change</a></div>
+    <div><span><small>Riders</small>${st.riders} ${st.riders === 1 ? 'person' : 'people'}, bags: ${esc(BAGS[st.bags].label.toLowerCase())}${st.notes.trim() ? '<br>Note: ' + esc(st.notes.trim()) : ''}</span><a onclick="go(3)">Change</a></div>
+  </div>
+  ${priceBlock}
+  <button class="big go" ${(pricing || priceError || sending) ? 'disabled' : ''} onclick="sendRequest()">${sending ? 'Sending…' : 'Send my request'}</button>
+  <p class="lead" style="text-align:center;margin:0">Jason will confirm your ride. Nothing is charged until after your ride.</p></div>`;
+};
+
+// Done
+VIEWS.book5 = () => `<div class="card done"><div class="check">✓</div><h1>Request sent!</h1>
+  <p class="lead">Jason will confirm your ride soon, and you will get an email when he does.</p>
+  ${savePromptHtml()}
+  <button class="big alt" onclick="returnTrip()">Book the ride back</button>
+  <button class="big main" onclick="fresh();go('home')">Back to start</button>
+  ${callBtn()}</div>`;
+
+// My rides
+const STATUS = { pending: ['Waiting for Jason', 'wait'], quoted: ['Needs your OK', 'wait'], confirmed: ['Confirmed', 'ok'], completed: ['Finished — payment due', 'wait'], paid: ['Paid', 'ok'], declined: ['Not available', 'bad'], cancelled: ['Cancelled', 'bad'] };
+const PAY = `<a class="pay" href="https://cash.app/$JasonNed" target="_blank" rel="noopener">Pay with Cash App</a><a class="pay" href="https://venmo.com/u/Jason-Nedoroscik" target="_blank" rel="noopener">Pay with Venmo</a><a class="pay" href="https://www.paypal.com/ncp/payment/GGLFF2L9XDA4E" target="_blank" rel="noopener">Pay by card (PayPal)</a><p class="small">Please put “Patriot Transportation” in the note. You can also pay cash in the car.</p>`;
+const TIP = `<div class="small" style="margin:12px 0 6px"><b>Add a tip? Thank you!</b></div><a class="pay" href="https://cash.app/$JasonNed" target="_blank" rel="noopener">Tip with Cash App</a><a class="pay" href="https://venmo.com/u/Jason-Nedoroscik" target="_blank" rel="noopener">Tip with Venmo</a><a class="pay" href="https://www.paypal.com/ncp/payment/GGLFF2L9XDA4E" target="_blank" rel="noopener">Tip with PayPal</a>`;
+function rideCard(r) {
+  const d = r.data, id = r.id, st_ = STATUS[d.status] || [d.status, 'wait'];
+  const amt = (d.final_price != null ? d.final_price : d.quoted_price) || 0;
+  let extra = '';
+  if (d.status === 'pending') extra = `<p class="small">Jason will confirm soon. Need to change something? Please call him.</p>`;
+  if (d.status === 'quoted') extra = `<div class="amt">$${amt.toFixed(2)}</div><button class="big go" style="min-height:58px" onclick="confirmRide('${id}')">Yes, book this ride</button>`;
+  if (d.status === 'confirmed') extra = `<div class="amt">$${amt.toFixed(2)}</div>${PAY}${cancelId === id
+    ? `<div class="ride" style="margin:12px 0 0"><b>Cancel this ride?</b><div class="row" style="margin-top:12px"><button class="pill red" onclick="cancelRide('${id}')">Yes, cancel it</button><button class="pill" onclick="cancelId=null;render()">Keep it</button></div></div>`
+    : `<button class="mini red" onclick="cancelId='${id}';render()">Cancel this ride</button>`}`;
+  if (d.status === 'completed') extra = `<div class="amt">$${amt.toFixed(2)} due</div>${PAY}`;
+  if (d.status === 'paid') extra = `<div class="amt">Paid $${amt.toFixed(2)}</div><a class="big alt" style="min-height:58px;font-size:20px;text-decoration:none;display:flex;align-items:center;justify-content:center" href="receipt.html?id=${id}" target="_blank" rel="noopener">View receipt</a>${TIP}`;
+  if (d.status === 'declined') extra = `<p class="small">Jason couldn’t take this one. Please call him or send a new request.</p>`;
+  return `<div class="ride"><div class="when">${esc(fmtDate(d.pickup_date))}, ${esc(fmtTime(d.pickup_time))}<span class="chip ${st_[1]}">${esc(st_[0])}</span></div>
+    <div style="margin:6px 0 4px">${esc(placeName(d.pickup_address))} → ${esc(placeName(d.dropoff_address))}</div>
+    ${d.notes ? `<div class="small">${formatNotes(d.notes)}</div>` : ''}
+    ${extra}
+    <button class="big alt" style="min-height:58px;font-size:20px;margin:12px 0 0" onclick="bookAgain('${id}')">Book this ride again</button></div>`;
 }
+VIEWS.rides = () => {
+  const pr = { pending: 1, quoted: 2, confirmed: 3, completed: 4, declined: 5, paid: 6, cancelled: 7 };
+  const list = [...rides].sort((a, b) => ((pr[a.data.status] || 99) - (pr[b.data.status] || 99)) || ((b.data.created_at && b.data.created_at.seconds || 0) - (a.data.created_at && a.data.created_at.seconds || 0)));
+  return `<div class="card"><button class="back" onclick="go('home')">← Back</button><h2>My rides</h2>
+  ${list.length ? list.map(rideCard).join('') : '<p class="lead">No rides yet. Tap Back, then Book a ride.</p>'}
+  <p class="lead">Need to change a ride? Please call Jason.</p>${callBtn()}</div>`;
+};
 
-let currentPhone = '';
-let quotedPrice = 0;
-let tripMiles = 0;
-let tripDurationMinutes = 0;
-let distanceService = null;
+// Saved places
+VIEWS.places = () => {
+  const list = places().filter(p => p.key !== 'home');
+  return `<div class="card"><button class="back" onclick="go('home')">← Back</button><h2>My saved places</h2>
+  ${list.length ? list.map(p => {
+    if (editKey === p.key) return `<div class="ride"><div class="label" style="margin-top:0">New name</div><input class="txt" id="rn" value="${esc(p.name)}"><div class="row" style="margin-top:12px"><button class="pill" onclick="renamePlace('${p.key}')">Save</button><button class="pill" onclick="editKey=null;render()">Cancel</button></div></div>`;
+    if (delKey === p.key) return `<div class="ride"><b>Delete “${esc(p.name)}”?</b><div class="row" style="margin-top:12px"><button class="pill red" onclick="delPlace('${p.key}')">Yes, delete</button><button class="pill" onclick="delKey=null;render()">Keep it</button></div></div>`;
+    return `<div class="ride"><b>${esc(p.name)}</b><div style="color:var(--ink2);font-size:17px">${esc(p.addr)}</div><div style="margin-top:4px"><button class="mini" onclick="editKey='${p.key}';delKey=null;render()">Rename</button><button class="mini red" onclick="delKey='${p.key}';editKey=null;render()">Delete</button></div></div>`;
+  }).join('') : '<p class="lead">You have no saved places yet.</p>'}
+  <p class="lead">To add a place, book a ride to it and tap Save place afterward.</p></div>`;
+};
 
-function initMaps() {
-  distanceService = new google.maps.DistanceMatrixService();
+// ── Booking actions ──────────────────────────────────────────────────────
+function startBooking() { fresh(); st.step = 1; st.from = home(); phoneKeep(); render(); window.scrollTo(0, 0); }
+function phoneKeep() { /* st reset keeps phone/profile in module scope */ }
+function typedChanged(v) { st.typed = v; st.to = null; st.typedName = ''; const b = document.getElementById('next1'); if (b) b.disabled = !v.trim(); }
+function pickFrom(k) { st.from = places().find(p => p.key === k); if (st.to && st.to.addr === st.from.addr) st.to = null; pickEdit = false; render(); }
+function pickFromTyped(v, name) { v = String(v || '').trim(); if (!v) return; st.from = { key: 't', name: name || v.split(',')[0].trim(), addr: v }; pickEdit = false; render(); }
+function pickTo(k) { st.to = places().find(p => p.key === k); st.typed = ''; st.typedName = ''; go(2); }
+function setT() { let h = +document.getElementById('hh').value % 12; if (document.getElementById('ap').value === 'PM') h += 12; st.time = String(h).padStart(2, '0') + ':' + document.getElementById('mm').value; render(); }
+const dest = () => st.to ? st.to : { name: suggestName(), addr: st.typed.trim() };
 
-  // Autocomplete on pickup address
-  const pickupInput = document.getElementById('pickup_address');
-  const pickupAuto = new google.maps.places.Autocomplete(pickupInput, {
-    componentRestrictions: { country: 'us' },
-    fields: ['formatted_address', 'name', 'geometry']
-  });
-  pickupAuto.addListener('place_changed', () => {
-    const place = pickupAuto.getPlace();
-    if (place.formatted_address) {
-      pickupInput.value = place.formatted_address;
+// Work out the price when step 4 opens
+const _go = go;
+go = function (n) { _go(n); if (n === 4) priceTrip(); };
+function priceTrip() {
+  const from = st.from.addr, to = dest().addr;
+  pricing = true; priceError = ''; render();
+  if (!distanceService && mapsReady()) distanceService = new google.maps.DistanceMatrixService();
+  if (!distanceService) { pricing = false; priceError = 'We couldn’t reach the map just now. Please check your internet and tap Back, then Next.'; return render(); }
+  const timer = setTimeout(() => { if (pricing) { pricing = false; priceError = 'This is taking too long. Please check your internet, then tap Back and Next. Or call Jason.'; render(); } }, 20000);
+  distanceService.getDistanceMatrix({ origins: [from], destinations: [to], travelMode: 'DRIVING', unitSystem: google.maps.UnitSystem.IMPERIAL }, (resp, status) => {
+    clearTimeout(timer); if (st.step !== 4) return;
+    pricing = false;
+    const el = resp && resp.rows && resp.rows[0] && resp.rows[0].elements[0];
+    if (status === 'OK' && el && el.status === 'OK') {
+      st.miles = el.distance.value / 1609.34; st.mins = Math.round(el.duration.value / 60); st.price = fare(st.miles);
+    } else {
+      priceError = 'We couldn’t find one of those addresses. Tap Change and add the city, like “Walgreens, Cibolo”.';
     }
-  });
-
-  // Autocomplete on dropoff address
-  const dropoffInput = document.getElementById('dropoff_address');
-  const dropoffAuto = new google.maps.places.Autocomplete(dropoffInput, {
-    componentRestrictions: { country: 'us' },
-    fields: ['formatted_address', 'name', 'geometry']
-  });
-  dropoffAuto.addListener('place_changed', () => {
-    const place = dropoffAuto.getPlace();
-    if (place.formatted_address) {
-      dropoffInput.value = place.formatted_address;
-    }
+    render();
   });
 }
-window.initMaps = initMaps;
 
-function login() {
-  const phone = document.getElementById('phone_login').value.trim();
-  if (!phone) { alert('Please enter your phone number'); return; }
-  currentPhone = phone;
-
-  const clientQuery = window.query(
-    window.collection(window.db, 'ride_requests'),
-    window.where('client_phone', '==', phone),
-    window.orderBy('created_at', 'desc')
-  );
-  window.onSnapshot(clientQuery, (snapshot) => {
-    if (!snapshot.empty) {
-      const lastRide = snapshot.docs[0].data();
-      document.getElementById('client_name').value = lastRide.client_name;
-      document.getElementById('client_email').value = lastRide.client_email;
-    }
-  }, { once: true });
-
-  document.getElementById('login-screen').classList.add('hidden');
-  document.getElementById('main-app').classList.remove('hidden');
-  loadRides();
-}
-
-function logout() {
-  currentPhone = '';
-  document.getElementById('phone_login').value = '';
-  document.getElementById('main-app').classList.add('hidden');
-  document.getElementById('login-screen').classList.remove('hidden');
-  resetBookingForm();
-}
-
-function showTab(tab) {
-  document.getElementById('book-tab').classList.toggle('hidden', tab !== 'book');
-  document.getElementById('rides-tab').classList.toggle('hidden', tab !== 'rides');
-  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-  event.target.classList.add('active');
-  if (tab === 'rides') loadRides();
-}
-
-async function calculateQuote() {
-  const name = document.getElementById('client_name').value.trim();
-  const email = document.getElementById('client_email').value.trim();
-  const date = document.getElementById('pickup_date').value;
-  const time = document.getElementById('pickup_time').value;
-  const pickup = document.getElementById('pickup_address').value.trim();
-  const dropoff = document.getElementById('dropoff_address').value.trim();
-  const passengers = document.getElementById('passengers').value;
-  const luggage = document.getElementById('luggage_type').value;
-
-  if (!name) { showError('Please enter your full name.'); return; }
-  if (!email) { showError('Please enter your email address.'); return; }
-  if (!date) { showError('Please select a pickup date.'); return; }
-  if (!time) { showError('Please select a pickup time.'); return; }
-  if (!pickup) { showError('Please enter a pickup address.'); return; }
-  if (!dropoff) { showError('Please enter a drop-off address.'); return; }
-  if (!passengers) { showError('Please enter the number of passengers.'); return; }
-  if (!luggage) { showError('Please select a luggage type.'); return; }
-
-  const btn = document.getElementById('quote-btn');
-  btn.textContent = 'Calculating...';
-  btn.disabled = true;
-
-  const timeoutId = setTimeout(() => {
-    showError('This is taking longer than expected. Please check your connection and try again. If the problem continues, make sure your address includes the city and state.');
-    btn.textContent = 'Get My Quote →';
-    btn.disabled = false;
-  }, 20000);
-
+async function sendRequest() {
+  if (sending || pricing || priceError || st.price <= 0) return;
+  sending = true; render();
+  const t = dest();
+  const ride = {
+    client_name: profile.name, client_email: profile.email, client_phone: phone,
+    pickup_date: st.date, pickup_time: st.time,
+    pickup_address: st.from.addr, dropoff_address: t.addr,
+    passengers: String(st.riders), luggage_type: BAGS[st.bags].value, notes: st.notes.trim(),
+    trip_miles: parseFloat(st.miles.toFixed(1)), trip_duration_minutes: st.mins,
+    quoted_price: st.price, final_price: st.price, status: 'pending'
+  };
   try {
-    distanceService.getDistanceMatrix(
-      { origins: [pickup], destinations: [dropoff], travelMode: 'DRIVING', unitSystem: google.maps.UnitSystem.IMPERIAL },
-      function(response, status) {
-        clearTimeout(timeoutId);
-        if (status === 'OK' && response.rows[0].elements[0].status === 'OK') {
-          const distanceMeters = response.rows[0].elements[0].distance.value;
-          const durationSeconds = response.rows[0].elements[0].duration.value;
-          tripMiles = distanceMeters / 1609.34;
-          tripDurationMinutes = Math.round(durationSeconds / 60);
-          quotedPrice = Math.max(5, Math.round(tripMiles * PRICE_PER_MILE));
-          document.getElementById('quote-price').textContent = '$' + quotedPrice.toFixed(2);
-          document.getElementById('quote-miles').textContent = tripMiles.toFixed(1);
-          document.getElementById('quote-section').classList.remove('hidden');
-          btn.textContent = 'Get My Quote →';
-          btn.disabled = false;
-        } else {
-          let errorMsg = 'Could not calculate distance. ';
-          if (response.rows[0].elements[0].status === 'NOT_FOUND') {
-            errorMsg += 'Address not found. Include the city (e.g., "Chick-fil-A, Cibolo").';
-          } else {
-            errorMsg += 'Please check your addresses and try again.';
-          }
-          showError(errorMsg);
-          btn.textContent = 'Get My Quote →';
-          btn.disabled = false;
-        }
-      }
-    );
-  } catch (error) {
-    clearTimeout(timeoutId);
-    showError('Could not calculate distance. Please include the city in your addresses and try again.');
-    btn.textContent = 'Get My Quote →';
-    btn.disabled = false;
+    fetch(NEW_REQUEST_HOOK, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(ride) }).catch(e => console.log('notify', e));
+    await addDoc(collection(db, 'ride_requests'), { ...ride, created_at: serverTimestamp() });
+    sending = false; go(5);
+  } catch (e) {
+    console.error(e); sending = false; render();
+    flash('Your request did not go through. Please try again, or call Jason at ' + JASON_PHONE + '.');
   }
 }
 
-async function submitRequest() {
-  if (quotedPrice <= 0) { showError('Please get a quote first.'); return; }
-
-  const btn = document.getElementById('submit-btn');
-  const originalText = btn.textContent;
-  btn.textContent = 'Submitting...';
-  btn.disabled = true;
-
-  try {
-    const rideData = {
-      client_name: document.getElementById('client_name').value,
-      client_email: document.getElementById('client_email').value,
-      client_phone: currentPhone,
-      pickup_date: document.getElementById('pickup_date').value,
-      pickup_time: document.getElementById('pickup_time').value,
-      pickup_address: document.getElementById('pickup_address').value,
-      dropoff_address: document.getElementById('dropoff_address').value,
-      passengers: document.getElementById('passengers').value,
-      luggage_type: document.getElementById('luggage_type').value,
-      notes: document.getElementById('notes').value,
-      trip_miles: parseFloat(tripMiles.toFixed(1)),
-      trip_duration_minutes: tripDurationMinutes,
-      quoted_price: quotedPrice,
-      final_price: quotedPrice,
-      status: 'pending'
-    };
-
-    fetch('https://hook.us2.make.com/jzkgfy68268az8wz34ylv8nyb2vxbcof', {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(rideData)
-    }).catch(err => console.log('Notification error:', err));
-
-    await window.addDoc(window.collection(window.db, 'ride_requests'), {
-      ...rideData, created_at: window.serverTimestamp()
-    });
-
-    document.getElementById('booking-form').classList.add('hidden');
-    document.getElementById('quote-section').classList.add('hidden');
-    document.getElementById('success-section').classList.remove('hidden');
-
-  } catch (error) {
-    console.error('Submission error:', error);
-    showError('Error submitting request: ' + error.message + '. Please try again or contact us directly.');
-    btn.textContent = originalText;
-    btn.disabled = false;
-  }
+// Save a typed destination
+function savePromptHtml() {
+  if (savedMsg) return `<div class="saveprompt" style="text-align:center"><b>${esc(savedMsg)}</b></div>`;
+  if (st.to || !st.typed.trim() || places().some(p => p.addr === st.typed.trim())) return '';
+  return `<div class="saveprompt"><b>Save this place for next time?</b><div style="color:var(--ink2);font-size:17px;margin:2px 0 10px">${esc(st.typed)}</div>
+    <div class="label" style="margin-top:0">Give it a name</div>
+    <input class="txt" id="pname" value="${esc(suggestName())}">
+    <div class="row" style="margin-top:12px"><button class="pill" onclick="savePlace()">Save place</button><button class="pill" onclick="st.typed='';render()">No thanks</button></div></div>`;
 }
-
-function resetBookingForm() {
-  document.getElementById('booking-form').reset();
-  document.getElementById('booking-form').classList.remove('hidden');
-  document.getElementById('quote-section').classList.add('hidden');
-  document.getElementById('success-section').classList.add('hidden');
-  quotedPrice = 0; tripMiles = 0; tripDurationMinutes = 0;
-
-  const submitBtn = document.getElementById('submit-btn');
-  if (submitBtn) { submitBtn.textContent = 'Submit Booking Request →'; submitBtn.disabled = false; }
-
-  const nameField = document.getElementById('client_name');
-  const emailField = document.getElementById('client_email');
-  if (nameField.value === '' || emailField.value === '') {
-    const clientQuery = window.query(
-      window.collection(window.db, 'ride_requests'),
-      window.where('client_phone', '==', currentPhone),
-      window.orderBy('created_at', 'desc')
-    );
-    window.onSnapshot(clientQuery, (snapshot) => {
-      if (!snapshot.empty) {
-        const lastRide = snapshot.docs[0].data();
-        document.getElementById('client_name').value = lastRide.client_name;
-        document.getElementById('client_email').value = lastRide.client_email;
-      }
-    }, { once: true });
-  }
+async function savePlace() {
+  const n = document.getElementById('pname').value.trim() || suggestName();
+  profile.places.push({ key: 'p' + Date.now(), name: n, addr: st.typed.trim() });
+  savedMsg = '✓ Saved as “' + n + '”'; render(); await saveProfile();
 }
+async function renamePlace(k) { const n = document.getElementById('rn').value.trim(); if (n) places().find(p => p.key === k).name = n; editKey = null; render(); await saveProfile(); }
+async function delPlace(k) { profile.places = places().filter(p => p.key !== k); delKey = null; render(); await saveProfile(); }
 
-function loadRides() {
-  if (!currentPhone) return;
-  const q = window.query(
-    window.collection(window.db, 'ride_requests'),
-    window.where('client_phone', '==', currentPhone),
-    window.orderBy('created_at', 'desc')
-  );
-  window.onSnapshot(q, (snapshot) => { displayRides(snapshot); });
+// Return trip / repeat
+function setRoute(fromAddr, toAddr) {
+  const mk = a => places().find(p => p.addr === a) || { key: 't' + Math.random().toString(36).slice(2, 6), name: String(a).split(',')[0], addr: a };
+  const f = mk(fromAddr), t = mk(toAddr);
+  fresh(); st.from = f; st.to = t; st.step = 2; render(); window.scrollTo(0, 0);
 }
+function returnTrip() { const t = dest(); setRoute(t.addr, st.from.addr); }
+function bookAgain(id) { const r = rides.find(x => x.id === id); if (r) setRoute(r.data.pickup_address, r.data.dropoff_address); }
 
-function displayRides(snapshot) {
-  const container = document.getElementById('rides-list');
-  if (snapshot.empty) {
-    document.getElementById('balance-section').classList.add('hidden');
-    container.innerHTML = '<div class="empty-state">No rides yet. Book your first ride!</div>';
-    return;
-  }
-
-  const rides = [];
-  let totalBalance = 0;
-  let unpaidCount = 0;
-
-  snapshot.forEach((doc) => {
-    const rideData = doc.data();
-    rides.push({ id: doc.id, data: rideData });
-    if (rideData.status === 'completed' && rideData.final_price) {
-      totalBalance += rideData.final_price;
-      unpaidCount++;
-    }
-  });
-
-  if (totalBalance > 0) {
-    document.getElementById('balance-section').classList.remove('hidden');
-    document.getElementById('total-balance').textContent = '$' + totalBalance.toFixed(2);
-    document.getElementById('unpaid-count').textContent = unpaidCount;
-    document.getElementById('balance-cashapp-link').href = `https://cash.app/$JasonNed/${totalBalance.toFixed(2)}`;
-    document.getElementById('balance-venmo-link').href = `https://venmo.com/u/Jason-Nedoroscik?txn=pay&amount=${totalBalance.toFixed(2)}&note=Patriot%20Transportation`;
-  } else {
-    document.getElementById('balance-section').classList.add('hidden');
-  }
-
-  const statusPriority = { pending:1, quoted:2, confirmed:3, completed:4, declined:5, paid:6, cancelled:7 };
-  rides.sort((a, b) => {
-    const pa = statusPriority[a.data.status] || 99;
-    const pb = statusPriority[b.data.status] || 99;
-    if (pa !== pb) return pa - pb;
-    return (b.data.created_at?.seconds || 0) - (a.data.created_at?.seconds || 0);
-  });
-
-  container.innerHTML = '';
-  rides.forEach((ride) => { container.innerHTML += createRideCard(ride.id, ride.data); });
+// Ride actions
+async function confirmRide(id) {
+  try { await updateDoc(doc(db, 'ride_requests', id), { status: 'confirmed', confirmed_at: new Date() }); }
+  catch (e) { flash('That did not work. Please call Jason at ' + JASON_PHONE + '.'); }
 }
-
-function createRideCard(id, data) {
-  const statusClass = `status-${data.status}`;
-  const amount = (data.final_price !== undefined && data.final_price !== null)
-    ? data.final_price : (data.quoted_price || 0);
-
-  let actionSection = '';
-
-  if (data.status === 'pending') {
-    actionSection = `
-      <div class="price-box">
-        <div class="price-label">Quoted Price</div>
-        <div class="price-amount">$${amount.toFixed(2)}</div>
-        <p style="font-size:12px; color:rgba(255,255,255,0.4); margin-top:8px;">Awaiting driver confirmation</p>
-      </div>`;
-  } else if (data.status === 'quoted') {
-    actionSection = `
-      <div class="price-box">
-        <div class="price-label">Driver's Confirmed Price</div>
-        <div class="price-amount">$${amount.toFixed(2)}</div>
-      </div>
-      <button class="btn btn-confirm" onclick="confirmBooking('${id}')">Confirm Booking</button>`;
-  } else if (data.status === 'confirmed') {
-    actionSection = `
-      <div class="price-box">
-        <div class="price-label">Total Amount</div>
-        <div class="price-amount">$${amount.toFixed(2)}</div>
-      </div>
-      <div class="payment-section">
-        <div class="payment-title">Payment Instructions</div>
-        <p style="font-size:13px; color:rgba(255,255,255,0.5); margin-bottom:12px;">Please send payment to:</p>
-        <a href="https://cash.app/$JasonNed" class="payment-link" target="_blank">Pay with CashApp</a>
-        <a href="https://venmo.com/u/Jason-Nedoroscik" class="payment-link" target="_blank">Pay with Venmo</a>
-        <a href="https://www.paypal.com/ncp/payment/GGLFF2L9XDA4E" class="payment-link" target="_blank">Pay with Credit Card / PayPal</a>
-        <div class="payment-link" style="opacity:0.5; cursor:default;">Pay with Cash (at pickup)</div>
-        <p style="font-size:12px; color:rgba(255,255,255,0.3); margin-top:8px;">Include "Patriot Transportation" in the note</p>
-      </div>
-      <button class="btn" style="background:rgba(139,44,44,0.3); border:1px solid rgba(139,44,44,0.6); color:#e08a8a; margin-top:12px;" onclick="cancelRide('${id}')">Cancel Booking</button>`;
-  } else if (data.status === 'completed') {
-    actionSection = `
-      <div class="price-box">
-        <div class="price-label">Total Amount Due</div>
-        <div class="price-amount">$${amount.toFixed(2)}</div>
-      </div>
-      <div class="payment-section">
-        <div class="payment-title">Payment Instructions</div>
-        <p style="font-size:13px; color:rgba(255,255,255,0.5); margin-bottom:12px;">Ride complete! Please send payment to:</p>
-        <a href="https://cash.app/$JasonNed" class="payment-link" target="_blank">Pay with CashApp</a>
-        <a href="https://venmo.com/u/Jason-Nedoroscik" class="payment-link" target="_blank">Pay with Venmo</a>
-        <a href="https://www.paypal.com/ncp/payment/GGLFF2L9XDA4E" class="payment-link" target="_blank">Pay with Credit Card / PayPal</a>
-        <div class="payment-link" style="opacity:0.5; cursor:default;">Paid with Cash</div>
-        <p style="font-size:12px; color:rgba(255,255,255,0.3); margin-top:8px;">Include "Patriot Transportation" in the note</p>
-      </div>`;
-  } else if (data.status === 'paid') {
-    actionSection = `
-      <div class="price-box">
-        <div class="price-label">Amount Paid</div>
-        <div class="price-amount">$${amount.toFixed(2)}</div>
-      </div>
-      <a href="receipt.html?id=${id}" target="_blank" class="btn btn-primary" style="display:block; text-align:center; text-decoration:none; margin-top:12px;">View Receipt</a>
-      <div style="margin-top:16px; padding-top:16px; border-top:1px solid rgba(255,255,255,0.1);">
-        <div style="font-size:13px; font-weight:700; color:#c8952a; margin-bottom:12px; text-transform:uppercase; letter-spacing:1px;">Add a Tip</div>
-        <div style="display:flex; gap:8px; flex-wrap:wrap;">
-          <a href="https://cash.app/$JasonNed" class="payment-link" target="_blank" style="flex:1; min-width:120px;">Tip with CashApp</a>
-          <a href="https://venmo.com/u/Jason-Nedoroscik" class="payment-link" target="_blank" style="flex:1; min-width:120px;">Tip with Venmo</a>
-          <a href="https://www.paypal.com/ncp/payment/GGLFF2L9XDA4E" class="payment-link" target="_blank" style="flex:1; min-width:120px;">Tip with PayPal</a>
-        </div>
-        <p style="font-size:11px; color:rgba(255,255,255,0.3); margin-top:8px; text-align:center;">Thank you for your generosity!</p>
-      </div>`;
-  } else if (data.status === 'declined') {
-    actionSection = `
-      <div style="text-align:center; padding:16px; background:rgba(139,44,44,0.2); border:1px solid rgba(139,44,44,0.6); border-radius:6px; color:#e08a8a;">
-        This request was declined. Please submit a new request or call <a href="tel:+12109606034" style="color:#c8952a; font-weight:600;">210-960-6034</a>.
-      </div>`;
-  } else if (data.status === 'cancelled') {
-    actionSection = `
-      <div style="text-align:center; padding:16px; background:rgba(139,44,44,0.2); border:1px solid rgba(139,44,44,0.6); border-radius:6px; color:#e08a8a;">
-        This booking has been cancelled.
-      </div>`;
-  }
-
-  return `
-    <div class="ride-card">
-      <div class="ride-header">
-        <div class="ride-date">${data.pickup_date} at ${data.pickup_time}</div>
-        <div class="status-badge ${statusClass}">${data.status}</div>
-      </div>
-      <div class="ride-detail"><span class="ride-icon">📍</span><span>${data.pickup_address}</span></div>
-      <div class="ride-detail"><span class="ride-icon">🎯</span><span>${data.dropoff_address}</span></div>
-      <div class="ride-detail"><span class="ride-icon">👥</span><span>${data.passengers} passenger${data.passengers > 1 ? 's' : ''}</span></div>
-      ${data.notes ? `<div class="ride-detail" style="align-items:flex-start;"><span class="ride-icon">📝</span><span style="font-size:13px; color:rgba(255,255,255,0.7);">${formatNotes(data.notes)}</span></div>` : ''}
-      ${data.status === 'pending' ? `
-        <div style="margin:12px 0;">
-          <div style="font-size:12px; color:#c8952a; font-weight:600; margin-bottom:6px; text-transform:uppercase; letter-spacing:0.5px;">Update Notes</div>
-          <textarea id="client-notes-${id}" rows="2" style="width:100%; padding:10px; border:1px solid rgba(200,149,42,0.4); border-radius:6px; font-size:14px; background:rgba(255,255,255,0.08); color:white; font-family:inherit;">${data.notes || ''}</textarea>
-          <button onclick="saveClientNotes('${id}')" style="margin-top:6px; background:#8b2c2c; color:#f5f0e6; border:1px solid rgba(200,149,42,0.4); padding:8px 16px; border-radius:6px; font-weight:700; cursor:pointer; font-size:13px; text-transform:uppercase; letter-spacing:1px;">Save Notes</button>
-        </div>` : ''}
-      ${actionSection}
-    </div>`;
-}
-
-async function confirmBooking(id) {
-  if (!confirm('Confirm this booking at the quoted price?')) return;
-  try {
-    await window.updateDoc(window.doc(window.db, 'ride_requests', id), {
-      status: 'confirmed', confirmed_at: new Date()
-    });
-    alert('Booking confirmed! Please see payment instructions below.');
-  } catch (error) { alert('Error confirming booking: ' + error.message); }
-}
-
 async function cancelRide(id) {
-  if (!confirm('Are you sure you want to cancel this booking?')) return;
   try {
-    const rideDoc = await window.getDoc(window.doc(window.db, 'ride_requests', id));
-    const rideData = rideDoc.data();
-    await window.updateDoc(window.doc(window.db, 'ride_requests', id), {
-      status: 'cancelled', cancelled_at: new Date(), cancelled_by: 'client'
-    });
-    if (rideData.calendar_event_id) {
-      fetch('https://hook.us2.make.com/zlo5peda4fwlrz2nk7m1hakc4dxjblw1', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'delete', event_id: rideData.calendar_event_id })
-      }).catch(err => console.log('Delete calendar error:', err));
-    }
-    alert('Booking cancelled successfully.');
-  } catch (error) { alert('Error cancelling booking: ' + error.message); }
+    const snap = await getDoc(doc(db, 'ride_requests', id)); const d = snap.data() || {};
+    await updateDoc(doc(db, 'ride_requests', id), { status: 'cancelled', cancelled_at: new Date(), cancelled_by: 'client' });
+    if (d.calendar_event_id) fetch(CALENDAR_HOOK, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'delete', event_id: d.calendar_event_id }) }).catch(e => console.log('calendar', e));
+    cancelId = null; flash('Your ride was cancelled.');
+  } catch (e) { flash('That did not work. Please call Jason at ' + JASON_PHONE + '.'); }
 }
 
-function showError(message) {
-  const errorDiv = document.getElementById('error-message');
-  errorDiv.textContent = message;
-  errorDiv.classList.remove('hidden');
-  setTimeout(() => errorDiv.classList.add('hidden'), 5000);
-}
+// ── Start up ─────────────────────────────────────────────────────────────
+Object.assign(window, { iso, go: (n) => go(n), render, signIn, notYou, saveSetup, startBooking, typedChanged, pickFrom, pickFromTyped, pickTo, setT, sendRequest, savePlace, renamePlace, delPlace, returnTrip, bookAgain, confirmRide, cancelRide, fresh });
+Object.defineProperties(window, {
+  editKey: { get: () => editKey, set: v => { editKey = v; } },
+  delKey: { get: () => delKey, set: v => { delKey = v; } },
+  pickEdit: { get: () => pickEdit, set: v => { pickEdit = v; } },
+  cancelId: { get: () => cancelId, set: v => { cancelId = v; } }
+});
+window.fresh = () => { fresh(); };
 
-window.login = login;
+let remembered = '';
+if (IS_MOBILE) { try { remembered = localStorage.getItem(LS_PHONE) || ''; } catch (e) { } }
+if (remembered) startSession(remembered, false); else render();
 
-// Register PWA service worker
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('sw.js').catch(err => console.log('SW registration failed:', err));
-  });
-}
+if ('serviceWorker' in navigator) window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => { }));
 
-async function saveClientNotes(id) {
-  const input = document.getElementById('client-notes-' + id);
-  const newNotes = input.value.trim();
-  if (!confirm('Save updated notes?')) return;
-  try {
-    await window.updateDoc(window.doc(window.db, 'ride_requests', id), { notes: newNotes });
-    alert('Notes saved!');
-  } catch (error) { alert('Error saving notes: ' + error.message); }
-}
-window.saveClientNotes = saveClientNotes;
-window.logout = logout;
-window.showTab = showTab;
-window.calculateQuote = calculateQuote;
-window.submitRequest = submitRequest;
-window.resetBookingForm = resetBookingForm;
-window.confirmBooking = confirmBooking;
-window.cancelRide = cancelRide;
 </script>
-
 </body>
 </html>
